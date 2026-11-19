@@ -440,6 +440,373 @@
         color: var(--muted);
         margin-top: 6px;
       }
+
+      /* ===== Mobiele weergave (vanaf v43) =====
+         Alles hieronder geldt alleen op een smal scherm (< 800 px) of een telefoon die liggend wordt
+         gehouden. Op desktop zijn de mobiele onderdelen verborgen en verandert er niets. */
+      .mobile-only,
+      .mtabs,
+      .sheethead,
+      .sheetdone,
+      #mBackdrop {
+        display: none;
+      }
+      @media (max-width: 799px) {
+        /* kopbalk compact: de bronvermelding staat in de voettekst */
+        header {
+          padding: 10px 14px;
+        }
+        header h1 {
+          font-size: 17px;
+        }
+        header > span:not(.ver) {
+          display: none;
+        }
+        main {
+          padding: 10px;
+          gap: 10px;
+        }
+        body {
+          padding-bottom: 72px; /* ruimte voor de tabbalk onderin */
+        }
+        .section {
+          margin-top: 10px;
+        }
+        .mobile-only {
+          display: block;
+        }
+        /* tabbalk onderin: Schaatsers / Grafiek / Tabellen */
+        .mtabs {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 20;
+          background: #fff;
+          border-top: 1px solid var(--line);
+          padding: 4px 0 8px;
+        }
+        .mtabs button {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+          min-height: 52px;
+          justify-content: center;
+          border: 0;
+          background: transparent;
+          color: var(--muted);
+          font-size: 11px;
+          font-weight: 500;
+        }
+        .mtabs button.on {
+          color: var(--accent);
+          font-weight: 700;
+        }
+        /* welk tabblad is zichtbaar (body data-mtab) */
+        body[data-mtab='chart'] aside,
+        body[data-mtab='tables'] aside,
+        body[data-mtab='skaters'] main > section,
+        body[data-mtab='chart'] #ageCard,
+        body[data-mtab='chart'] #prCard,
+        body[data-mtab='tables'] .chartwrap,
+        body[data-mtab='tables'] .mbar,
+        body[data-mtab='tables'] #mChips,
+        body[data-mtab='tables'] .controls,
+        body[data-mtab='tables'][data-mtbl='pr'] #ageCard,
+        body[data-mtab='tables'][data-mtbl='age'] #prCard {
+          display: none;
+        }
+        body[data-mtab='tables'] #ageCard,
+        body[data-mtab='tables'] #prCard {
+          margin-top: 10px;
+        }
+        /* afstanden als schuifbare knoppenbalk */
+        .tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          margin: 0 -6px 8px;
+          padding: 0 6px 4px;
+        }
+        .tabs button {
+          flex: none;
+          min-height: 36px;
+          border-radius: 18px;
+          padding: 0 14px;
+        }
+        /* regel boven de grafiek: samenvatting filters + knop Filters */
+        .mbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin-bottom: 6px;
+          font-size: 12px;
+          color: var(--muted);
+        }
+        .mbar button {
+          min-height: 36px;
+          background: #fff;
+          color: var(--ink);
+          border-color: var(--line);
+          font-size: 13px;
+        }
+        .mbar .count {
+          background: var(--accent);
+          color: #fff;
+          border-radius: 9px;
+          padding: 0 6px;
+          font-size: 11px;
+          margin-left: 4px;
+        }
+        /* filters: alleen de statusregel blijft staan; de rest zit in een paneel dat van onderen opschuift */
+        .controls > label {
+          display: none;
+        }
+        .controls {
+          margin-bottom: 4px;
+        }
+        .controls.open {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 40;
+          background: #fff;
+          border-radius: 16px 16px 0 0;
+          padding: 8px 20px 20px;
+          margin: 0;
+          max-height: 85vh;
+          overflow-y: auto;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0;
+          box-shadow: 0 -6px 24px rgba(20, 33, 61, 0.25);
+        }
+        .controls.open > label {
+          display: flex;
+          justify-content: space-between;
+          min-height: 48px;
+          border-bottom: 1px solid var(--line);
+          font-size: 14px;
+        }
+        .controls.open input[type='checkbox'] {
+          width: 22px;
+          height: 22px;
+          order: 2;
+        }
+        .controls.open .sheethead {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 18px;
+          font-weight: 700;
+          padding: 4px 0 6px;
+        }
+        .controls.open .sheethead button {
+          border: 0;
+          background: transparent;
+          color: var(--ink);
+          font-size: 22px;
+          min-width: 44px;
+          min-height: 44px;
+        }
+        .controls.open .sheetdone {
+          display: block;
+          margin-top: 14px;
+          min-height: 48px;
+          font-weight: 700;
+        }
+        .controls.open .status {
+          display: none;
+        }
+        #mBackdrop.open {
+          display: block;
+          position: fixed;
+          inset: 0;
+          z-index: 30;
+          background: rgba(20, 33, 61, 0.45);
+        }
+        .chartwrap {
+          height: 340px;
+        }
+        /* gekleurde chips onder de grafiek: tik = highlight aan/uit */
+        #mChips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 8px;
+        }
+        #mChips button {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          min-height: 36px;
+          padding: 0 10px;
+          border-radius: 18px;
+          background: #fff;
+          color: var(--ink);
+          border: 1px solid var(--line);
+          font-size: 13px;
+          font-weight: 500;
+        }
+        #mChips button.hl {
+          background: var(--accent-soft);
+          border-color: var(--c);
+          font-weight: 700;
+        }
+        #mChips .dot {
+          margin-right: 0;
+        }
+        /* keuze tussen de twee tabellen */
+        .mseg {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          background: #e9ecf1;
+          border-radius: 10px;
+          padding: 3px;
+        }
+        .mseg button {
+          min-height: 38px;
+          border: 0;
+          border-radius: 8px;
+          background: transparent;
+          color: var(--muted);
+        }
+        .mseg button.on {
+          background: #fff;
+          color: var(--ink);
+          font-weight: 700;
+        }
+        .tablewrap {
+          max-height: none;
+        }
+        /* beste tijd per leeftijdsjaar: leeftijdskolom blijft staan bij opzij schuiven */
+        #ageTable th:first-child,
+        #ageTable td:first-child {
+          position: sticky;
+          left: 0;
+          background: #fff;
+          z-index: 1;
+          border-right: 1px solid var(--line);
+        }
+        /* PR-verloop als kaartjes */
+        #prTable thead {
+          display: none;
+        }
+        #prTable table,
+        #prTable tbody {
+          display: block;
+        }
+        #prTable tr {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: baseline;
+          gap: 0 8px;
+          padding: 10px 2px;
+          border-bottom: 1px solid var(--line);
+        }
+        #prTable td {
+          border: 0;
+          padding: 0;
+          white-space: normal;
+        }
+        #prTable td.c-name {
+          flex: 1 1 60%;
+          font-weight: 600;
+        }
+        #prTable td.c-time {
+          margin-left: auto;
+          font-size: 18px;
+        }
+        #prTable td.c-date,
+        #prTable td.c-age,
+        #prTable td.c-loc {
+          font-size: 12px;
+          color: var(--muted);
+        }
+        #prTable td.c-date {
+          flex-basis: 100%;
+          order: 3;
+        }
+        #prTable td.c-age,
+        #prTable td.c-loc {
+          order: 4;
+        }
+        #prTable td.c-gain {
+          order: 5;
+          margin-left: auto;
+        }
+        #prTable td.c-raw,
+        #prTable td.c-comp {
+          display: none;
+        }
+        #prTable td.c-date {
+          flex-basis: auto;
+        }
+        .mprhead {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+        }
+        .mprhead button {
+          min-height: 34px;
+          background: #fff;
+          color: var(--ink);
+          border-color: var(--line);
+          font-size: 12px;
+          text-transform: none;
+          letter-spacing: 0;
+        }
+      }
+      /* Telefoon liggend: alleen de grafiek, zo groot mogelijk */
+      @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+        header {
+          padding: 6px 14px;
+        }
+        header > span:not(.ver) {
+          display: none;
+        }
+        main {
+          display: block;
+          padding: 6px;
+        }
+        aside,
+        #ageCard,
+        #prCard,
+        .mtabs,
+        footer,
+        #mChips {
+          display: none !important;
+        }
+        main > section {
+          display: block !important;
+        }
+        .card {
+          padding: 6px 10px;
+        }
+        .tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          margin-bottom: 4px;
+        }
+        .tabs button {
+          flex: none;
+          padding: 2px 12px;
+        }
+        .controls > label {
+          display: none;
+        }
+        .controls {
+          margin-bottom: 0;
+        }
+        .chartwrap {
+          height: calc(100vh - 110px);
+        }
+      }
     </style>
   </head>
   <body>
@@ -447,7 +814,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v42 van 19-11-2026">v42</span>
+      <span class="ver" title="Versie v43 van 19-11-2026">v43</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -583,8 +950,19 @@
         <div class="card">
           <!-- Tabbladen per afstand (worden door het script gevuld) -->
           <div class="tabs" id="distTabs"></div>
+          <!-- Mobiel: samenvatting van de filters en de knop Filters (verborgen op desktop) -->
+          <div class="mbar mobile-only">
+            <span id="mSummary"></span>
+            <button type="button" id="mFilterBtn">
+              Filters<span class="count" id="mFilterCount" hidden></span>
+            </button>
+          </div>
           <!-- Opties: leeftijdsperiode, max. tijd, m/v, ANS, weergave, schaal -->
-          <div class="controls">
+          <div class="controls" id="controls">
+            <!-- Mobiel: kop en knop van het filterpaneel (verborgen op desktop) -->
+            <div class="sheethead">
+              Filters <button type="button" id="mFilterClose" aria-label="Filters sluiten">×</button>
+            </div>
             <label
               >Leeftijd van
               <select id="ageFrom" class="agesel"></select>
@@ -605,29 +983,98 @@
             <label><input type="checkbox" id="showPR" checked /> PR-lijn</label>
             <label><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
             <span class="status" id="loadStatus"></span>
+            <button type="button" class="sheetdone" id="mFilterDone">Toon resultaat</button>
           </div>
           <!-- De grafiek (Chart.js tekent op dit canvas) -->
           <div class="chartwrap"><canvas id="chart"></canvas></div>
+          <!-- Mobiel: chips per schaatser om te highlighten (verborgen op desktop) -->
+          <div id="mChips" class="mobile-only"></div>
         </div>
 
-        <div class="card section">
+        <!-- Mobiel: keuze tussen de twee tabellen (verborgen op desktop) -->
+        <div class="mseg mobile-only mtables" id="mTblSeg" role="tablist" aria-label="Tabel">
+          <button type="button" role="tab" data-tbl="pr">PR-verloop</button>
+          <button type="button" role="tab" data-tbl="age">Per leeftijd</button>
+        </div>
+
+        <div class="card section" id="ageCard">
           <h2>Beste tijd per leeftijdsjaar</h2>
           <div class="tablewrap" id="ageTable"></div>
         </div>
 
-        <div class="card section">
-          <h2>PR-verloop</h2>
+        <div class="card section" id="prCard">
+          <h2 class="mprhead">
+            PR-verloop
+            <button type="button" class="mobile-only" id="mPrSort">Nieuwste eerst ▼</button>
+          </h2>
           <div class="tablewrap" id="prTable"></div>
         </div>
       </section>
     </main>
+
+    <!-- Mobiel: achtergrond achter het filterpaneel en de tabbalk onderin (verborgen op desktop) -->
+    <div id="mBackdrop"></div>
+    <nav class="mtabs" aria-label="Hoofdmenu">
+      <button type="button" data-mtab="skaters">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19" />
+          <circle cx="10" cy="7.5" r="3.5" />
+          <path d="M20 19v-1.5a3.5 3.5 0 0 0-2.5-3.35M15.5 4.2a3.5 3.5 0 0 1 0 6.6" />
+        </svg>
+        Schaatsers
+      </button>
+      <button type="button" data-mtab="chart">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 4v16h16" />
+          <path d="M7 15l3-4 3 2 5-6" />
+        </svg>
+        Grafiek
+      </button>
+      <button type="button" data-mtab="tables">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="4" y="5" width="16" height="14" rx="1.5" />
+          <path d="M4 10h16M10 10v9" />
+        </svg>
+        Tabellen
+      </button>
+    </nav>
 
     <!-- ===== Voettekst met bronvermelding (licentievoorwaarde van SpeedskatingResults) ===== -->
     <footer>
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v42 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v43 (19-11-2026)
     </footer>
 
     <script>
@@ -2118,6 +2565,7 @@
       /* Teken de grafiek opnieuw: per schaatser een PR-lijn (trap) en eventueel alle losse tijden.
          Houdt rekening met alle filters (m/v, leeftijdsperiode, max. tijd, ANS) en met de schaal. */
       function render() {
+        renderMobileBits();
         const d = state.distance;
         const showAll = $('showAll').checked,
           showPR = $('showPR').checked,
@@ -2277,6 +2725,8 @@
           if (ui.ageFrom != null) opts.scales.x.min = ui.ageFrom;
           if (ui.ageTo != null) opts.scales.x.max = Math.max(ui.ageTo + 1, (opts.scales.x.min ?? 0) + 1);
         }
+        // mobiel rechtop: alleen de namen van gehighlighte schaatsers aan de lijn (ruimte sparen)
+        if (isMobilePortrait()) for (const ds of datasets) if (!ds._hl) ds._lbl = null;
         // ruimte rechts voor de namen
         const lblW = Math.max(
           0,
@@ -2429,6 +2879,8 @@
           rows.sort((a, b) =>
             a.s.id !== b.s.id ? state.selected.indexOf(a.s) - state.selected.indexOf(b.s) : byDate(a, b),
           );
+        $('mPrSort').textContent =
+          prSort === 'new' ? 'Nieuwste eerst ▼' : prSort === 'old' ? 'Oudste eerst ▲' : 'Per schaatser';
         const dateHead =
           `<th class="sortable" data-sort="date" title="Klik: per schaatser → nieuwste eerst → oudste eerst">Datum` +
           (prSort === 'new' ? ' ▼' : prSort === 'old' ? ' ▲' : '') +
@@ -2447,11 +2899,11 @@
                 s,
                 b,
                 p,
-              }) => `<tr><td><span class="dot" style="--c:${cleanColor(s.color) || '#888'}"></span>${esc(s.givenname)} ${esc(s.familyname)}</td>
-      <td>${fmtDateNL(p.date)}</td><td>${b ? fmtAge(b.date, parseDate(p.date), b.est) : ''}</td>
-      <td class="num"><b>${fmtTime(p.sec)}</b></td>${ui.ans ? `<td class="num">${fmtTime(p.raw)}</td>` : ''}
-      <td class="num">${p.prev != null ? `<span class="gain">−${(p.prev - p.sec).toFixed(2).replace('.', ',')}</span>` : 'eerste'}</td>
-      <td>${esc(p.location)}</td><td>${safeResultUrl(p.link) ? `<a href="${esc(safeResultUrl(p.link))}" target="_blank" rel="noopener">${esc(p.name)}</a>` : esc(p.name)}</td></tr>`,
+              }) => `<tr><td class="c-name"><span class="dot" style="--c:${cleanColor(s.color) || '#888'}"></span>${esc(s.givenname)} ${esc(s.familyname)}</td>
+      <td class="c-date">${fmtDateNL(p.date)}</td><td class="c-age">${b ? fmtAge(b.date, parseDate(p.date), b.est) : ''}</td>
+      <td class="num c-time"><b>${fmtTime(p.sec)}</b></td>${ui.ans ? `<td class="num c-raw">${fmtTime(p.raw)}</td>` : ''}
+      <td class="num c-gain">${p.prev != null ? `<span class="gain">−${(p.prev - p.sec).toFixed(2).replace('.', ',')}</span>` : 'eerste'}</td>
+      <td class="c-loc">${esc(p.location)}</td><td class="c-comp">${safeResultUrl(p.link) ? `<a href="${esc(safeResultUrl(p.link))}" target="_blank" rel="noopener">${esc(p.name)}</a>` : esc(p.name)}</td></tr>`,
             )
             .join('') +
           '</tbody></table>';
@@ -2464,6 +2916,102 @@
           (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
         );
       }
+
+      /* ---------- Mobiele weergave (vanaf v43) ----------
+         Op een smal scherm (< 800 px) toont de pagina één tabblad tegelijk: Schaatsers, Grafiek of
+         Tabellen (body data-mtab). De opmaak zit in de CSS; hier alleen de knoppen en de chips. */
+      const mq = (q) =>
+        window.matchMedia ? window.matchMedia(q) : { matches: false, addEventListener() {} };
+      const MQ_MOBILE = mq('(max-width: 799px)');
+      const MQ_LANDSCAPE = mq('(orientation: landscape) and (max-height: 500px) and (pointer: coarse)');
+      function isMobilePortrait() {
+        return MQ_MOBILE.matches && !MQ_LANDSCAPE.matches;
+      }
+      function setMobileTab(tab) {
+        document.body.dataset.mtab = tab;
+        document
+          .querySelectorAll('.mtabs button')
+          .forEach((b) => b.classList.toggle('on', b.dataset.mtab === tab));
+        window.scrollTo(0, 0);
+        if (tab === 'chart') render(); // grafiek opnieuw tekenen nu hij zichtbaar is
+      }
+      function setMobileTable(tbl) {
+        document.body.dataset.mtbl = tbl;
+        document.querySelectorAll('#mTblSeg button').forEach((b) => {
+          b.classList.toggle('on', b.dataset.tbl === tbl);
+          b.setAttribute('aria-selected', b.dataset.tbl === tbl ? 'true' : 'false');
+        });
+      }
+      function openFilters(open) {
+        $('controls').classList.toggle('open', open);
+        $('mBackdrop').classList.toggle('open', open);
+      }
+      /* Samenvatting van de filters, het aantal afwijkende filters en de chips onder de grafiek */
+      function renderMobileBits() {
+        const parts = [];
+        let n = 0;
+        if (ui.ageFrom != null || ui.ageTo != null) {
+          parts.push(`${ui.ageFrom ?? '…'}–${ui.ageTo ?? '…'} jaar`);
+          n++;
+        }
+        if (ui.maxT && ui.maxT[state.distance]) {
+          parts.push(`max. ${fmtTime(ui.maxT[state.distance])}`);
+          n++;
+        }
+        if (ui.ans) {
+          parts.push('ANS');
+          n++;
+        }
+        if (!ui.showM || !ui.showF) {
+          parts.push(!ui.showF ? 'alleen m' : !ui.showM ? 'alleen v' : '');
+          n++;
+        }
+        if ($('showAll').checked) {
+          parts.push('alle tijden');
+          n++;
+        }
+        $('mSummary').textContent = parts.filter(Boolean).join(' · ') || 'Geen filters';
+        $('mFilterCount').textContent = n;
+        $('mFilterCount').hidden = !n;
+        $('mChips').innerHTML = state.selected
+          .filter(genderOK)
+          .map(
+            (s) =>
+              `<button type="button" data-id="${Number(s.id)}" class="${s.hl ? 'hl' : ''}" aria-pressed="${s.hl ? 'true' : 'false'}" style="--c:${cleanColor(s.color) || '#888'}"><span class="dot"></span>${esc(s.givenname)} ${esc(s.familyname)}${s.hl ? ' ★' : ''}</button>`,
+          )
+          .join('');
+      }
+      document
+        .querySelectorAll('.mtabs button')
+        .forEach((b) => b.addEventListener('click', () => setMobileTab(b.dataset.mtab)));
+      document
+        .querySelectorAll('#mTblSeg button')
+        .forEach((b) => b.addEventListener('click', () => setMobileTable(b.dataset.tbl)));
+      $('mFilterBtn').addEventListener('click', () => openFilters(true));
+      $('mFilterClose').addEventListener('click', () => openFilters(false));
+      $('mFilterDone').addEventListener('click', () => openFilters(false));
+      $('mBackdrop').addEventListener('click', () => openFilters(false));
+      $('mChips').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-id]');
+        if (b) toggleHighlight(+b.dataset.id);
+      });
+      $('mPrSort').addEventListener('click', () => {
+        prSort = prSort === 'new' ? 'old' : prSort === 'old' ? '' : 'new';
+        renderPRTable();
+      });
+      // wisselen tussen smal/breed of rechtop/liggend: namen aan de lijn opnieuw bepalen
+      MQ_MOBILE.addEventListener('change', () => {
+        openFilters(false);
+        render();
+      });
+      MQ_LANDSCAPE.addEventListener('change', () => render());
+      // startstand: grafiek (of Schaatsers als er nog niemand gekozen is); op mobiel PR's nieuwste eerst
+      setMobileTable('pr');
+      document.body.dataset.mtab = state.selected.length ? 'chart' : 'skaters';
+      document
+        .querySelectorAll('.mtabs button')
+        .forEach((b) => b.classList.toggle('on', b.dataset.mtab === document.body.dataset.mtab));
+      if (MQ_MOBILE.matches) prSort = 'new';
 
       /* ---------- Start van de pagina ---------- */
       /* uitleg: standaard alleen de eerste zin, uitklappen met "Meer…" */

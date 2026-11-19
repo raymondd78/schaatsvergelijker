@@ -88,6 +88,16 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Highlight (`s.hl` per schaatser, opgeslagen in `ssr.selected.v1`): lijndikte 3 px en stippen 3,5 px, `order` 0 zodat de lijn bovenop ligt. Is er minstens één (zichtbare) schaatser gemarkeerd, dan krijgen de anderen 1 px en kleinere stippen; anders de standaard 1,5 px.
 - Snelheidsschaal (vast sinds v31; in v26–v30 een keuzelijst met ook tijd en log): de geplotte waarde is `yT(t) = 1/t` (evenredig met km/u) op een lineaire as. `reverse` is `!fastTop`, omdat sneller een grotere waarde is. `niceTimeTicks()` zet ronde tijdstappen op de as en de labels tonen `fmtTime(yInv(v))`. Tooltips en tabellen gebruiken altijd de echte tijd (`r.sec`).
 
+## Mobiele weergave (vanaf v43)
+
+- Eén bestand, twee weergaven. Onder 800 px breed (`MQ_MOBILE`) zet CSS de pagina om naar tabbladen; daarboven geldt de desktopopmaak ongewijzigd. Mobiele elementen (`.mobile-only`, `.mtabs`, `.sheethead`, `.sheetdone`, `#mBackdrop`) zijn op desktop `display: none`.
+- Tabblad: `body[data-mtab]` = `skaters` | `chart` | `tables` (`setMobileTab()`); tabel: `body[data-mtbl]` = `pr` | `age` (`setMobileTable()`). Start op `chart`, of `skaters` bij een lege selectie. Niet opgeslagen.
+- Filters: dezelfde `.controls` (`#controls`) wordt op mobiel een paneel van onderen met klasse `open` (`openFilters()`); daarbuiten blijft alleen de statusregel zichtbaar. `renderMobileBits()` (aan het begin van `render()`) vult de samenvatting `#mSummary`, het aantal `#mFilterCount` en de chips `#mChips` (tik = `toggleHighlight()`).
+- Namen aan de lijn: bij `isMobilePortrait()` wist `render()` `_lbl` van niet-gehighlighte datasets.
+- PR-verloop: de cellen hebben klassen `c-name`, `c-date`, `c-age`, `c-time`, `c-raw`, `c-gain`, `c-loc`, `c-comp`; mobiele CSS maakt er kaartjes van. Op mobiel start `prSort` op `'new'`; knop `#mPrSort` wisselt.
+- Telefoon liggend (`MQ_LANDSCAPE`: landscape, hoogte ≤ 500 px, touchscherm): alleen de grafiek op schermhoogte, met alle namen; geen filterknop.
+- Bij wisselen van breedte of stand roept een `matchMedia`-listener `render()` opnieuw aan.
+
 ## Testen
 
 Getest in de ingebouwde browser van de Claude-app. De app is daarvoor tijdelijk geladen op het domein van speedskatingresults.com (via `document.write`), omdat lokale bestanden daar niet geopend kunnen worden. Daarna zijn de `ssr.*`-sleutels in `localStorage` opgeruimd.

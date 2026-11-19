@@ -2,9 +2,17 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v42** (19 november 2026)
+**Huidige versie: v43** (19 november 2026)
 
 ---
+
+## v43 – Mobiele weergave (19-11-2026)
+Op een telefoon (scherm smaller dan 800 pixels) ziet de pagina er anders uit; op desktop verandert er niets.
+- **Tabbalk onderin** met Schaatsers, Grafiek en Tabellen. De pagina opent op Grafiek, of op Schaatsers als er nog niemand gekozen is.
+- **Grafiek:** de afstanden staan in een balk die je opzij schuift. Alle filters zitten achter de knop **Filters**, in een paneel dat van onderen opschuift; boven de grafiek staat een korte samenvatting. Onder de grafiek staat elke schaatser als gekleurde knop: tik erop om te highlighten.
+- **Namen aan de lijn:** alleen van gehighlighte schaatsers, zodat ze elkaar niet in de weg zitten.
+- **Tabellen:** kies tussen **PR-verloop** en **Per leeftijd**. Het PR-verloop staat als lijst met kaartjes, standaard met de nieuwste PR's bovenaan. In de tabel per leeftijd blijft de leeftijdskolom staan als je opzij schuift.
+- **Telefoon liggend:** alleen de grafiek, over het hele scherm, met alle namen.
 
 ## v42 – Kleinere namen, klikken naast de grafiek (19-11-2026)
 - De namen aan het eind van de lijnen zijn kleiner (10 in plaats van 12 pixels) en staan dichter op elkaar, zodat ze elkaar minder snel in de weg zitten.
