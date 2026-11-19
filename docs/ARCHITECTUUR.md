@@ -46,9 +46,9 @@ Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?sk
 | `rowsFor()` | Tijden van een schaatser zoals getoond: bij ANS gefilterd op NL-banen en omgerekend (`sec`), met de originele tijd in `raw`; daarna gefilterd op de maximale tijd (`ui.maxT[afstand]`) |
 | `fillMaxT()` / `maxTStep()` | Vult de keuzelijst Max. tijd voor de gekozen afstand: 3 t/m 20 stappen van `10 × afstand / 500` seconden |
 | `ageOK()` | Valt een race binnen de gekozen leeftijdsperiode (`ui.ageFrom`/`ui.ageTo`)? Zonder bekende leeftijd: altijd ja |
-| `genderOK()` | Valt een schaatser binnen het m/v-filter? Onbekend geslacht: altijd ja |
+| `genderOK()` | Valt een schaatser binnen het filter heren/dames? Onbekend geslacht: altijd ja |
 | `ageBoundaryX()` | x-positie waarop een schaatser de beginleeftijd bereikt (voor het startpunt van de PR-lijn) |
-| `renderSelected()` | Kaartjes per schaatser: kop met naam, profiel-↗, ster en ×; regel met categorie · m/v · land en groepslabel; daaronder een raster `.rows` (label + waarde) met Geboren, eventueel de schatting, en de eigen tijden (`ownTimesHtml()` geeft `{rows, add}`; vanaf v52). Een ingevulde datum staat als klikbare tekst met huidige leeftijd (`data-act=bedit`) tot je hem wijzigt (set `editBirth`, knop Klaar = `bdone`; vanaf v49) |
+| `renderSelected()` | Kaartjes per schaatser: kop met naam, profiel-↗, ster en ×; regel met `catLabel()` (bijv. "Heren Pupillen C"; vanaf v54) en groepslabels; daaronder een raster `.rows` (label + waarde) met Geboren, eventueel de schatting, en de eigen tijden (`ownTimesHtml()` geeft `{rows, add}`; vanaf v52). Een ingevulde datum staat als klikbare tekst met huidige leeftijd (`data-act=bedit`) tot je hem wijzigt (set `editBirth`, knop Klaar = `bdone`; vanaf v49) |
 | `birthSelects()` / `resolveBirthPick()` | Keuzelijsten voor maand en jaar (jaren passend bij de categorie) en de regel "laatste keuze wint"; gedeeld door Geselecteerd en de zoekresultaten (vanaf v46) |
 | `renderResults()` / `resBirth` | Zoekresultaten met keuze voor de geboortedatum vóór het toevoegen; de keuze staat alleen in het geheugen (`resBirth[id]`) en gaat bij toevoegen mee als `birth` of `draftY`/`draftM` (vanaf v46) |
 
@@ -73,7 +73,7 @@ Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor
 | Sleutel | Inhoud |
 |---|---|
 | `ssr.selected.v1` | Array met geselecteerde schaatsers: `id`, namen, `country`, `gender`, `category`, `color`, `birth` (`YYYY-MM-15` of `null`), `draftY`/`draftM` (half ingevuld), `catSeason` (seizoen waarin `category` gold), `group` |
-| `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT, theme, rink}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), m/v-filter en ANS-vinkje |
+| `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT, theme, rink}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), filter heren/dames en ANS-vinkje |
 | `ssr.manual.v1` | Zelf ingevoerde tijden (vanaf v51): `[{mid, id, dist, time, date, loc}]`; `loc` = NL-baan of leeg (buitenland/anders). Niet in de JSON-export |
 | `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
 
@@ -97,6 +97,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Voor een zojuist gereden tijd die nog niet op SpeedskatingResults staat. Knop **+ tijd** op het kaartje opent een invoerregel (afstand, tijd, datum, baan); de open regels staan in `timeForm` (geheugen), zodat getypte tekst een nieuwe opbouw van het kaartje overleeft.
 - `normTimeInput()` accepteert `46,10`, `46.10`, `46`, `1.23,45` en `1:23,45`. Controle: tijd tussen `afstand/18` en `afstand` seconden, datum niet in de toekomst, baan verplicht (`NL_RINKS` = alle banen uit de ANS-tabel, of "buitenland/anders"). De laatst gekozen baan staat in `ui.rink`.
 - `rowsFor()` voegt de eigen tijden via `manualRows()` toe aan de API-rijen, vóór ANS-correctie en max.-tijdfilter; baan wordt `"<baan> (NED)"`, zodat `ansPct()` gewoon werkt. Buitenland/anders valt weg met ANS aan.
+- Kaartje: rij **Toegevoegd**, baan afgekort via `RINK_SHORT` (vanaf v54).
 - Grafiek: open stip (`pointBackgroundColor` = `--card`, rand 2 px, 1 px groter). Tabellen: ✎ achter de tijd; tooltip en wedstrijdkolom tonen "Zelf ingevoerd (nog niet op SpeedskatingResults)".
 - Opruimen: een eigen tijd wordt verborgen zodra de API-rijen dezelfde datum en tijd (verschil < 0,015 s) bevatten, en `pruneManual()` verwijdert hem na elke `refresh()` uit de opslag.
 

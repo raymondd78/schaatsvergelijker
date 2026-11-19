@@ -315,7 +315,7 @@
       /* rijen onder de kop (vanaf v52): links een label, rechts de waarde */
       .sel .rows {
         display: grid;
-        grid-template-columns: 70px minmax(0, 1fr);
+        grid-template-columns: 76px minmax(0, 1fr);
         gap: 5px 8px;
         align-items: center;
         margin-top: 7px;
@@ -978,7 +978,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v53 van 19-11-2026">v53</span>
+      <span class="ver" title="Versie v54 van 19-11-2026">v54</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1014,8 +1014,8 @@
                 nieuw PR.
               </li>
               <li>
-                <b>Verfijn</b> met de leeftijdsperiode, een maximale tijd, het m/v-filter of de ANS-correctie
-                (alleen Nederlandse banen, omgerekend naar een neutrale baan).
+                <b>Verfijn</b> met de leeftijdsperiode, een maximale tijd, het filter heren/dames of de
+                ANS-correctie (alleen Nederlandse banen, omgerekend naar een neutrale baan).
               </li>
               <li><b>Highlight</b> schaatsers met de ster ☆ en bewaar je selectie met "Opslaan als JSON".</li>
             </ul>
@@ -1142,8 +1142,8 @@
               >Max. tijd
               <select id="maxT" class="agesel"></select
             ></label>
-            <label title="Toon jongens/mannen"><input type="checkbox" id="showM" checked /> m</label>
-            <label title="Toon meisjes/vrouwen"><input type="checkbox" id="showF" checked /> v</label>
+            <label title="Toon jongens/mannen"><input type="checkbox" id="showM" checked /> Heren</label>
+            <label title="Toon meisjes/vrouwen"><input type="checkbox" id="showF" checked /> Dames</label>
             <label
               title="Alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan"
               ><input type="checkbox" id="ansOn" /> Alleen NL-banen, ANS-gecorrigeerd</label
@@ -1248,7 +1248,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v53 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v54 (19-11-2026)
     </footer>
 
     <script>
@@ -1691,6 +1691,32 @@
       }
 
       /* ---------- categoriecode (SpeedskatingResults) -> KNSB-naam ---------- */
+      /* Categorie met geslacht, zoals gebruikelijk: "Heren Pupillen C", "Dames Junioren C1";
+         zonder categorie alleen "Heren" of "Dames" (vanaf v54) */
+      function catLabel(s) {
+        const g = s.gender === 'f' ? 'Dames' : s.gender === 'm' ? 'Heren' : '';
+        return [g, catName(s.category)].filter(Boolean).join(' ');
+      }
+      /* Korte namen van de NL-banen voor de eigen tijden op het kaartje */
+      const RINK_SHORT = {
+        Alkmaar: 'Alkm',
+        Amsterdam: 'Adam',
+        Breda: 'Breda',
+        'Den Haag': 'DHg',
+        Deventer: 'Dev',
+        Eindhoven: 'Ehv',
+        Enschede: 'Ensch',
+        Geleen: 'Gel',
+        Groningen: 'Gron',
+        Haarlem: 'Hlm',
+        Heerenveen: 'Hvn',
+        Hoorn: 'Hrn',
+        Leeuwarden: 'Lwd',
+        Leiden: 'Ldn',
+        Nijmegen: 'Nijm',
+        Tilburg: 'Tilb',
+        Utrecht: 'Utr',
+      };
       function catName(cat) {
         if (cat == null || cat === '') return '';
         const c = String(cat).toUpperCase();
@@ -2000,7 +2026,7 @@
             return `
     <div class="res ${added ? 'added' : ''}" data-i="${i}">
       <div><div>${esc(s.givenname)} ${esc(s.familyname)}</div>
-      <div class="meta">${esc(s.country)} · ${s.gender === 'f' ? 'v' : 'm'}${s.category ? ' · ' + esc(catName(s.category)) : ''} · <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a></div></div>
+      <div class="meta">${esc(s.country)} · ${esc(catLabel(s))} · <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a></div></div>
       <button class="small ${added ? 'ghost' : ''}" data-i="${i}" ${added ? 'disabled' : ''}>${added ? 'Toegevoegd' : '+ Toevoegen'}</button>
       ${
         added
@@ -2421,10 +2447,10 @@
               birthCell = `<span><button type="button" class="birthlink" data-act="bedit" title="Klik om de geboortedatum te wijzigen">${MONTHS[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}</button> <span class="dim">· ${a.y} jr ${a.m} mnd</span></span>`;
             } else
               birthCell = `<span class="bsel">${monthSel}${yearSel}${s.birth ? '<button class="small" data-act="bdone" title="Klaar met wijzigen">Klaar</button><button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</span>`;
-            return `<div class="sel${s.hl ? ' hl' : ''}" style="--c:${cleanColor(s.color) || '#888'}${genderOK(s) ? '' : ';opacity:.45'}" data-id="${Number(s.id)}" ${genderOK(s) ? '' : 'title="Verborgen door het m/v-filter"'}>
+            return `<div class="sel${s.hl ? ' hl' : ''}" style="--c:${cleanColor(s.color) || '#888'}${genderOK(s) ? '' : ';opacity:.45'}" data-id="${Number(s.id)}" ${genderOK(s) ? '' : 'title="Verborgen door het filter heren/dames"'}>
       <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)} <a class="prof" href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener" title="Profiel op SpeedskatingResults" aria-label="Profiel op SpeedskatingResults">↗</a></span>
         <span><button class="star ${s.hl ? 'on' : ''}" data-act="hl" title="${s.hl ? 'Highlight uitzetten' : 'Highlighten: dikkere lijn in de grafiek'}">${s.hl ? '★' : '☆'}</button><button class="x" data-act="rm" title="Verwijderen">×</button></span></div>
-      <div class="meta">${s.category ? esc(catName(s.category)) + ' · ' : ''}${s.gender === 'f' ? 'v' : 'm'} · ${esc(s.country)}${
+      <div class="meta">${esc(catLabel(s))}${
         s.group
           ? ' ' +
             s.group
@@ -2476,7 +2502,7 @@
         let rows = own
           .map(
             (m, i) =>
-              `<span class="k">${i ? '' : 'Eigen'}</span><span class="own" data-mid="${Number(m.mid)}"><span>✎ ${m.dist} m <b>${esc(m.time)}</b> · ${m.date.startsWith(yr) ? fmtDateNL(m.date).replace(' ' + yr, '') : fmtDateNL(m.date)} · ${esc(m.loc || 'buitenland/anders')}</span><button class="x" data-act="tdel" title="Zelf ingevoerde tijd verwijderen">×</button></span>`,
+              `<span class="k">${i ? '' : 'Toegevoegd'}</span><span class="own" data-mid="${Number(m.mid)}" title="Zelf toegevoegd, nog niet op SpeedskatingResults"><span>${m.dist} m <b>${esc(m.time)}</b> · ${m.date.startsWith(yr) ? fmtDateNL(m.date).replace(' ' + yr, '') : fmtDateNL(m.date)} · ${m.loc ? `<span title="${esc(m.loc)}">${esc(RINK_SHORT[m.loc] || m.loc)}</span>` : 'buitenl.'}</span><button class="x" data-act="tdel" title="Zelf ingevoerde tijd verwijderen">×</button></span>`,
           )
           .join('');
         const f = timeForm.get(s.id);
@@ -3470,7 +3496,7 @@
           n++;
         }
         if (!ui.showM || !ui.showF) {
-          parts.push(!ui.showF ? 'alleen m' : !ui.showM ? 'alleen v' : '');
+          parts.push(!ui.showF ? 'alleen heren' : !ui.showM ? 'alleen dames' : '');
           n++;
         }
         if ($('showAll').checked) {

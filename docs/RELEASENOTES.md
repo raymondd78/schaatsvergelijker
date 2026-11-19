@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v53** (19 november 2026)
+**Huidige versie: v54** (19 november 2026)
 
 ---
+
+## v54 – Heren/Dames en compacter kaartje (19-11-2026)
+- Categorie met geslacht, zoals gebruikelijk: "Heren Pupillen C", "Dames Junioren C1" (ook in de zoekresultaten). Het filter heet nu **Heren** / **Dames** in plaats van m / v.
+- Het land staat niet meer op het kaartje (wel nog bij de zoekresultaten).
+- Zelf ingevoerde tijden staan onder **Toegevoegd**, zonder pennetje en met een afgekorte baan (bijv. Hvn, Gron, Adam; de volledige naam staat in de tooltip).
 
 ## v53 – Groepslabels apart (19-11-2026)
 - Hoort een schaatser bij meerdere groepen (zoals topschaatsers met WK-, EK- en wereldbekerpodium), dan krijgt elke groep een eigen klein label in plaats van één lang blok.
