@@ -63,6 +63,7 @@ Alles wat van buiten komt, gaat door een controlefunctie; de rest van de code ve
 | Cache met tijden | `cleanResult()` in `getResults()` | Elke rij gecontroleerd; klopt er iets niet, dan wordt opnieuw opgehaald |
 | API (zoeken en tijden) | `fetchText()`, `cleanResult()`, `cleanId()` | Time-out 15 s (`FETCH_TIMEOUT_MS`), max. 5 MB per antwoord, velden gecontroleerd |
 | Wedstrijdlinks | `safeResultUrl()` | Alleen `https://(www.)speedskatingresults.com`; anders geen link |
+| Zelf ingevoerde tijden | `cleanManual()` | Afstand uit `DISTANCES`, tijd via `parseTime()`, datum `JJJJ-MM-DD`, baan uit `NL_RINKS` of leeg; max. 500 |
 | Schaatsersbestand | `parseSkaterFile()` | Max. 1 MB (`MAX_FILE_BYTES`) en 100 schaatsers; ongeldige/dubbele ID's overgeslagen |
 
 Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor()`, als extra laag. Alle overige tekst in HTML gaat door `esc()`.
@@ -72,7 +73,8 @@ Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor
 | Sleutel | Inhoud |
 |---|---|
 | `ssr.selected.v1` | Array met geselecteerde schaatsers: `id`, namen, `country`, `gender`, `category`, `color`, `birth` (`YYYY-MM-15` of `null`), `draftY`/`draftM` (half ingevuld), `catSeason` (seizoen waarin `category` gold), `group` |
-| `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT, theme}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), m/v-filter en ANS-vinkje |
+| `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT, theme, rink}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), m/v-filter en ANS-vinkje |
+| `ssr.manual.v1` | Zelf ingevoerde tijden (vanaf v51): `[{mid, id, dist, time, date, loc}]`; `loc` = NL-baan of leeg (buitenland/anders). Niet in de JSON-export |
 | `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
 
 Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
@@ -89,6 +91,14 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Klikken in de grafiek (vanaf v40): `onClick` → `chartHitSkater()` zoekt de schaatser onder de muis (eerst de naamvakjes die `endLabels` in `ch._lblBoxes` bewaart, dan stippen via Chart.js, dan PR-lijnstukken binnen 5 px; bij `stepped:'before'` horizontaal op de oude y en verticaal bij de nieuwe x) → `toggleHighlight()`. Elke dataset heeft `_sid` (schaatser-ID). `onHover` toont een handje. Chart.js roept `onClick`/`onHover` alleen aan binnen het grafiekvlak; voor namen in de rechtermarge vangt `endLabels.afterEvent` klik en hover zelf af (vanaf v42).
 - Highlight (`s.hl` per schaatser, opgeslagen in `ssr.selected.v1`): lijndikte 3 px en stippen 3,5 px, `order` 0 zodat de lijn bovenop ligt. Is er minstens één (zichtbare) schaatser gemarkeerd, dan krijgen de anderen 1 px en kleinere stippen; anders de standaard 1,5 px.
 - Snelheidsschaal (vast sinds v31; in v26–v30 een keuzelijst met ook tijd en log): de geplotte waarde is `yT(t) = 1/t` (evenredig met km/u) op een lineaire as. `reverse` is `!fastTop`, omdat sneller een grotere waarde is. `niceTimeTicks()` zet ronde tijdstappen op de as en de labels tonen `fmtTime(yInv(v))`. Tooltips en tabellen gebruiken altijd de echte tijd (`r.sec`).
+
+## Zelf ingevoerde tijden (vanaf v51)
+
+- Voor een zojuist gereden tijd die nog niet op SpeedskatingResults staat. Knop **+ tijd** op het kaartje opent een invoerregel (afstand, tijd, datum, baan); de open regels staan in `timeForm` (geheugen), zodat getypte tekst een nieuwe opbouw van het kaartje overleeft.
+- `normTimeInput()` accepteert `46,10`, `46.10`, `46`, `1.23,45` en `1:23,45`. Controle: tijd tussen `afstand/18` en `afstand` seconden, datum niet in de toekomst, baan verplicht (`NL_RINKS` = alle banen uit de ANS-tabel, of "buitenland/anders"). De laatst gekozen baan staat in `ui.rink`.
+- `rowsFor()` voegt de eigen tijden via `manualRows()` toe aan de API-rijen, vóór ANS-correctie en max.-tijdfilter; baan wordt `"<baan> (NED)"`, zodat `ansPct()` gewoon werkt. Buitenland/anders valt weg met ANS aan.
+- Grafiek: open stip (`pointBackgroundColor` = `--card`, rand 2 px, 1 px groter). Tabellen: ✎ achter de tijd; tooltip en wedstrijdkolom tonen "Zelf ingevoerd (nog niet op SpeedskatingResults)".
+- Opruimen: een eigen tijd wordt verborgen zodra de API-rijen dezelfde datum en tijd (verschil < 0,015 s) bevatten, en `pruneManual()` verwijdert hem na elke `refresh()` uit de opslag.
 
 ## Thema: licht en donker (vanaf v47)
 

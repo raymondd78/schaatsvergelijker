@@ -337,6 +337,48 @@
       .sel .birth select[data-act='bm'] {
         flex: 0 0 76px;
       }
+      /* zelf ingevoerde tijden op het kaartje (vanaf v51) */
+      .sel .owntimes {
+        margin-top: 4px;
+        font-size: 12px;
+      }
+      .sel .own {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        color: var(--muted);
+      }
+      .sel .own b {
+        color: var(--ink);
+      }
+      .sel .ownadd {
+        background: transparent;
+        border: 0;
+        padding: 2px 0;
+        color: var(--link);
+        font-size: 12px;
+      }
+      .sel .ownform {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+      }
+      .sel .ownform select,
+      .sel .ownform input {
+        width: auto;
+        padding: 4px 6px;
+        font-size: 13px;
+      }
+      .sel .ownform input[data-f='time'] {
+        width: 72px;
+      }
+      .sel .ownform .ownerr {
+        flex-basis: 100%;
+        color: var(--warn);
+      }
       .sel .grp {
         display: flex;
         align-items: center;
@@ -910,7 +952,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v50 van 19-11-2026">v50</span>
+      <span class="ver" title="Versie v51 van 19-11-2026">v51</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1180,7 +1222,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v50 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v51 (19-11-2026)
     </footer>
 
     <script>
@@ -1344,6 +1386,10 @@
       }
       // Afstanden met een eigen ANS-tabel; voor de andere wordt de correctie afgeleid
       const ANS_EXACT = new Set([500, 1000, 1500, 3000, 5000]);
+      // Alle Nederlandse banen uit de ANS-tabel, alfabetisch (keuzelijst bij een zelf ingevoerde tijd)
+      const NL_RINKS = [...new Set(Object.values(ANS).flatMap((t) => Object.keys(t)))].sort((a, b) =>
+        a.localeCompare(b, 'nl'),
+      );
 
       // Sleutels in localStorage en hoe lang opgehaalde tijden bewaard blijven (6 uur)
       const LS_SEL = 'ssr.selected.v1',
@@ -1457,6 +1503,7 @@
           ans: bool(o.ans, false),
           maxT,
           theme: ['auto', 'light', 'dark'].includes(o.theme) ? o.theme : 'auto',
+          rink: NL_RINKS.includes(o.rink) || o.rink === '-' ? o.rink : '', // laatst gekozen baan bij + tijd
         };
       }
       /* Eén rij uit de API of uit de cache: alleen geldige velden, anders null */
@@ -1494,6 +1541,33 @@
         }
       }
 
+      /* ---------- Zelf ingevoerde tijden (vanaf v51) ----------
+         Een zojuist gereden tijd die nog niet op SpeedskatingResults staat. Alleen in deze browser
+         bewaard (localStorage), niet in "Opslaan als JSON". Verdwijnt vanzelf zodra dezelfde tijd
+         (zelfde afstand en datum, verschil < 0,015 s) via de API binnenkomt. */
+      const LS_MANUAL = 'ssr.manual.v1';
+      /* Opgeslagen lijst met zelf ingevoerde tijden: alleen geldige items, maximaal 500 */
+      function cleanManual(list) {
+        if (!Array.isArray(list)) return [];
+        const out = [];
+        for (const x of list.slice(0, 500)) {
+          if (!x || typeof x !== 'object') continue;
+          const id = cleanId(x.id),
+            sec = parseTime(x.time);
+          if (id == null || !DISTANCES.includes(x.dist) || sec == null || !(sec > 0)) continue;
+          if (typeof x.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(x.date)) continue;
+          out.push({
+            mid: typeof x.mid === 'number' && isFinite(x.mid) ? x.mid : Date.now() + out.length,
+            id,
+            dist: x.dist,
+            time: fmtTime(sec),
+            date: x.date,
+            loc: NL_RINKS.includes(x.loc) ? x.loc : '',
+          });
+        }
+        return out;
+      }
+
       /* Toestand van de pagina: wie geselecteerd is, welke afstand, en de opgehaalde tijden */
       const state = {
         selected: cleanSelection(load(LS_SEL, [])), // gecontroleerd, zie cleanSelection()
@@ -1501,6 +1575,7 @@
         xMode: 'age', // x-as is altijd leeftijd (datumweergave is verwijderd)
         data: {}, // key `${id}_${dist}` -> array of results | 'loading' | 'error'
         stale: {}, // key -> tijdstip (ms) van oude cache die gebruikt wordt omdat de server niet reageerde
+        manual: cleanManual(load(LS_MANUAL, [])), // zelf ingevoerde tijden, zie cleanManual()
       };
 
       /* ---------- Opslag in de browser (localStorage) ---------- */
@@ -2324,11 +2399,130 @@
       }
       ${!s.birth && (s.draftY || s.draftM) ? `<div class="meta">Kies ook ${s.draftY ? 'de maand' : 'het jaar'}</div>` : ''}
       ${!s.birth && b ? `<div class="meta">schatting: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} (midden van categorie${b.span > 1 ? ', ±' + Math.ceil(b.span / 2) + ' jr' : ''})</div>` : ''}
+      ${ownTimesHtml(s)}
     </div>`;
           })
           .join('');
       }
+      /* ---------- Zelf ingevoerde tijden op het kaartje ---------- */
+      /* Open invoerregels per schaatser-ID: {dist, time, date, loc, err} (alleen in het geheugen,
+         zodat getypte tekst blijft staan als het kaartje opnieuw wordt opgebouwd) */
+      const timeForm = new Map();
+      /* vandaag als "JJJJ-MM-DD" in de eigen tijdzone */
+      function todayStr() {
+        const t = new Date();
+        return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+      }
+      /* Getypte tijd -> "1.23,45"-notatie: ":" mag als minutenteken, een punt als decimaalteken
+         ("46.10" -> "46,10"), en zonder decimalen worden het hele seconden ("46" -> "46,00") */
+      function normTimeInput(v) {
+        let t = String(v || '')
+          .replace(/\s/g, '')
+          .replace(':', '.');
+        if (!t.includes(',')) {
+          const i = t.lastIndexOf('.');
+          t = i >= 0 ? t.slice(0, i) + ',' + t.slice(i + 1) : t + ',00';
+        }
+        return parseTime(t);
+      }
+      /* Lijst met eigen tijden plus de knop "+ tijd" of de open invoerregel */
+      function ownTimesHtml(s) {
+        const own = state.manual
+          .filter((m) => m.id === s.id)
+          .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.dist - b.dist));
+        const list = own
+          .map(
+            (m) =>
+              `<div class="own" data-mid="${Number(m.mid)}"><span>✎ ${m.dist} m <b>${esc(m.time)}</b> · ${fmtDateNL(m.date)} · ${esc(m.loc || 'buitenland/anders')}</span><button class="x" data-act="tdel" title="Zelf ingevoerde tijd verwijderen">×</button></div>`,
+          )
+          .join('');
+        const f = timeForm.get(s.id);
+        if (!f)
+          return `<div class="owntimes">${list}<button type="button" class="ownadd" data-act="tadd" title="Zojuist gereden tijd invoeren die nog niet op SpeedskatingResults staat">+ tijd</button></div>`;
+        const rinks =
+          `<option value="" ${f.loc === '' ? 'selected' : ''}>baan…</option>` +
+          NL_RINKS.map((r) => `<option ${r === f.loc ? 'selected' : ''}>${esc(r)}</option>`).join('') +
+          `<option value="-" ${f.loc === '-' ? 'selected' : ''}>buitenland/anders</option>`;
+        return `<div class="owntimes">${list}<div class="ownform">
+        <select data-act="tf" data-f="dist" aria-label="Afstand">${DISTANCES.map((d) => `<option value="${d}" ${d === f.dist ? 'selected' : ''}>${d} m</option>`).join('')}</select>
+        <input data-act="tf" data-f="time" inputmode="decimal" autocomplete="off" placeholder="46,10" value="${esc(f.time)}" aria-label="Tijd">
+        <input data-act="tf" data-f="date" type="date" max="${todayStr()}" value="${esc(f.date)}" aria-label="Datum">
+        <select data-act="tf" data-f="loc" aria-label="Baan">${rinks}</select>
+        <button class="small" data-act="tsave">Opslaan</button><button class="x" data-act="tcancel" title="Annuleren">×</button>
+        ${f.err ? `<div class="ownerr">${esc(f.err)}</div>` : ''}</div></div>`;
+      }
+      /* Invoerregel controleren en de tijd bewaren; bij een andere afstand naar dat tabblad gaan */
+      function saveOwnTime(id) {
+        const f = timeForm.get(id);
+        const sec = normTimeInput(f.time);
+        if (sec == null || sec < f.dist / 18 || sec > f.dist)
+          f.err = `Tijd niet herkend voor ${f.dist} m (bijv. 46,10 of 1.23,45).`;
+        else if (!/^\d{4}-\d{2}-\d{2}$/.test(f.date) || f.date > todayStr())
+          f.err = 'Kies een datum (vandaag of eerder).';
+        else if (!f.loc) f.err = 'Kies de baan (nodig voor de ANS-correctie).';
+        else f.err = '';
+        if (f.err) {
+          renderSelected();
+          return;
+        }
+        state.manual.push({
+          mid: Date.now(),
+          id,
+          dist: f.dist,
+          time: fmtTime(sec),
+          date: f.date,
+          loc: f.loc === '-' ? '' : f.loc,
+        });
+        persistManual();
+        ui.rink = f.loc;
+        save(LS_UI, ui);
+        timeForm.delete(id);
+        renderSelected();
+        if (f.dist !== state.distance) {
+          const tab = $('distTabs').querySelector(`button[data-d="${f.dist}"]`);
+          if (tab) tab.click();
+        } else render();
+      }
+      /* getypte waarden direct onthouden */
+      function onOwnInput(e) {
+        if (e.target.dataset.act !== 'tf') return;
+        const f = timeForm.get(+e.target.closest('.sel').dataset.id);
+        if (!f) return;
+        const k = e.target.dataset.f;
+        f[k] = k === 'dist' ? +e.target.value : e.target.value;
+      }
+      $('selected').addEventListener('input', onOwnInput);
+      $('selected').addEventListener('change', onOwnInput);
+      $('selected').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.dataset.act === 'tf') {
+          e.preventDefault();
+          onOwnInput(e);
+          saveOwnTime(+e.target.closest('.sel').dataset.id);
+        }
+      });
       $('selected').addEventListener('click', (e) => {
+        const ta = e.target.closest('[data-act=tadd],[data-act=tcancel],[data-act=tsave],[data-act=tdel]');
+        if (ta) {
+          const id = +ta.closest('.sel').dataset.id;
+          const act = ta.dataset.act;
+          if (act === 'tadd') {
+            timeForm.set(id, { dist: state.distance, time: '', date: todayStr(), loc: ui.rink, err: '' });
+            renderSelected();
+            const inp = $('selected').querySelector(`.sel[data-id="${id}"] [data-f=time]`);
+            if (inp) inp.focus();
+          } else if (act === 'tcancel') {
+            timeForm.delete(id);
+            renderSelected();
+          } else if (act === 'tsave') saveOwnTime(id);
+          else {
+            const mid = +ta.closest('.own').dataset.mid;
+            state.manual = state.manual.filter((m) => m.mid !== mid);
+            persistManual();
+            renderSelected();
+            render();
+          }
+          return;
+        }
         const hlb = e.target.closest('[data-act=hl]');
         if (hlb) {
           const s = state.selected.find((x) => x.id === +hlb.closest('.sel').dataset.id);
@@ -2526,6 +2720,7 @@
           $('loadStatus').textContent = '';
           render();
         }
+        pruneManual();
       }
       /* Tijdens het laden de grafiek hoogstens eens per seconde opnieuw tekenen,
          zodat binnengekomen schaatsers meteen zichtbaar zijn zonder op de traagste te wachten */
@@ -2547,10 +2742,54 @@
         refresh();
       }
 
+      /* Zelf ingevoerde tijden van schaatser id op afstand d als gewone rijen, zonder de tijden
+         die al in de API-rijen staan (zelfde datum, verschil < 0,015 s) */
+      function manualRows(id, d, api) {
+        return state.manual
+          .filter((m) => m.id === id && m.dist === d && !manualMatch(m, api))
+          .map((m) => ({
+            time: m.time,
+            sec: parseTime(m.time),
+            date: m.date,
+            location: m.loc ? `${m.loc} (NED)` : 'buitenland/anders',
+            name: 'Zelf ingevoerd (nog niet op SpeedskatingResults)',
+            link: null,
+            manual: true,
+          }));
+      }
+      function manualMatch(m, api) {
+        const sec = parseTime(m.time);
+        return api.some((r) => r.date === m.date && Math.abs(r.sec - sec) < 0.015);
+      }
+      function persistManual() {
+        save(LS_MANUAL, state.manual);
+      }
+      /* Ruim zelf ingevoerde tijden op die inmiddels via SpeedskatingResults binnen zijn */
+      function pruneManual() {
+        const before = state.manual.length;
+        state.manual = state.manual.filter((m) => {
+          const api = state.data[`${m.id}_${m.dist}`];
+          return !(Array.isArray(api) && manualMatch(m, api));
+        });
+        if (state.manual.length !== before) {
+          persistManual();
+          renderSelected();
+        }
+      }
+
       /* tijden van schaatser s op afstand d zoals ze getoond worden (met ANS-filter/correctie) */
       function rowsFor(s, d) {
         let rows = state.data[`${s.id}_${d}`];
-        if (!Array.isArray(rows)) return rows;
+        const own = manualRows(s.id, d, Array.isArray(rows) ? rows : []);
+        if (!Array.isArray(rows)) {
+          if (rows === 'error' && own.length)
+            rows = []; // server onbereikbaar: eigen tijden toch tonen
+          else return rows;
+        }
+        if (own.length)
+          rows = [...rows, ...own].sort((a, b) =>
+            a.date < b.date ? -1 : a.date > b.date ? 1 : a.sec - b.sec,
+          );
         if (ui.ans)
           rows = rows
             .map((r) => {
@@ -2779,7 +3018,10 @@
               stepped:
                 'before' /* Chart.js 'before': horizontaal op oude PR, verticaal op de datum van de nieuwe PR */,
               borderWidth: lw(s),
-              pointRadius: pr.map((p) => (p.ext ? 0 : pr0(s))),
+              pointRadius: pr.map((p) => (p.ext ? 0 : pr0(s) + (p.r.manual ? 1 : 0))),
+              // zelf ingevoerde tijd: open stip
+              pointBackgroundColor: pr.map((p) => (p.r.manual && !p.ext ? cssVar('--card') : s.color)),
+              pointBorderWidth: pr.map((p) => (p.r.manual && !p.ext ? 2 : 1)),
               pointHoverRadius: 5,
               pointHitRadius: 6,
               showLine: true,
@@ -2795,8 +3037,10 @@
               data: win.map(mk),
               borderColor: s.color,
               backgroundColor: s.color + '55',
+              pointBackgroundColor: win.map((r) => (r.manual ? cssVar('--card') : s.color + '55')),
+              pointBorderWidth: win.map((r) => (r.manual ? 2 : 1)),
               showLine: false,
-              pointRadius: dot0(s),
+              pointRadius: win.map((r) => dot0(s) + (r.manual ? 1 : 0)),
               pointHoverRadius: 4,
               pointHitRadius: 5,
               order: s.hl ? 1 : 2,
@@ -3005,14 +3249,14 @@
             rowVals
               .map((v) =>
                 v
-                  ? `<td class="num ${cols.length > 1 && v.sec === fastest ? 'best' : ''}" title="${esc(fmtDateNL(v.date) + ' · ' + v.location + ' · ' + v.name + (v.raw != null ? ' · gereden ' + fmtTime(v.raw) : ''))}">${fmtTime(v.sec)}</td>`
+                  ? `<td class="num ${cols.length > 1 && v.sec === fastest ? 'best' : ''}" title="${esc(fmtDateNL(v.date) + ' · ' + v.location + ' · ' + v.name + (v.raw != null ? ' · gereden ' + fmtTime(v.raw) : ''))}">${fmtTime(v.sec)}${v.manual ? ' ✎' : ''}</td>`
                   : '<td class="num" style="color:var(--faint)">–</td>',
               )
               .join('') +
             '</tr>';
         }
         html +=
-          '</tbody></table><div class="hint">Snelste tijd die gereden is in dat leeftijdsjaar. Vet = snelste van de vergeleken schaatsers op die leeftijd. ≈ = leeftijd geschat.' +
+          '</tbody></table><div class="hint">Snelste tijd die gereden is in dat leeftijdsjaar. Vet = snelste van de vergeleken schaatsers op die leeftijd. ≈ = leeftijd geschat. ✎ = zelf ingevoerd.' +
           (ui.ans ? ' Tijden zijn ANS-gecorrigeerd (alleen Nederlandse banen).' : '') +
           '</div>';
         $('ageTable').innerHTML = html;
@@ -3093,7 +3337,7 @@
                 p,
               }) => `<tr><td class="c-name"><span class="dot" style="--c:${cleanColor(s.color) || '#888'}"></span>${esc(s.givenname)} ${esc(s.familyname)}</td>
       <td class="c-date">${fmtDateNL(p.date)}</td><td class="c-age">${b ? fmtAge(b.date, parseDate(p.date), b.est) : ''}</td>
-      <td class="num c-time"><b>${fmtTime(p.sec)}</b></td>${ui.ans ? `<td class="num c-raw">${fmtTime(p.raw)}</td>` : ''}
+      <td class="num c-time"><b>${fmtTime(p.sec)}</b>${p.manual ? ' <span title="Zelf ingevoerd, nog niet op SpeedskatingResults">✎</span>' : ''}</td>${ui.ans ? `<td class="num c-raw">${fmtTime(p.raw)}</td>` : ''}
       <td class="num c-gain">${p.prev != null ? `<span class="gain">−${(p.prev - p.sec).toFixed(2).replace('.', ',')}</span>` : 'eerste'}</td>
       <td class="c-loc">${esc(p.location)}</td><td class="c-comp">${safeResultUrl(p.link) ? `<a href="${esc(safeResultUrl(p.link))}" target="_blank" rel="noopener">${esc(p.name)}</a>` : esc(p.name)}</td></tr>`,
             )

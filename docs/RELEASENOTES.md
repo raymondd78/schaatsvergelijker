@@ -2,9 +2,15 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v50** (19 november 2026)
+**Huidige versie: v51** (19 november 2026)
 
 ---
+
+## v51 – Zelf een tijd invoeren (19-11-2026)
+- Op elk kaartje bij **Geselecteerd** staat **+ tijd**: voer een zojuist gereden tijd in die nog niet op SpeedskatingResults staat. Je kiest afstand (standaard het tabblad dat open staat), tijd (bijv. 46,10 of 1.23,45), datum (standaard vandaag) en baan. De laatst gekozen baan wordt onthouden.
+- De tijd telt overal mee: PR-lijn, alle gereden tijden, beide tabellen en de ANS-correctie (daarvoor is de baan nodig; "buitenland/anders" valt weg als ANS aan staat). In de grafiek staat zo'n tijd als **open stip**, in de tabellen met een ✎.
+- Zodra dezelfde tijd op SpeedskatingResults verschijnt, verdwijnt je eigen invoer vanzelf. Met × haal je hem eerder weg.
+- Alleen in je browser bewaard; niet in "Opslaan als JSON".
 
 ## v50 – Geen label geschat/ingevuld meer (19-11-2026)
 - Bij **Geselecteerd** zijn de labels "ingevuld" en "geschat" weg. Een ingevulde datum herken je aan de klikbare tekst; bij een schatting staat de geschatte datum eronder, bij senioren en masters met de marge (bijv. ±5 jr).
