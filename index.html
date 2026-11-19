@@ -447,7 +447,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v40 van 18-11-2026">v40</span>
+      <span class="ver" title="Versie v41 van 19-11-2026">v41</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -523,8 +523,8 @@
           </div>
           <div class="hint" id="topInfo">
             Nederlandse langebaanschaatsers met een olympische medaille (2022/2026) of een podiumplaats op WK,
-            EK of wereldbeker (2021–2026), plus internationale wereldkampioenen. Kies één schaatser of een
-            hele groep.
+            EK of wereldbeker (2021–2026), plus internationale wereldkampioenen. Alleen schaatsers van wie ook
+            de jeugdtijden (500 m, 11–18 jaar) in de bron staan. Kies één schaatser of een hele groep.
           </div>
         </div>
 
@@ -627,7 +627,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v40 (18-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v41 (19-11-2026)
     </footer>
 
     <script>
@@ -1463,10 +1463,10 @@
         'Wereldbeker-podium 2021-26',
         'Internationale wereldkampioenen',
       ];
-      /* [id, voornaam, achternaam, geslacht, geboortemaand, groepen (bitmasker op TOP_GROUPS), land (standaard NED)] */
+      /* [id, voornaam, achternaam, geslacht, geboortemaand, groepen (bitmasker op TOP_GROUPS), land (standaard NED)]
+         Alleen schaatsers met 500 m-tijden in hun jeugd (v41, gecontroleerd 19-11-2026): een tijd op elke
+         leeftijd van 12 t/m 18 jaar, waarbij hooguit één tussenjaar mag ontbreken; 11 jaar mag ook ontbreken. */
       const TOP_SKATERS = [
-        [9632, 'Reina', 'Anema', 'f', '1993-07', 16],
-        [4850, 'Jorrit', 'Bergsma', 'm', '1986-02', 29],
         [32063, 'Joy', 'Beune', 'f', '1999-04', 29],
         [31895, 'Anna', 'Boersma', 'f', '2001-04', 16],
         [40443, 'Jenning', 'de Boo', 'm', '2004-01', 29],
@@ -1485,24 +1485,17 @@
         [24508, 'Sanne', "in 't Hof", 'f', '1998-01', 8],
         [23347, 'Louis', 'Hollaar', 'm', '1998-09', 24],
         [44683, 'Chloé', 'Hoogendoorn', 'f', '2004-03', 24],
-        [23747, 'Bart', 'Hoolwerf', 'm', '1998-01', 28],
         [23864, 'Chris', 'Huizinga', 'm', '1997-08', 28],
         [16366, 'Kars', 'Jansman', 'm', '1995-06', 8],
         [18046, 'Michelle', 'de Jong', 'f', '1999-07', 16],
         [31024, 'Bente', 'Kerkhoff', 'f', '2001-12', 16],
         [19550, 'Esther', 'Kiel', 'f', '1996-10', 16],
         [26647, 'Femke', 'Kok', 'f', '2000-10', 29],
-        [831, 'Sven', 'Kramer', 'm', '1986-04', 24],
-        [7135, 'Thomas', 'Krol', 'm', '1992-08', 30],
         [31536, 'Jutta', 'Leerdam', 'f', '1998-12', 31],
-        [18679, 'Dai Dai', "N'tab", 'm', '1994-08', 24],
-        [5487, 'Kjeld', 'Nuis', 'm', '1989-11', 31],
-        [2942, 'Hein', 'Otterspeer', 'm', '1988-11', 20],
         [46368, 'Tim', 'Prins', 'm', '2003-08', 28],
         [18036, 'Antoinette', 'Rijpma-de Jong', 'f', '1995-04', 31],
         [14920, 'Patrick', 'Roest', 'm', '1995-12', 30],
         [21597, 'Merijn', 'Scheperkamp', 'm', '2000-03', 28],
-        [5957, 'Irene', 'Schouten', 'f', '1992-06', 30],
         [24522, 'Suzanne', 'Schulting', 'f', '1997-09', 20],
         [52756, 'Wisse', 'Slendebroek', 'm', '2004-10', 8],
         [24030, 'Tijmen', 'Snel', 'm', '1997-12', 8],
@@ -1516,18 +1509,9 @@
         [35048, 'Joep', 'Wennemars', 'm', '2002-10', 20],
         [48222, 'Stefan', 'Westenbroek', 'm', '2002-03', 24],
         [18959, 'Melissa', 'Wijfje', 'f', '1995-07', 16],
-        [687, 'Ireen', 'Wüst', 'f', '1986-04', 26],
         /* internationale wereldkampioenen (bit 32) */
         [48139, 'Jordan', 'Stolz', 'm', '2004-05', 32, 'USA'],
-        [17178, 'Pavel', 'Kulizhnikov', 'm', '1994-04', 32, 'RUS'],
-        [41852, 'Davide', 'Ghiotto', 'm', '1993-12', 32, 'ITA'],
-        [265, 'Shani', 'Davis', 'm', '1982-08', 32, 'USA'],
-        [5064, 'Denis', 'Yuskov', 'm', '1989-10', 32, 'RUS'],
         [12830, 'Miho', 'Takagi', 'f', '1994-05', 32, 'JPN'],
-        [22, 'Martina', 'Sáblíková', 'f', '1987-05', 32, 'CZE'],
-        [29245, 'Brittany', 'Bowe', 'f', '1988-02', 32, 'USA'],
-        [1598, 'Nao', 'Kodaira', 'f', '1986-05', 32, 'JPN'],
-        [201, 'Claudia', 'Pechstein', 'f', '1972-02', 32, 'GER'],
       ];
       // Omzetten naar hetzelfde formaat als schaatsers uit een bestand
       const topList = TOP_SKATERS.map(([id, giv, fam, g, b, mask, land]) => ({

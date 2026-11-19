@@ -4,9 +4,14 @@ De webpagina bevat **geen persoonsgegevens**, behalve de ingebouwde lijst publie
 
 ## Ingebouwde topschaatsers
 
-Het blok **Topschaatsers** (tussen "Schaatser zoeken" en "Schaatsersbestand") bevat de 52 schaatsers uit `data/nl-topschaatsers-2021-2026.json`, ingebouwd in de pagina. Dat mag omdat het publiek bekende sporters zijn en er alleen naam, geslacht, geboortemaand en groep in staat. Daarnaast een vaste groep van 5 mannen en 5 vrouwen:
+Het blok **Topschaatsers** (tussen "Schaatser zoeken" en "Schaatsersbestand") bevat 42 van de 52 schaatsers uit `data/nl-topschaatsers-2021-2026.json`, plus 2 internationale wereldkampioenen: Jordan Stolz (USA) en Miho Takagi (JPN). Ze zijn ingebouwd in de pagina. Dat mag omdat het publiek bekende sporters zijn en er alleen naam, geslacht, geboortemaand en groep in staat.
 
-- **Internationale wereldkampioenen:** Jordan Stolz (USA), Pavel Kulizhnikov (RUS), Davide Ghiotto (ITA), Shani Davis (USA), Denis Yuskov (RUS); Miho Takagi (JPN), Martina Sáblíková (CZE), Brittany Bowe (USA), Nao Kodaira (JPN), Claudia Pechstein (GER).
+**Selectie op jeugddata (vanaf v41, gecontroleerd 19-11-2026):** alleen schaatsers met 500m-tijden in hun jeugd blijven in de lijst. Ze moeten een tijd hebben op elke leeftijd van 12 t/m 18 jaar; hooguit één tussenjaar mag ontbreken, en 11 jaar mag ook ontbreken. Gecontroleerd met het console-script `check-topschaatsers-500m.js`. Vervallen (18):
+- NL: Reina Anema, Jorrit Bergsma, Bart Hoolwerf, Sven Kramer, Thomas Krol, Dai Dai N'tab, Kjeld Nuis, Hein Otterspeer, Irene Schouten, Ireen Wüst.
+- Internationaal: Pavel Kulizhnikov (mist 11 en 18), Davide Ghiotto, Shani Davis, Denis Yuskov, Martina Sáblíková, Brittany Bowe, Nao Kodaira, Claudia Pechstein.
+
+In het JSON-bestand staan ze nog wel; ze ontbreken alleen in de ingebouwde lijst.
+
 Nils van der Poel staat niet in SpeedskatingResults en is dus niet opgenomen. Een groep oud-schaatsers (Ritsma, Romme, Van Gennip e.a.) is in v15 geprobeerd en in v16 weer verwijderd: van hen staan te weinig tijden, zeker jeugdtijden, in de bron.
 
 Kies een groep, "Alle topschaatsers" of één naam (vrouwen en mannen apart) en klik **Toevoegen**. Bijwerken: pas het JSON-bestand aan en genereer `TOP_SKATERS` opnieuw (één regel per schaatser: `[id, voornaam, achternaam, geslacht, geboortemaand, groepsbitmasker]`).

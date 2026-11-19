@@ -2,9 +2,13 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v40** (18 november 2026)
+**Huidige versie: v41** (19 november 2026)
 
 ---
+
+## v41 – Topschaatsers met jeugdtijden (19-11-2026)
+- De lijst **Topschaatsers** bevat alleen nog schaatsers van wie ook de jeugdtijden in de bron staan: een 500m-tijd op elke leeftijd van 12 t/m 18 jaar, waarbij hooguit één tussenjaar mag ontbreken (11 jaar mag ook ontbreken). Zo heeft vergelijken met een jeugdschaatser altijd zin.
+- 18 schaatsers vallen weg, onder wie Sven Kramer, Ireen Wüst, Kjeld Nuis en Irene Schouten, en 8 van de 10 internationale wereldkampioenen. Er blijven er 44 over, met Jordan Stolz en Miho Takagi als internationale schaatsers.
 
 ## v40 – Highlighten vanuit de grafiek (18-11-2026)
 - Klik in de grafiek op een **lijn, stip of naam**: de ster van die schaatser gaat aan en de lijn wordt vet. Nog een klik zet het weer uit.
