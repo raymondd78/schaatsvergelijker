@@ -1106,7 +1106,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v57 van 19-11-2026">v57</span>
+      <span class="ver" title="Versie v58 van 19-11-2026">v58</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1388,7 +1388,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v57 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v58 (19-11-2026)
     </footer>
 
     <script>
@@ -3081,6 +3081,16 @@
       }
       /* Chart.js-plugin: schrijft de naam van elke schaatser rechts van het laatste punt van zijn lijn.
          Namen die elkaar zouden raken, schuiven LBL_STEP px uit elkaar. */
+      /* Laat de weergave-opties onder de grafiek rechts eindigen waar de x-as eindigt (vanaf v58);
+         de ruimte rechts voor de namen verschilt per selectie, dus na elke opbouw opnieuw zetten */
+      const alignViewOpts = {
+        id: 'alignViewOpts',
+        afterLayout(ch) {
+          const el = $('viewOpts');
+          if (el && ch.chartArea)
+            el.style.paddingRight = Math.max(0, Math.round(ch.width - ch.chartArea.right)) + 'px';
+        },
+      };
       const endLabels = {
         id: 'endLabels',
         afterDatasetsDraw(ch) {
@@ -3393,7 +3403,7 @@
           type: 'scatter',
           data: { datasets },
           options: opts,
-          plugins: [endLabels],
+          plugins: [endLabels, alignViewOpts],
         });
 
         const loading = state.selected.some((s) => state.data[`${s.id}_${d}`] === 'loading');

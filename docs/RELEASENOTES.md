@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v57** (19 november 2026)
+**Huidige versie: v58** (19 november 2026)
 
 ---
+
+## v58 – Weergave-opties uitgelijnd met de x-as (19-11-2026)
+- De rij met schakelaartjes onder de grafiek eindigt rechts precies waar de x-as eindigt, ook als er rechts ruimte is voor de namen.
 
 ## v57 – ANS als schakelaar (19-11-2026)
 - ANS staat onder de grafiek nu als schakelaartje **ANS (NL-banen)**, net als PR-lijn, Alle tijden en Snelste boven.
