@@ -24,7 +24,8 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 
 | Onderdeel | Inhoud |
 |---|---|
-| Over deze tool | Uitlegblok bovenaan: standaard één zin, met "Meer…" uit te klappen (hoe werkt het, waarom de geboortemaand belangrijk is) |
+| Over deze tool | Venster via de knop ⓘ in de kopbalk (hoe werkt het, waarom de geboortemaand belangrijk is); gaat bij het eerste bezoek vanzelf open. Het thema (◐ auto, ☀ licht, ☾ donker) wissel je met de knop ernaast |
+| Toevoegen | Eén blok met tabjes **Zoeken**, **Topschaatsers** en **Bestand**; het gekozen tabje wordt onthouden |
 | Zoeken | Op (begin van) achter- en/of voornaam, alle landen; max. 20 resultaten (XML-variant van de lookup-API) |
 | Geselecteerd | Kleur per schaatser, ster om te highlighten, categorie, profiellink, bewerkbare groep, geboortedatum (maand + jaar) |
 | Zelf ingevoerde tijd | Knop **+ tijd** op het kaartje: een zojuist gereden tijd (afstand, tijd, datum, baan) die nog niet op SpeedskatingResults staat. Op het kaartje onder **Toegevoegd** (baan als KNSB-afkorting, bijv. HVN), open stip in de grafiek, ✎ in de tabellen; verdwijnt vanzelf zodra de tijd officieel binnen is. Alleen in de browser bewaard |
@@ -35,7 +36,7 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 | Filter heren/dames | Keuze **Heren / Dames / Beide** boven de grafiek om jongens/mannen of meisjes/vrouwen te verbergen in grafiek en tabellen; de selectie zelf blijft staan |
 | Max. tijd | Keuzelijst om tijden langzamer dan een grens weg te laten (500 m in stappen van 10 s, andere afstanden naar rato); per afstand onthouden |
 | Leeftijdsperiode | Keuzelijsten van/t/m (5–80 jaar); geldt voor grafiek en beide tabellen |
-| Beste tijd per leeftijdsjaar | Kolommen per schaatser; vet = snelste op die leeftijd |
+| Beste tijd per leeftijdsjaar | Een rij per schaatser, een kolom per leeftijd; vet = snelste op die leeftijd. Klik op een leeftijd om daarop te sorteren |
 | PR-verloop | Elke PR met datum, leeftijd, verbetering, baan en wedstrijdlink |
 
 ## Bestanden

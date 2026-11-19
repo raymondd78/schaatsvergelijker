@@ -2,9 +2,18 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v58** (19 november 2026)
+**Huidige versie: v59** (19 november 2026)
 
 ---
+
+## v59 – Overzichtelijker indeling (19-11-2026)
+- **Toevoegen** is één blok met de tabjes **Zoeken**, **Topschaatsers** en **Bestand**; **Geselecteerd** staat er direct onder. Het gekozen tabje wordt onthouden.
+- **Over deze tool** is een venster achter de knop **ⓘ** in de kopbalk. Bij het eerste bezoek gaat het vanzelf open.
+- **Kopbalk**: korte bronvermelding ("Data: SpeedskatingResults.com"; de volledige tekst staat in de voettekst) en het thema als icoon: ◐ automatisch, ☀ licht, ☾ donker.
+- **Beste tijd per leeftijdsjaar** is gekanteld: een rij per schaatser, een kolom per leeftijd. Klik op een leeftijd om daarop te sorteren (snelste boven).
+- **Alles wissen** toont een melding met **Ongedaan maken**.
+- Afstandstabbladen waarvan al bekend is dat je selectie er geen tijden heeft, zijn grijs.
+- Tijdens het ophalen van tijden staat er een draaiend icoon met "Tijden ophalen…" boven de grafiek.
 
 ## v58 – Weergave-opties uitgelijnd met de x-as (19-11-2026)
 - De rij met schakelaartjes onder de grafiek eindigt rechts precies waar de x-as eindigt, ook als er rechts ruimte is voor de namen.

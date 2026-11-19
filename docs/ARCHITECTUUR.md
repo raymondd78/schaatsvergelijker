@@ -40,7 +40,7 @@ Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?sk
 | `ageParts()` / `ageDecimal()` / `fmtAge()` | Leeftijd in jaren + maanden of als decimaal getal |
 | `prProgression()` | Loopt chronologisch door de races en houdt elk nieuw PR bij (met vorige PR) |
 | `render()` | Bouwt de Chart.js-datasets: PR-lijn (`stepped:'before'`) en alle races (scatter) |
-| `renderAgeTable()` | Beste tijd per leeftijdsjaar per schaatser |
+| `renderAgeTable()` | Beste tijd per leeftijdsjaar: vanaf v59 een rij per schaatser en een kolom per leeftijd; klik op een kolomkop (`th[data-age]`) sorteert op die leeftijd (`ui.ageSort`) |
 | `renderPRTable()` | PR-verloop met verbetering en wedstrijdlink; sortering via klik op kolomkop Datum (`prSort`: `''` per schaatser, `'new'`, `'old'`; niet opgeslagen, vanaf v39); keuzelijst `#prWho` (`prWho`: schaatser-ID of `'all'`; standaard eerste gehighlighte, anders eerste schaatser; vanaf v48) |
 | `ANS` / `ansPct()` | KNSB ANS-percentages per baan en afstand; `ansPct(locatie, afstand)` geeft het percentage of `null` (niet-NL of onbekende baan) |
 | `rowsFor()` | Tijden van een schaatser zoals getoond: bij ANS gefilterd op NL-banen en omgerekend (`sec`), met de originele tijd in `raw`; daarna gefilterd op de maximale tijd (`ui.maxT[afstand]`) |
@@ -73,8 +73,9 @@ Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor
 | Sleutel | Inhoud |
 |---|---|
 | `ssr.selected.v1` | Array met geselecteerde schaatsers: `id`, namen, `country`, `gender`, `category`, `color`, `birth` (`YYYY-MM-15` of `null`), `draftY`/`draftM` (half ingevuld), `catSeason` (seizoen waarin `category` gold), `group` |
-| `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT, theme, rink}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), filter heren/dames en ANS-vinkje |
+| `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT, theme, rink, addTab, ageSort}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), filter heren/dames en ANS-vinkje |
 | `ssr.manual.v1` | Zelf ingevoerde tijden (vanaf v51): `[{mid, id, dist, time, date, loc}]`; `loc` = NL-baan of leeg (buitenland/anders). Niet in de JSON-export |
+| `ssr.intro.v1` | `1` zodra het venster "Over deze tool" een keer is gesloten (vanaf v59); daarna gaat het niet meer vanzelf open |
 | `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
 
 Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
@@ -106,6 +107,15 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Boven de grafiek in `#controls`: filtergroepjes `.fgrp` (leeftijd, max. tijd), `#genderSeg` (Heren/Dames/Beide → `ui.showM`/`ui.showF`; beide uit wordt bij het laden hersteld naar beide aan) en `#filterReset` (zichtbaar als `filtersOn()`; wist `ageFrom`/`ageTo`, alle `maxT` en het geslachtsfilter).
 - Onder de grafiek in `#viewOpts`: schakelaartjes (`.sw`, opgemaakte checkboxes `showPR`, `showAll`, `fastTop` en vanaf v57 `ansOn` → `ui.ans`). Chart.js-plugin `alignViewOpts` (`afterLayout`) zet `padding-right` zodat de rij eindigt onder het einde van de x-as (vanaf v58).
 - Mobiel: `#controls` blijft het filterpaneel (ook `.gseg` en `.freset` alleen in het open paneel); `#viewOpts` staat onder de grafiek en is verborgen in het tabblad Tabellen en liggend.
+
+## Indeling en hulpelementen (vanaf v59)
+
+- Kopbalk: korte bronvermelding, knoppen `#infoBtn` (ⓘ) en `#themeBtn` (icoon ◐/☀/☾, `THEME_ICON`) in `.hbtns`.
+- `#introModal`: venster met de uitleg; `openIntro()`; sluit met ×, Esc of klik naast het venster.
+- Linkerkolom: blok **Toevoegen** met tabjes `#addTabs` (`showAddTab()`, `ui.addTab`) en panelen `.pane` (zoeken, `#topCard`, `#fileCard`); daaronder **Geselecteerd**.
+- `showToast(tekst, knoptekst, actie)` / `hideToast()`: melding onderin (8 s). "Alles wissen" toont "Ongedaan maken" (`setSelection()`).
+- `markEmptyDistances()` (in `render()`): afstandstabblad krijgt klasse `nodata` als voor alle zichtbare schaatsers al bekend is dat er geen tijden zijn.
+- `#chartLoad`: draaiend icoon met "Tijden ophalen…" boven de grafiek zolang er nog tijden worden opgehaald.
 
 ## Thema: licht en donker (vanaf v47)
 

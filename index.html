@@ -136,6 +136,118 @@
         color: #fff;
         font-weight: 600;
       }
+      /* knoppen rechts in de kopbalk (vanaf v59) */
+      header .hbtns {
+        display: flex;
+        gap: 6px;
+        align-self: center;
+      }
+      header .hbtns .theme {
+        min-width: 28px;
+        justify-content: center;
+        font-size: 14px;
+        padding: 2px 6px;
+      }
+      /* ===== Venster "Over deze tool" (vanaf v59) ===== */
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: rgba(20, 33, 61, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .modal[hidden] {
+        display: none;
+      }
+      .modalbox {
+        position: relative;
+        max-width: 560px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .modalx {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 20px;
+      }
+      /* melding onderin (vanaf v59) */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        z-index: 50;
+        background: var(--ink);
+        color: var(--card);
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      }
+      .toast[hidden] {
+        display: none;
+      }
+      .toast button {
+        background: transparent;
+        border: 0;
+        color: var(--accent-soft);
+        font-weight: 600;
+        text-decoration: underline;
+        padding: 0;
+        font-size: 13px;
+      }
+      /* tabjes in het blok "Toevoegen" */
+      .addtabs {
+        display: flex;
+        margin-bottom: 10px;
+      }
+      .addtabs button {
+        flex: 1;
+      }
+      /* afstand zonder tijden bij de selectie (vanaf v59) */
+      .tabs button.nodata:not(.on) {
+        color: var(--faint);
+      }
+      /* laadweergave over de grafiek (vanaf v59) */
+      .chartload {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 3px 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .chartload[hidden] {
+        display: none;
+      }
+      .chartload span {
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--line);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
       /* ===== Blok "Over deze tool" ===== */
       .intro p,
       .intro ul {
@@ -720,6 +832,12 @@
         header > span:not(.ver) {
           display: none;
         }
+        header .hbtns {
+          margin-left: auto;
+        }
+        .toast {
+          bottom: 84px; /* boven de tabbalk */
+        }
         main {
           padding: 10px;
           gap: 10px;
@@ -1106,107 +1224,124 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v58 van 19-11-2026">v58</span>
+      <span class="ver" title="Versie v59 van 19-11-2026">v59</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
-        <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
-        (Public API, niet-commercieel gebruik)</span
+        <a href="https://speedskatingresults.com" target="_blank" rel="noopener"
+          >SpeedskatingResults.com</a
+        ></span
       >
-      <button type="button" class="theme" id="themeBtn" title="Weergave: automatisch, licht of donker">
-        Thema
-      </button>
+      <!-- Knoppen rechts: uitleg (ⓘ) en thema (vanaf v59 als icoon) -->
+      <div class="hbtns">
+        <button type="button" class="theme" id="infoBtn" title="Over deze tool" aria-label="Over deze tool">
+          ⓘ
+        </button>
+        <button type="button" class="theme" id="themeBtn" title="Weergave: automatisch, licht of donker">
+          ◐
+        </button>
+      </div>
     </header>
+
+    <!-- Melding onderin, bijv. na "Alles wissen" met "Ongedaan maken" (vanaf v59) -->
+    <div class="toast" id="toast" hidden role="status"></div>
+
+    <!-- ===== Uitleg "Over deze tool" (vanaf v59 een venster via ⓘ; bij het eerste bezoek vanzelf open) ===== -->
+    <div class="modal" id="introModal" hidden>
+      <div class="modalbox card intro" role="dialog" aria-modal="true" aria-labelledby="introTitle">
+        <button type="button" class="x modalx" id="introClose" aria-label="Sluiten">×</button>
+        <h2 id="introTitle">Over deze tool</h2>
+        <p>
+          Vergelijk de ontwikkeling van persoonlijke records (PR's) van schaatsers <b>op leeftijd</b> in
+          plaats van op categorie.
+        </p>
+        <p>Zo zie je bijvoorbeeld hoe snel een topschaatser was toen hij of zij even oud was als jij nu.</p>
+        <ul>
+          <li>
+            <b>Kies schaatsers:</b> zoek op naam, kies een topschaatser uit de lijst of open een eigen
+            schaatsersbestand (JSON).
+          </li>
+          <li>
+            <b>Kies een afstand</b> boven de grafiek. De trap-lijn is het PR-verloop; elke stap is een nieuw
+            PR.
+          </li>
+          <li>
+            <b>Verfijn</b> met de leeftijdsperiode, een maximale tijd, het filter heren/dames of de
+            ANS-correctie (alleen Nederlandse banen, omgerekend naar een neutrale baan).
+          </li>
+          <li><b>Highlight</b> schaatsers met de ster ☆ en bewaar je selectie met "Opslaan als JSON".</li>
+        </ul>
+        <div class="key">
+          <b>Geboortemaand is belangrijk.</b> SpeedskatingResults geeft alleen de leeftijdscategorie door.
+          Zonder geboortemaand schat de tool de leeftijd op het midden van de categorie; dat kan tot een half
+          jaar (bij senioren en masters meerdere jaren) afwijken. Vul bij "Geselecteerd" de geboortemaand en
+          het geboortejaar in voor een eerlijke vergelijking.
+        </div>
+        <p style="color: var(--muted)">
+          Alles draait in je eigen browser: er wordt niets op een server opgeslagen.
+        </p>
+      </div>
+    </div>
 
     <!-- ===== Hoofdgedeelte: linkerkolom (aside) en rechterkolom (section) ===== -->
     <main>
       <aside>
-        <!-- Uitleg: standaard alleen de eerste zin; "Meer…" klapt de rest uit -->
-        <div class="card intro" id="introCard">
-          <h2>Over deze tool</h2>
-          <p>
-            Vergelijk de ontwikkeling van persoonlijke records (PR's) van schaatsers <b>op leeftijd</b> in
-            plaats van op categorie. <a href="#" id="introMore">Meer…</a>
-          </p>
-          <div id="introRest" hidden>
-            <p>
-              Zo zie je bijvoorbeeld hoe snel een topschaatser was toen hij of zij even oud was als jij nu.
-            </p>
-            <ul>
-              <li>
-                <b>Kies schaatsers:</b> zoek op naam, kies een topschaatser uit de lijst of open een eigen
-                schaatsersbestand (JSON).
-              </li>
-              <li>
-                <b>Kies een afstand</b> boven de grafiek. De trap-lijn is het PR-verloop; elke stap is een
-                nieuw PR.
-              </li>
-              <li>
-                <b>Verfijn</b> met de leeftijdsperiode, een maximale tijd, het filter heren/dames of de
-                ANS-correctie (alleen Nederlandse banen, omgerekend naar een neutrale baan).
-              </li>
-              <li><b>Highlight</b> schaatsers met de ster ☆ en bewaar je selectie met "Opslaan als JSON".</li>
-            </ul>
-            <div class="key">
-              <b>Geboortemaand is belangrijk.</b> SpeedskatingResults geeft alleen de leeftijdscategorie door.
-              Zonder geboortemaand schat de tool de leeftijd op het midden van de categorie; dat kan tot een
-              half jaar (bij senioren en masters meerdere jaren) afwijken. Vul bij "Geselecteerd" de
-              geboortemaand en het geboortejaar in voor een eerlijke vergelijking.
-            </div>
-            <p style="color: var(--muted)">
-              Alles draait in je eigen browser: er wordt niets op een server opgeslagen.
-              <a href="#" id="introLess">Minder</a>
-            </p>
-          </div>
-        </div>
-
-        <!-- Zoeken op (begin van) achter- en/of voornaam via de API -->
+        <!-- Schaatsers toevoegen (vanaf v59 één blok met tabjes): zoeken, topschaatsers of een eigen bestand -->
         <div class="card section">
-          <h2>Schaatser zoeken</h2>
-          <form id="searchForm">
-            <div class="row">
-              <div>
-                <label for="fFam">Achternaam</label><input id="fFam" type="text" autocomplete="off" />
+          <h2>Toevoegen</h2>
+          <div class="gseg addtabs" id="addTabs" role="tablist" aria-label="Manier van toevoegen">
+            <button type="button" role="tab" data-pane="search">Zoeken</button
+            ><button type="button" role="tab" data-pane="top">Topschaatsers</button
+            ><button type="button" role="tab" data-pane="file">Bestand</button>
+          </div>
+          <!-- Zoeken op (begin van) achter- en/of voornaam via de API -->
+          <div class="pane" data-pane="search">
+            <form id="searchForm">
+              <div class="row">
+                <div>
+                  <label for="fFam">Achternaam</label><input id="fFam" type="text" autocomplete="off" />
+                </div>
+                <div>
+                  <label for="fGiv">Voornaam</label><input id="fGiv" type="text" autocomplete="off" />
+                </div>
               </div>
-              <div><label for="fGiv">Voornaam</label><input id="fGiv" type="text" autocomplete="off" /></div>
+              <div style="margin-top: 10px"><button type="submit">Zoeken</button></div>
+            </form>
+            <div class="status" id="searchStatus"></div>
+            <div id="results"></div>
+          </div>
+          <!-- Ingebouwde lijst met publiek bekende topschaatsers (zie TOP_SKATERS in het script) -->
+          <div class="pane" id="topCard" data-pane="top" hidden>
+            <div class="row" style="align-items: center">
+              <select id="topSel"></select>
+              <button type="button" id="topAdd" style="flex: 0 0 auto">Toevoegen</button>
             </div>
-            <div style="margin-top: 10px"><button type="submit">Zoeken</button></div>
-          </form>
-          <div class="status" id="searchStatus"></div>
-          <div id="results"></div>
-        </div>
-
-        <!-- Ingebouwde lijst met publiek bekende topschaatsers (zie TOP_SKATERS in het script) -->
-        <div class="card section" id="topCard">
-          <h2>Topschaatsers</h2>
-          <div class="row" style="align-items: center">
-            <select id="topSel"></select>
-            <button type="button" id="topAdd" style="flex: 0 0 auto">Toevoegen</button>
+            <div class="hint" id="topInfo">
+              Nederlandse langebaanschaatsers met een olympische medaille (2022/2026) of een podiumplaats op
+              WK, EK of wereldbeker (2021–2026), plus internationale wereldkampioenen. Alleen schaatsers van
+              wie ook de jeugdtijden (500 m, 11–18 jaar) in de bron staan. Kies één schaatser of een hele
+              groep.
+            </div>
           </div>
-          <div class="hint" id="topInfo">
-            Nederlandse langebaanschaatsers met een olympische medaille (2022/2026) of een podiumplaats op WK,
-            EK of wereldbeker (2021–2026), plus internationale wereldkampioenen. Alleen schaatsers van wie ook
-            de jeugdtijden (500 m, 11–18 jaar) in de bron staan. Kies één schaatser of een hele groep.
+          <!-- Eigen schaatsersbestand (JSON) openen of hierheen slepen; wordt alleen in het geheugen gelezen -->
+          <div class="pane" id="fileCard" data-pane="file" hidden>
+            <div class="row" style="align-items: center">
+              <button type="button" class="ghost" id="fileOpen" style="flex: 0 0 auto">
+                Bestand openen…
+              </button>
+              <span class="hint" id="fileName" style="margin: 0"
+                >of sleep een .json-bestand hierheen; de bestandsnaam wordt de groep</span
+              >
+              <input type="file" id="fileInput" accept=".json,application/json" hidden />
+            </div>
+            <div class="row" style="align-items: center; margin-top: 8px">
+              <select id="groupSel" disabled>
+                <option value="">Nog geen bestand geladen</option>
+              </select>
+              <button type="button" id="groupAdd" style="flex: 0 0 auto" disabled>Toevoegen</button>
+            </div>
+            <div class="hint" id="groupInfo"></div>
           </div>
-        </div>
-
-        <!-- Eigen schaatsersbestand (JSON) openen of hierheen slepen; wordt alleen in het geheugen gelezen -->
-        <div class="card section" id="fileCard">
-          <h2>Schaatsersbestand (JSON)</h2>
-          <div class="row" style="align-items: center">
-            <button type="button" class="ghost" id="fileOpen" style="flex: 0 0 auto">Bestand openen…</button>
-            <span class="hint" id="fileName" style="margin: 0"
-              >of sleep een .json-bestand hierheen; de bestandsnaam wordt de groep</span
-            >
-            <input type="file" id="fileInput" accept=".json,application/json" hidden />
-          </div>
-          <div class="row" style="align-items: center; margin-top: 8px">
-            <select id="groupSel" disabled>
-              <option value="">Nog geen bestand geladen</option>
-            </select>
-            <button type="button" id="groupAdd" style="flex: 0 0 auto" disabled>Toevoegen</button>
-          </div>
-          <div class="hint" id="groupInfo"></div>
         </div>
 
         <!-- Geselecteerde schaatsers: kleur, highlight, groep en geboortedatum per schaatser -->
@@ -1283,7 +1418,10 @@
             <button type="button" class="sheetdone" id="mFilterDone">Toon resultaat</button>
           </div>
           <!-- De grafiek (Chart.js tekent op dit canvas) -->
-          <div class="chartwrap"><canvas id="chart"></canvas></div>
+          <div class="chartwrap">
+            <canvas id="chart"></canvas>
+            <div class="chartload" id="chartLoad" hidden><span></span>Tijden ophalen…</div>
+          </div>
           <!-- Weergave-opties onder de grafiek (vanaf v56): hoe de tijden getekend worden -->
           <div class="viewopts" id="viewOpts">
             <span class="flbl">Toon</span>
@@ -1388,7 +1526,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v58 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v59 (19-11-2026)
     </footer>
 
     <script>
@@ -1670,6 +1808,8 @@
           maxT,
           theme: ['auto', 'light', 'dark'].includes(o.theme) ? o.theme : 'auto',
           rink: NL_RINKS.includes(o.rink) || o.rink === '-' ? o.rink : '', // laatst gekozen baan bij + tijd
+          addTab: ['search', 'top', 'file'].includes(o.addTab) ? o.addTab : 'search', // tabje in "Toevoegen"
+          ageSort: cleanInt(o.ageSort, 5, 80), // tabel per leeftijd: gesorteerd op deze leeftijd (null = niet)
         };
       }
       /* Eén rij uit de API of uit de cache: alleen geldige velden, anders null */
@@ -2557,13 +2697,42 @@
         a.remove();
         setTimeout(() => URL.revokeObjectURL(a.href), 5000);
       });
-      $('clearSel').addEventListener('click', () => {
-        if (!state.selected.length) return;
-        state.selected = [];
+      /* Melding onderin met eventueel een knop (vanaf v59); verdwijnt na 8 seconden */
+      let toastTimer = null;
+      function showToast(text, btnText, onBtn) {
+        const el = $('toast');
+        el.innerHTML = esc(text) + (btnText ? ` <button type="button">${esc(btnText)}</button>` : '');
+        el.hidden = false;
+        const b = el.querySelector('button');
+        if (b)
+          b.addEventListener('click', () => {
+            hideToast();
+            onBtn();
+          });
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(hideToast, 8000);
+      }
+      function hideToast() {
+        clearTimeout(toastTimer);
+        $('toast').hidden = true;
+      }
+      /* "Alles wissen": selectie leegmaken, met "Ongedaan maken" in de melding */
+      function setSelection(list) {
+        state.selected = list;
         persistSel();
         renderResults(lastResults);
         renderSelected();
         refresh();
+      }
+      $('clearSel').addEventListener('click', () => {
+        if (!state.selected.length) return;
+        const backup = state.selected;
+        setSelection([]);
+        showToast(
+          `Selectie gewist (${backup.length} ${backup.length === 1 ? 'schaatser' : 'schaatsers'})`,
+          'Ongedaan maken',
+          () => setSelection(backup),
+        );
       });
 
       /* ---------- Blok "Geselecteerd": kaartjes per schaatser ---------- */
@@ -3045,6 +3214,19 @@
         return rows;
       }
 
+      /* Afstandstabbladen grijs als al bekend is dat geen enkele (zichtbare) schaatser daar tijden heeft
+         (vanaf v59). Alleen afstanden die al zijn opgehaald tellen mee; de rest blijft gewoon. */
+      function markEmptyDistances() {
+        const sel = state.selected.filter(genderOK);
+        document.querySelectorAll('#distTabs button').forEach((b) => {
+          const d = +b.dataset.d;
+          const known = sel.length && sel.every((s) => Array.isArray(state.data[`${s.id}_${d}`]));
+          const empty = known && sel.every((s) => !rowsFor(s, d).length);
+          b.classList.toggle('nodata', !!empty);
+          b.title = empty ? 'Geen tijden van je selectie op deze afstand' : '';
+        });
+      }
+
       /* ---------- Grafiek ---------- */
       let chart;
       /* Snelheidsschaal (vast sinds v31): de grafiek plot 1/tijd, wat evenredig is met de snelheid in km/u.
@@ -3407,6 +3589,8 @@
         });
 
         const loading = state.selected.some((s) => state.data[`${s.id}_${d}`] === 'loading');
+        $('chartLoad').hidden = !loading;
+        markEmptyDistances();
         const empty = state.selected.filter((s) => {
           const r = rowsFor(s, d);
           return genderOK(s) && Array.isArray(r) && !r.length;
@@ -3457,59 +3641,78 @@
 
       /* ---------- Tabellen onder de grafiek ---------- */
       /* Tabel "Beste tijd per leeftijdsjaar": per leeftijd de snelste tijd van elke schaatser */
+      /* Tabel "Beste tijd per leeftijdsjaar" (vanaf v59 gekanteld): een rij per schaatser, een kolom per
+         leeftijd. Klik op een leeftijd om op die leeftijd te sorteren (snelste boven); nog een klik: terug. */
+      $('ageTable').addEventListener('click', (e) => {
+        const th = e.target.closest('th[data-age]');
+        if (!th) return;
+        const a = +th.dataset.age;
+        ui.ageSort = ui.ageSort === a ? null : a;
+        save(LS_UI, ui);
+        renderAgeTable();
+      });
       function renderAgeTable() {
         const d = state.distance;
-        const cols = state.selected.filter((s) => {
+        let rowsSk = state.selected.filter((s) => {
           const r = rowsFor(s, d);
           return genderOK(s) && Array.isArray(r) && r.length && birthOf(s);
         });
-        if (!cols.length) {
+        if (!rowsSk.length) {
           $('ageTable').innerHTML =
             '<div class="empty">Selecteer schaatsers met tijden op deze afstand.</div>';
           return;
         }
+        // beste tijd per schaatser per leeftijd (in hele jaren)
         const per = new Map();
-        let minA = 99,
-          maxA = 0;
-        for (const s of cols) {
+        const ages = new Set();
+        for (const s of rowsSk) {
           const b = birthOf(s);
           const m = new Map();
           for (const r of rowsFor(s, d)) {
             if (!ageOK(s, r.date)) continue;
             const a = ageParts(b.date, parseDate(r.date)).y;
-            minA = Math.min(minA, a);
-            maxA = Math.max(maxA, a);
+            ages.add(a);
             if (!m.has(a) || r.sec < m.get(a).sec) m.set(a, r);
           }
           per.set(s.id, m);
         }
-        // beste tijd overall per kolom markeren
+        const cols = [...ages].sort((a, b) => a - b);
+        rowsSk = rowsSk.filter((s) => per.get(s.id).size);
+        // snelste per leeftijd (vet)
+        const fastest = new Map(
+          cols.map((a) => [a, Math.min(...rowsSk.map((s) => per.get(s.id).get(a)?.sec ?? Infinity))]),
+        );
+        const sortAge = cols.includes(ui.ageSort) ? ui.ageSort : null;
+        if (sortAge != null)
+          rowsSk = [...rowsSk].sort(
+            (x, y) =>
+              (per.get(x.id).get(sortAge)?.sec ?? Infinity) - (per.get(y.id).get(sortAge)?.sec ?? Infinity),
+          );
         let html =
-          '<table><thead><tr><th>Leeftijd</th>' +
+          '<table><thead><tr><th>Schaatser</th>' +
           cols
             .map(
-              (s) =>
-                `<th class="num"><span class="dot" style="--c:${cleanColor(s.color) || '#888'}"></span>${esc(s.givenname)} ${esc(s.familyname)}${birthOf(s).est ? ' ≈' : ''}</th>`,
+              (a) =>
+                `<th class="num sortable" data-age="${a}" title="Klik: sorteren op ${a} jaar (snelste boven)">${a} jaar${a === sortAge ? ' ▲' : ''}</th>`,
             )
             .join('') +
           '</tr></thead><tbody>';
-        for (let a = minA; a <= maxA; a++) {
-          const rowVals = cols.map((s) => per.get(s.id).get(a));
-          if (rowVals.every((v) => !v)) continue;
-          const fastest = Math.min(...rowVals.filter(Boolean).map((v) => v.sec));
+        for (const s of rowsSk) {
+          const m = per.get(s.id);
           html +=
-            `<tr><td>${a} jaar</td>` +
-            rowVals
-              .map((v) =>
-                v
-                  ? `<td class="num ${cols.length > 1 && v.sec === fastest ? 'best' : ''}" title="${esc(fmtDateNL(v.date) + ' · ' + v.location + ' · ' + v.name + (v.raw != null ? ' · gereden ' + fmtTime(v.raw) : ''))}">${fmtTime(v.sec)}${v.manual ? ' ✎' : ''}</td>`
-                  : '<td class="num" style="color:var(--faint)">–</td>',
-              )
+            `<tr><td><span class="dot" style="--c:${cleanColor(s.color) || '#888'}"></span>${esc(s.givenname)} ${esc(s.familyname)}${birthOf(s).est ? ' ≈' : ''}</td>` +
+            cols
+              .map((a) => {
+                const v = m.get(a);
+                return v
+                  ? `<td class="num ${rowsSk.length > 1 && v.sec === fastest.get(a) ? 'best' : ''}" title="${esc(fmtDateNL(v.date) + ' · ' + v.location + ' · ' + v.name + (v.raw != null ? ' · gereden ' + fmtTime(v.raw) : ''))}">${fmtTime(v.sec)}${v.manual ? ' ✎' : ''}</td>`
+                  : '<td class="num" style="color:var(--faint)">–</td>';
+              })
               .join('') +
             '</tr>';
         }
         html +=
-          '</tbody></table><div class="hint">Snelste tijd die gereden is in dat leeftijdsjaar. Vet = snelste van de vergeleken schaatsers op die leeftijd. ≈ = leeftijd geschat. ✎ = zelf ingevoerd.' +
+          '</tbody></table><div class="hint">Snelste tijd die gereden is in dat leeftijdsjaar. Vet = snelste van de vergeleken schaatsers op die leeftijd. Klik op een leeftijd om te sorteren. ≈ = leeftijd geschat. ✎ = zelf ingevoerd.' +
           (ui.ans ? ' Tijden zijn ANS-gecorrigeerd (alleen Nederlandse banen).' : '') +
           '</div>';
         $('ageTable').innerHTML = html;
@@ -3610,11 +3813,15 @@
       function cssVar(name) {
         return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       }
-      const THEME_LABEL = { auto: 'Thema: auto', light: 'Thema: licht', dark: 'Thema: donker' };
+      // icoon en uitleg per thema (vanaf v59 een icoon in plaats van tekst)
+      const THEME_ICON = { auto: '◐', light: '☀', dark: '☾' };
+      const THEME_LABEL = { auto: 'automatisch', light: 'licht', dark: 'donker' };
       function applyTheme() {
         if (ui.theme === 'auto') delete document.documentElement.dataset.theme;
         else document.documentElement.dataset.theme = ui.theme;
-        $('themeBtn').textContent = THEME_LABEL[ui.theme];
+        $('themeBtn').textContent = THEME_ICON[ui.theme];
+        $('themeBtn').title = `Thema: ${THEME_LABEL[ui.theme]} (klik om te wisselen)`;
+        $('themeBtn').setAttribute('aria-label', $('themeBtn').title);
       }
       $('themeBtn').addEventListener('click', () => {
         ui.theme = ui.theme === 'auto' ? 'light' : ui.theme === 'light' ? 'dark' : 'auto';
@@ -3728,19 +3935,40 @@
       if (MQ_MOBILE.matches) prSort = 'new';
 
       /* ---------- Start van de pagina ---------- */
-      /* uitleg: standaard alleen de eerste zin, uitklappen met "Meer…" */
-      function showIntro(open) {
-        $('introRest').hidden = !open;
-        $('introMore').hidden = open;
+      /* Uitleg "Over deze tool" als venster (vanaf v59): knop ⓘ in de kopbalk; bij het eerste bezoek vanzelf open */
+      const LS_INTRO = 'ssr.intro.v1';
+      function openIntro(open) {
+        $('introModal').hidden = !open;
+        if (open) $('introClose').focus();
+        else save(LS_INTRO, 1);
       }
-      $('introMore').addEventListener('click', (e) => {
-        e.preventDefault();
-        showIntro(true);
+      $('infoBtn').addEventListener('click', () => openIntro(true));
+      $('introClose').addEventListener('click', () => openIntro(false));
+      $('introModal').addEventListener('click', (e) => {
+        if (e.target === $('introModal')) openIntro(false); // klik naast het venster
       });
-      $('introLess').addEventListener('click', (e) => {
-        e.preventDefault();
-        showIntro(false);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !$('introModal').hidden) openIntro(false);
       });
+      if (!load(LS_INTRO, 0)) openIntro(true);
+
+      /* Tabjes in het blok "Toevoegen": Zoeken, Topschaatsers of Bestand (keuze wordt onthouden) */
+      function showAddTab(tab) {
+        document.querySelectorAll('#addTabs button').forEach((b) => {
+          const on = b.dataset.pane === tab;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        document.querySelectorAll('aside .pane').forEach((p) => (p.hidden = p.dataset.pane !== tab));
+      }
+      $('addTabs').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-pane]');
+        if (!b) return;
+        ui.addTab = b.dataset.pane;
+        save(LS_UI, ui);
+        showAddTab(ui.addTab);
+      });
+      showAddTab(ui.addTab);
       fillMaxT();
       renderSelected();
       refresh();
