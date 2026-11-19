@@ -18,7 +18,7 @@
 6. Voeg een regel toe aan `versies/VERSIES.md` en een sectie aan `docs/RELEASENOTES.md`.
 7. Werk de claude.ai-projectdocs bij.
 8. Pas de documentatie in `docs/` aan als gedrag of opbouw verandert.
-9. Commit naar GitHub (`raymondd78/schaatsvergelijker`, branch `main`) met als bericht `vNN: korte omschrijving`: de HTML, de gewijzigde `docs/` en eventueel `README.md`/`CLAUDE.md`.
+9. Commit naar GitHub (`raymondd78/schaatsvergelijker`, branch `main`) met als bericht `vNN: korte omschrijving`: de HTML **als `index.html`** (kopie van `schaatsvergelijker.html`), de gewijzigde `docs/` en eventueel `README.md`/`CLAUDE.md`. GitHub Pages publiceert `main` daarna automatisch op https://raymondd78.github.io/schaatsvergelijker/.
 
 ## Technische randvoorwaarden
 
