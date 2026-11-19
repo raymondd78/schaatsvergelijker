@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v46** (19 november 2026)
+**Huidige versie: v47** (19 november 2026)
 
 ---
+
+## v47 – Groep is bestandsnaam, donkere modus (19-11-2026)
+- **Groepen eenvoudiger:** de naam van een schaatsersbestand is de groep (`C-selectie.json` → "C-selectie"). Je kunt meerdere bestanden tegelijk openen; de keuzelijst toont elk bestand plus "Alle geladen schaatsers". Het groepsveld bij elke geselecteerde schaatser is weg; de groep staat er als tekst. "Opslaan als JSON" bewaart geen groep meer: de naam die je het bestand geeft, wordt de groep.
+- **Eén melding bij zoeken:** de uitleg over de geboortemaand staat één keer boven de zoekresultaten in plaats van bij elke schaatser. Een ingevulde schaatser krijgt een ✓.
+- **Donkere modus:** volgt automatisch de instelling van je telefoon of computer. Met de knop **Thema** in de kopbalk kies je vast licht of donker, of weer automatisch.
 
 ## v46 – Geboortedatum al bij het zoeken (19-11-2026)
 - Bij elk zoekresultaat kies je de **geboortemaand en het geboortejaar** al vóór je op **+ Toevoegen** klikt. Dezelfde regels als bij Geselecteerd: alleen jaren die bij de categorie passen, en de laatste keuze wint.

@@ -32,6 +32,50 @@
         --accent: #1f5fbf;
         --accent-soft: #e8f0fc;
         --warn: #a15c00;
+        --warn-bg: #fff4e0;
+        --ok: #1e7a3a;
+        --ok-bg: #e6f5ea;
+        --seg: #e9ecf1;
+        --faint: #c5c9d2;
+        --link: #1f5fbf;
+        color-scheme: light;
+      }
+      /* ===== Donkere modus (vanaf v47): volgt het systeem, of vast via de knop in de kopbalk ===== */
+      :root[data-theme='dark'] {
+        --bg: #0f1420;
+        --card: #182030;
+        --ink: #e4e8f0;
+        --muted: #9ba4b6;
+        --line: #2b3547;
+        --accent: #2f6fd6;
+        --accent-soft: #1d2d4a;
+        --warn: #f0b45a;
+        --warn-bg: #362a14;
+        --ok: #6fd08c;
+        --ok-bg: #16301f;
+        --seg: #222b3b;
+        --faint: #4d586b;
+        --link: #82b1ff;
+        color-scheme: dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --bg: #0f1420;
+          --card: #182030;
+          --ink: #e4e8f0;
+          --muted: #9ba4b6;
+          --line: #2b3547;
+          --accent: #2f6fd6;
+          --accent-soft: #1d2d4a;
+          --warn: #f0b45a;
+          --warn-bg: #362a14;
+          --ok: #6fd08c;
+          --ok-bg: #16301f;
+          --seg: #222b3b;
+          --faint: #4d586b;
+          --link: #82b1ff;
+          color-scheme: dark;
+        }
       }
       * {
         box-sizing: border-box;
@@ -77,6 +121,17 @@
         color: #dfe5f2;
         font-size: 13px;
       }
+      /* knop licht/donker in de kopbalk */
+      header .theme {
+        background: transparent;
+        border: 1px solid #3a4a6e;
+        color: #dfe5f2;
+        padding: 3px 8px;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
       header .src a {
         color: #fff;
         font-weight: 600;
@@ -97,7 +152,7 @@
         margin: 3px 0;
       }
       .intro .key {
-        background: #fff4e0;
+        background: var(--warn-bg);
         border-radius: 6px;
         padding: 6px 8px;
         margin-top: 8px;
@@ -155,7 +210,8 @@
         padding: 6px 8px;
         border: 1px solid var(--line);
         border-radius: 6px;
-        background: #fff;
+        background: var(--card);
+        color: var(--ink);
       }
       .row {
         display: flex;
@@ -173,7 +229,7 @@
         padding: 6px 12px;
       }
       button.ghost {
-        background: #fff;
+        background: var(--card);
         color: var(--accent);
       }
       button.small {
@@ -218,17 +274,18 @@
         flex: 1;
         padding: 4px 6px;
       }
-      .res .birthhint {
-        flex-basis: 100%;
+      .birthhint {
+        margin: 6px 0;
         font-size: 12px;
         color: var(--warn);
-        background: #fff4e0;
+        background: var(--warn-bg);
         border-radius: 6px;
         padding: 4px 8px;
       }
-      .res .birthhint.ok {
-        color: #1e7a3a;
-        background: #e8f5ec;
+      .res .birthok {
+        color: var(--ok);
+        font-weight: 700;
+        font-size: 14px;
       }
       .res.added {
         opacity: 0.45;
@@ -291,13 +348,13 @@
         font-size: 11px;
         padding: 1px 6px;
         border-radius: 9px;
-        background: #fff4e0;
+        background: var(--warn-bg);
         color: var(--warn);
         white-space: nowrap;
       }
       .badge.ok {
-        background: #e6f5ea;
-        color: #1e7a3a;
+        background: var(--ok-bg);
+        color: var(--ok);
       }
       /* Kleine pictogramknoppen: verwijderen (×) en highlighten (ster) */
       .x {
@@ -310,7 +367,7 @@
       .star {
         border: none;
         background: none;
-        color: #c5c9d2;
+        color: var(--faint);
         font-size: 17px;
         padding: 0 2px;
         line-height: 1;
@@ -329,7 +386,7 @@
         margin-bottom: 12px;
       }
       .tabs button {
-        background: #fff;
+        background: var(--card);
         color: var(--ink);
         border-color: var(--line);
       }
@@ -363,7 +420,7 @@
       .seg button {
         border: none;
         border-radius: 0;
-        background: #fff;
+        background: var(--card);
         color: var(--ink);
         padding: 5px 10px;
       }
@@ -408,7 +465,7 @@
         font-weight: 600;
         position: sticky;
         top: 0;
-        background: #fff;
+        background: var(--card);
       }
       td.num,
       th.num {
@@ -449,7 +506,7 @@
         font-weight: 700;
       }
       .gain {
-        color: #1e7a3a;
+        color: var(--ok);
         font-size: 12px;
       }
       .section {
@@ -461,7 +518,7 @@
         font-size: 12px;
       }
       a {
-        color: var(--accent);
+        color: var(--link);
       }
       .hint {
         font-size: 12px;
@@ -512,7 +569,7 @@
           right: 0;
           bottom: 0;
           z-index: 20;
-          background: #fff;
+          background: var(--card);
           border-top: 1px solid var(--line);
           padding: 4px 0 8px;
         }
@@ -579,7 +636,7 @@
         }
         .mbar button {
           min-height: 36px;
-          background: #fff;
+          background: var(--card);
           color: var(--ink);
           border-color: var(--line);
           font-size: 13px;
@@ -605,7 +662,7 @@
           right: 0;
           bottom: 0;
           z-index: 40;
-          background: #fff;
+          background: var(--card);
           border-radius: 16px 16px 0 0;
           padding: 8px 20px 20px;
           margin: 0;
@@ -677,7 +734,7 @@
           min-height: 36px;
           padding: 0 10px;
           border-radius: 18px;
-          background: #fff;
+          background: var(--card);
           color: var(--ink);
           border: 1px solid var(--line);
           font-size: 13px;
@@ -695,7 +752,7 @@
         .mseg {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          background: #e9ecf1;
+          background: var(--seg);
           border-radius: 10px;
           padding: 3px;
         }
@@ -707,7 +764,7 @@
           color: var(--muted);
         }
         .mseg button.on {
-          background: #fff;
+          background: var(--card);
           color: var(--ink);
           font-weight: 700;
         }
@@ -719,7 +776,7 @@
         #ageTable td:first-child {
           position: sticky;
           left: 0;
-          background: #fff;
+          background: var(--card);
           z-index: 1;
           border-right: 1px solid var(--line);
         }
@@ -784,7 +841,7 @@
         }
         .mprhead button {
           min-height: 34px;
-          background: #fff;
+          background: var(--card);
           color: var(--ink);
           border-color: var(--line);
           font-size: 12px;
@@ -844,13 +901,16 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v46 van 19-11-2026">v46</span>
+      <span class="ver" title="Versie v47 van 19-11-2026">v47</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
         <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
         (Public API, niet-commercieel gebruik)</span
       >
+      <button type="button" class="theme" id="themeBtn" title="Weergave: automatisch, licht of donker">
+        Thema
+      </button>
     </header>
 
     <!-- ===== Hoofdgedeelte: linkerkolom (aside) en rechterkolom (section) ===== -->
@@ -930,7 +990,9 @@
           <h2>Schaatsersbestand (JSON)</h2>
           <div class="row" style="align-items: center">
             <button type="button" class="ghost" id="fileOpen" style="flex: 0 0 auto">Bestand openen…</button>
-            <span class="hint" id="fileName" style="margin: 0">of sleep een .json-bestand hierheen</span>
+            <span class="hint" id="fileName" style="margin: 0"
+              >of sleep een .json-bestand hierheen; de bestandsnaam wordt de groep</span
+            >
             <input type="file" id="fileInput" accept=".json,application/json" hidden />
           </div>
           <div class="row" style="align-items: center; margin-top: 8px">
@@ -965,12 +1027,12 @@
               </button>
             </span>
           </h2>
-          <datalist id="grpList"></datalist>
           <div id="selected"><div class="empty" style="padding: 10px">Nog niemand geselecteerd.</div></div>
           <div class="hint">
             Leeftijd wordt geschat uit de categorie (±6 mnd). Vul de geboortemaand in (staat op het profiel,
             link ↗) of laad een JSON-bestand met geboortedata. De selectie blijft alleen in deze browser
-            bewaard; met "Opslaan als JSON" bewaar je hem als bestand, inclusief de groepen.
+            bewaard; met "Opslaan als JSON" bewaar je hem als bestand. De bestandsnaam wordt de groepsnaam als
+            je het later weer opent.
           </div>
         </div>
       </aside>
@@ -1104,7 +1166,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v46 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v47 (19-11-2026)
     </footer>
 
     <script>
@@ -1380,6 +1442,7 @@
           showF: bool(o.showF, true),
           ans: bool(o.ans, false),
           maxT,
+          theme: ['auto', 'light', 'dark'].includes(o.theme) ? o.theme : 'auto',
         };
       }
       /* Eén rij uit de API of uit de cache: alleen geldige velden, anders null */
@@ -1810,16 +1873,21 @@
       ${
         added
           ? ''
-          : `<div class="birth">Geboren ${monthSel}${yearSel}</div>
-      <div class="birthhint ${done ? 'ok' : ''}">${
-        done
-          ? '✓ Geboortedatum ingevuld: leeftijd klopt op de maand.'
-          : `Belangrijk: vul de geboortemaand in (staat op het <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a>). Zonder geboortemaand wordt de leeftijd geschat${s.category ? ' (±' + (birthWindow(s.category, currentSeasonStart())?.spanYears > 1 ? Math.ceil(birthWindow(s.category, currentSeasonStart()).spanYears / 2) + ' jaar' : '6 maanden') + ')' : ''}. Achteraf invullen kan ook.`
-      }</div>`
+          : `<div class="birth">Geboren ${monthSel}${yearSel}${done ? '<span class="birthok">✓</span>' : ''}</div>
+`
       }
     </div>`;
           })
           .join('');
+        // één melding boven de lijst (niet bij elke schaatser): alleen als er iemand zonder geboortedatum staat
+        const open = list.some(
+          (s) => !ids.has(s.id) && !(resBirth[s.id] && resBirth[s.id].y && resBirth[s.id].m),
+        );
+        if (open)
+          $('results').insertAdjacentHTML(
+            'afterbegin',
+            '<div class="birthhint"><b>Vul de geboortemaand in</b> voordat je toevoegt (staat op het profiel ↗). Zonder geboortemaand wordt de leeftijd geschat: ±6 maanden bij jeugd, meerdere jaren bij senioren en masters. Achteraf invullen kan ook.</div>',
+          );
       }
       // geboortemaand/-jaar kiezen bij een zoekresultaat (zelfde regels als bij Geselecteerd)
       $('results').addEventListener('change', (e) => {
@@ -1894,11 +1962,7 @@
               giv = i > 0 ? name.slice(0, i) : name;
               fam = i > 0 ? name.slice(i + 1) : '';
             }
-            const groups = (Array.isArray(x.group) ? x.group : x.group ? [x.group] : [])
-              .filter((g) => typeof g === 'string')
-              .map((g) => cleanStr(g, 60))
-              .filter(Boolean)
-              .slice(0, 10);
+            // vanaf v47: de groep is de naam van het bestand (zie loadSkaterFile); het veld group telt niet meer
             return {
               id,
               givenname: giv,
@@ -1908,11 +1972,14 @@
               category: cleanCategory(x.category),
               catSeason: cleanInt(x.catSeason, 1900, 2100),
               birth: normBirth(x.birth),
-              groups,
+              groups: [],
             };
           })
           .filter(Boolean);
       }
+      /* Geopende schaatsersbestanden: [{ name, skaters }]. De bestandsnaam (zonder .json) is de groepsnaam.
+         Meerdere bestanden kunnen tegelijk open zijn; alles staat alleen in het geheugen. */
+      const fileSets = [];
       /* Open een gekozen of gesleept bestand en vul de groep-keuzelijst */
       function loadSkaterFile(file) {
         if (file.size > MAX_FILE_BYTES) {
@@ -1922,27 +1989,35 @@
         const rd = new FileReader();
         rd.onload = () => {
           try {
-            fileSkaters = parseSkaterFile(rd.result);
-            const groups = [...new Set(fileSkaters.flatMap((s) => s.groups))];
-            const noGroup = fileSkaters.filter((s) => !s.groups.length).length;
+            const name = cleanStr(String(file.name).replace(/\.json$/i, ''), 60) || 'Bestand';
+            const skaters = parseSkaterFile(rd.result).map((s) => ({ ...s, groups: [name] }));
+            const i = fileSets.findIndex((f) => f.name === name);
+            if (i >= 0) fileSets[i] = { name, skaters };
+            else fileSets.push({ name, skaters }); // zelfde naam opnieuw geopend: vervangen
+            // alle geladen schaatsers; staat iemand in meer bestanden, dan krijgt hij al die groepen
+            const byId = new Map();
+            for (const f of fileSets)
+              for (const sk of f.skaters) {
+                const cur = byId.get(sk.id);
+                if (cur) cur.groups = [...new Set([...cur.groups, f.name])];
+                else byId.set(sk.id, { ...sk, groups: [f.name] });
+              }
+            fileSkaters = [...byId.values()];
             $('groupSel').innerHTML =
-              `<option value="*">Alle schaatsers uit bestand (${fileSkaters.length})</option>` +
-              groups
-                .map(
-                  (g) =>
-                    `<option value="g:${esc(g)}">${esc(g)} (${fileSkaters.filter((s) => s.groups.includes(g)).length})</option>`,
-                )
-                .join('') +
-              (noGroup && groups.length ? `<option value="-">Zonder groep (${noGroup})</option>` : '');
+              (fileSets.length > 1
+                ? `<option value="*">Alle geladen schaatsers (${fileSkaters.length})</option>`
+                : '') +
+              fileSets
+                .map((f) => `<option value="g:${esc(f.name)}">${esc(f.name)} (${f.skaters.length})</option>`)
+                .join('');
+            $('groupSel').value = 'g:' + name;
             $('groupSel').disabled = $('groupAdd').disabled = false;
-            $('fileName').textContent = `${file.name}: ${fileSkaters.length} schaatsers`;
+            $('fileName').textContent =
+              `${file.name}: ${skaters.length} schaatsers` +
+              (fileSets.length > 1 ? ` · ${fileSets.length} bestanden geladen` : '');
             $('groupSel').dispatchEvent(new Event('change'));
           } catch (err) {
-            fileSkaters = [];
             $('fileName').textContent = 'Kon bestand niet lezen: ' + err.message;
-            $('groupSel').innerHTML = '<option value="">Nog geen bestand geladen</option>';
-            $('groupSel').disabled = $('groupAdd').disabled = true;
-            $('groupInfo').textContent = '';
           }
         };
         rd.readAsText(file);
@@ -1951,7 +2026,6 @@
       function chosenFileSkaters() {
         const v = $('groupSel').value;
         if (v === '*') return fileSkaters;
-        if (v === '-') return fileSkaters.filter((s) => !s.groups.length);
         if (v.startsWith('g:')) return fileSkaters.filter((s) => s.groups.includes(v.slice(2)));
         return [];
       }
@@ -2171,7 +2245,6 @@
             gender: s.gender || null,
             country: s.country || null,
             birth: s.birth ? s.birth.slice(0, 7) : null,
-            group: ((g) => (g.length > 1 ? g : g[0] || null))(splitGroups(s.group)),
             category: s.category ?? null,
             catSeason: s.catSeason ?? null,
           })),
@@ -2195,27 +2268,8 @@
       });
 
       /* ---------- Blok "Geselecteerd": kaartjes per schaatser ---------- */
-      /* "C-selectie, Talent" -> ["C-selectie", "Talent"] */
-      function splitGroups(g) {
-        return String(g || '')
-          .split(',')
-          .map((x) => x.trim())
-          .filter(Boolean);
-      }
-      /* Suggesties voor het veld Groep: alle groepen uit de selectie en het geopende bestand */
-      function fillGroupList() {
-        const all = new Set([
-          ...state.selected.flatMap((s) => splitGroups(s.group)),
-          ...fileSkaters.flatMap((s) => s.groups),
-        ]);
-        $('grpList').innerHTML = [...all]
-          .sort((a, b) => a.localeCompare(b, 'nl'))
-          .map((g) => `<option value="${esc(g)}">`)
-          .join('');
-      }
       /* Bouw de kaartjes van alle geselecteerde schaatsers opnieuw op */
       function renderSelected() {
-        fillGroupList();
         const el = $('selected');
         if (!state.selected.length) {
           el.innerHTML = '<div class="empty" style="padding:10px">Nog niemand geselecteerd.</div>';
@@ -2236,7 +2290,7 @@
       <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)}</span>
         <span><button class="star ${s.hl ? 'on' : ''}" data-act="hl" title="${s.hl ? 'Highlight uitzetten' : 'Highlighten: dikkere lijn in de grafiek'}">${s.hl ? '★' : '☆'}</button><button class="x" data-act="rm" title="Verwijderen">×</button></span></div>
       <div class="meta">${esc(s.country)} · ${s.gender === 'f' ? 'v' : 'm'}${s.category ? ' · ' + esc(catName(s.category)) : ''} · <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a></div>
-      <div class="grp">Groep <input type="text" data-act="grp" list="grpList" value="${esc(s.group || '')}" placeholder="bijv. C-selectie (meerdere: komma ertussen)" title="Groep(en) voor het JSON-bestand; meerdere groepen scheiden met een komma"></div>
+      ${s.group ? `<div class="meta">Groep: ${esc(s.group)}</div>` : ''}
       <div class="birth">Geboren ${monthSel}${yearSel}${s.birth ? '<button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</div>
       <div class="meta" style="margin-top:3px">${badge}${!s.birth && (s.draftY || s.draftM) ? ' kies ook ' + (s.draftY ? 'de maand' : 'het jaar') : ''}</div>
       ${!s.birth && b ? `<div class="meta">schatting: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} (midden van categorie)</div>` : ''}
@@ -2244,12 +2298,6 @@
           })
           .join('');
       }
-      $('selected').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && e.target.dataset.act === 'grp') {
-          e.preventDefault();
-          e.target.blur();
-        }
-      });
       $('selected').addEventListener('click', (e) => {
         const hlb = e.target.closest('[data-act=hl]');
         if (hlb) {
@@ -2281,14 +2329,6 @@
       });
       $('selected').addEventListener('change', (e) => {
         const act = e.target.dataset.act;
-        if (act === 'grp') {
-          const s = state.selected.find((x) => x.id === +e.target.closest('.sel').dataset.id);
-          s.group = splitGroups(e.target.value).join(', ') || null;
-          e.target.value = s.group || '';
-          persistSel();
-          fillGroupList();
-          return;
-        }
         if (act !== 'by' && act !== 'bm') return;
         const card = e.target.closest('.sel');
         const s = state.selected.find((x) => x.id === +card.dataset.id);
@@ -2571,7 +2611,7 @@
           for (const it of placed) {
             ctx.font = LBL_FONT(it.hl);
             ctx.lineWidth = 3;
-            ctx.strokeStyle = 'rgba(255,255,255,.9)';
+            ctx.strokeStyle = cssVar('--card') || '#fff'; // halo in de achtergrondkleur
             ctx.strokeText(it.text, it.x + 6, it.ly);
             ctx.fillStyle = it.color;
             ctx.fillText(it.text, it.x + 6, it.ly);
@@ -2814,6 +2854,11 @@
           ...datasets.filter((ds) => ds._lbl).map((ds) => labelWidth(ds._lbl, ds._hl)),
         );
         opts.layout = { padding: { right: lblW ? lblW + 10 : 0 } };
+        // kleuren van assen en rasterlijnen volgen het thema (licht/donker)
+        if (Chart.defaults) {
+          Chart.defaults.color = cssVar('--muted');
+          Chart.defaults.borderColor = cssVar('--line');
+        }
         if (chart) chart.destroy();
         chart = new Chart($('chart'), {
           type: 'scatter',
@@ -2919,7 +2964,7 @@
               .map((v) =>
                 v
                   ? `<td class="num ${cols.length > 1 && v.sec === fastest ? 'best' : ''}" title="${esc(fmtDateNL(v.date) + ' · ' + v.location + ' · ' + v.name + (v.raw != null ? ' · gereden ' + fmtTime(v.raw) : ''))}">${fmtTime(v.sec)}</td>`
-                  : '<td class="num" style="color:#c5c9d2">–</td>',
+                  : '<td class="num" style="color:var(--faint)">–</td>',
               )
               .join('') +
             '</tr>';
@@ -2997,6 +3042,28 @@
           (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
         );
       }
+
+      /* ---------- Thema: automatisch (volgt het systeem), licht of donker (vanaf v47) ---------- */
+      function cssVar(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      }
+      const THEME_LABEL = { auto: 'Thema: auto', light: 'Thema: licht', dark: 'Thema: donker' };
+      function applyTheme() {
+        if (ui.theme === 'auto') delete document.documentElement.dataset.theme;
+        else document.documentElement.dataset.theme = ui.theme;
+        $('themeBtn').textContent = THEME_LABEL[ui.theme];
+      }
+      $('themeBtn').addEventListener('click', () => {
+        ui.theme = ui.theme === 'auto' ? 'light' : ui.theme === 'light' ? 'dark' : 'auto';
+        save(LS_UI, ui);
+        applyTheme();
+        render();
+      });
+      if (window.matchMedia)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (ui.theme === 'auto') render();
+        });
+      applyTheme();
 
       /* ---------- Mobiele weergave (vanaf v43) ----------
          Op een smal scherm (< 800 px) toont de pagina één tabblad tegelijk: Schaatsers, Grafiek of

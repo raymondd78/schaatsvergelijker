@@ -19,10 +19,10 @@ Kies een groep, "Alle topschaatsers" of één naam (vrouwen en mannen apart) en 
 ## In de pagina (eigen bestanden)
 
 - **Bestand openen…**, of sleep een `.json` op het blok "Schaatsersbestand". De inhoud blijft alleen in het geheugen van het tabblad.
-- **Keuzelijst:** "Alle schaatsers uit bestand", plus één optie per groep die in het bestand voorkomt.
-- **Toevoegen:** voegt de gekozen schaatsers toe. Staat een schaatser er al in, dan worden de geboortedatum en groep uit het bestand overgenomen.
-- **Groep bewerken:** elk kaartje bij "Geselecteerd" heeft een veld *Groep*. Typ een naam (de lijst stelt bestaande groepen voor) of meerdere groepen gescheiden door een komma. Opslaan gebeurt bij het verlaten van het veld of met Enter.
-- **Opslaan als JSON** (bij "Geselecteerd"): downloadt de huidige selectie als `schaatsers-JJJJ-MM-DD.json`, in hetzelfde formaat. Inclusief de handmatig ingevulde geboortemaanden en de bewerkte groepen (één groep als tekst, meerdere als lijst).
+- **De bestandsnaam is de groep** (vanaf v47): `C-selectie.json` heet in de app "C-selectie". Je kunt meerdere bestanden openen; de keuzelijst toont elk bestand met het aantal schaatsers, en bij meer dan één bestand ook "Alle geladen schaatsers". Een bestand met dezelfde naam opnieuw openen vervangt het vorige.
+- **Toevoegen:** voegt de schaatsers uit de gekozen groep toe. Staat een schaatser er al in, dan worden de geboortedatum en groep uit het bestand overgenomen.
+- Bij elke geselecteerde schaatser staat de groep als tekst. Bewerken kan niet meer; pas daarvoor het bestand of de bestandsnaam aan.
+- **Opslaan als JSON** (bij "Geselecteerd"): downloadt de huidige selectie, inclusief de handmatig ingevulde geboortemaanden. Er gaat geen groep mee; de naam die je het bestand geeft, wordt de groep als je het later opent.
 - **Alles wissen:** maakt de selectie leeg.
 
 Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `localStorage` van **jouw** browser bewaard, zodat hij er na herladen nog is. Met "Alles wissen" verdwijnt die.
@@ -43,7 +43,6 @@ Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `loc
       "gender": "m",
       "country": "NED",
       "birth": "2014-02",
-      "group": "Trainingsgroep",
       "category": "YA",
       "catSeason": 2026
     }
@@ -56,7 +55,7 @@ Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `loc
 | `id` | ja | Rijder-ID van SpeedskatingResults (`s=` in de profiel-URL) |
 | `name` of `givenname` + `familyname` | aanbevolen | Weergavenaam |
 | `birth` | nee | `JJJJ-MM` (of `JJJJ-MM-DD`). De app rekent met de 15e van de maand als er geen dag is. Zonder `birth` schat de app uit `category`. |
-| `group` | nee | Groepsnaam (tekst), of een lijst met groepen. Bepaalt de opties in de keuzelijst. |
+| `group` | nee | Wordt vanaf v47 genegeerd: de bestandsnaam is de groep. |
 | `category`, `catSeason` | nee | Categoriecode volgens SpeedskatingResults en het seizoen (beginjaar) waarin die gold. Alleen nodig voor de schatting als `birth` ontbreekt. |
 | `gender`, `country` | nee | Alleen voor de weergave |
 
