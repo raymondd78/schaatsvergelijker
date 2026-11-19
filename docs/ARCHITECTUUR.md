@@ -41,7 +41,7 @@ Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?sk
 | `prProgression()` | Loopt chronologisch door de races en houdt elk nieuw PR bij (met vorige PR) |
 | `render()` | Bouwt de Chart.js-datasets: PR-lijn (`stepped:'before'`) en alle races (scatter) |
 | `renderAgeTable()` | Beste tijd per leeftijdsjaar: vanaf v59 een rij per schaatser en een kolom per leeftijd; klik op een kolomkop (`th[data-age]`) sorteert op die leeftijd (`ui.ageSort`) |
-| `renderPRTable()` | PR-verloop met verbetering en wedstrijdlink; sortering via klik op kolomkop Datum (`prSort`: `''` per schaatser, `'new'`, `'old'`; niet opgeslagen, vanaf v39); keuzelijst `#prWho` (`prWho`: schaatser-ID of `'all'`; standaard eerste gehighlighte, anders eerste schaatser; vanaf v48) |
+| `renderPRTable()` | PR-verloop met verbetering en wedstrijdlink; altijd nieuwste PR bovenaan (vanaf v60; `prSort` is vervallen); keuzelijst `#prWho` (`prWho`: schaatser-ID of `'all'`; standaard eerste gehighlighte, anders eerste schaatser; vanaf v48) |
 | `ANS` / `ansPct()` | KNSB ANS-percentages per baan en afstand; `ansPct(locatie, afstand)` geeft het percentage of `null` (niet-NL of onbekende baan) |
 | `rowsFor()` | Tijden van een schaatser zoals getoond: bij ANS gefilterd op NL-banen en omgerekend (`sec`), met de originele tijd in `raw`; daarna gefilterd op de maximale tijd (`ui.maxT[afstand]`) |
 | `fillMaxT()` / `maxTStep()` | Vult de keuzelijst Max. tijd voor de gekozen afstand: 3 t/m 20 stappen van `10 × afstand / 500` seconden |
@@ -129,7 +129,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Tabblad: `body[data-mtab]` = `skaters` | `chart` | `tables` (`setMobileTab()`); tabel: `body[data-mtbl]` = `pr` | `age` (`setMobileTable()`). Start op `chart`, of `skaters` bij een lege selectie. Niet opgeslagen.
 - Filters: dezelfde `.controls` (`#controls`) wordt op mobiel een paneel van onderen met klasse `open` (`openFilters()`); daarbuiten blijft alleen de statusregel zichtbaar. `renderMobileBits()` (aan het begin van `render()`) vult de samenvatting `#mSummary`, het aantal `#mFilterCount` en de chips `#mChips` (tik = `toggleHighlight()`).
 - Namen aan de lijn: bij `isMobilePortrait()` wist `render()` `_lbl` van niet-gehighlighte datasets.
-- PR-verloop: de cellen hebben klassen `c-name`, `c-date`, `c-age`, `c-time`, `c-raw`, `c-gain`, `c-loc`, `c-comp`; mobiele CSS maakt er kaartjes van. Op mobiel start `prSort` op `'new'`; knop `#mPrSort` wisselt.
+- PR-verloop: de cellen hebben klassen `c-name`, `c-date`, `c-age`, `c-time`, `c-raw`, `c-gain`, `c-loc`, `c-comp`; mobiele CSS maakt er kaartjes van.
 - Telefoon liggend (`MQ_LANDSCAPE`: landscape, hoogte ≤ 500 px, breedte ≥ 600 px, touchscherm; de breedte-eis sinds v45 zodat een geopend toetsenbord niet meetelt): alleen de grafiek op schermhoogte, met alle namen; geen filterknop.
 - Bij wisselen van breedte of stand roept een `matchMedia`-listener `render()` opnieuw aan.
 

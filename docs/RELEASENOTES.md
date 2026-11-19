@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v59** (19 november 2026)
+**Huidige versie: v60** (19 november 2026)
 
 ---
+
+## v60 – PR-verloop altijd nieuwste boven (19-11-2026)
+- Het sorteren op datum (klik op "Datum", en de knop op mobiel) is weg: het PR-verloop staat altijd met het nieuwste PR bovenaan. Per schaatser kies je met de keuzelijst.
 
 ## v59 – Overzichtelijker indeling (19-11-2026)
 - **Toevoegen** is één blok met de tabjes **Zoeken**, **Topschaatsers** en **Bestand**; **Geselecteerd** staat er direct onder. Het gekozen tabje wordt onthouden.

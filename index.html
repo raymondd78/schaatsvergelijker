@@ -1224,7 +1224,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v59 van 19-11-2026">v59</span>
+      <span class="ver" title="Versie v60 van 19-11-2026">v60</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1450,10 +1450,7 @@
         </div>
 
         <div class="card section" id="prCard">
-          <h2 class="mprhead">
-            PR-verloop
-            <button type="button" class="mobile-only" id="mPrSort">Nieuwste eerst ▼</button>
-          </h2>
+          <h2 class="mprhead">PR-verloop</h2>
           <!-- Keuze van de schaatser voor het PR-verloop (vanaf v48), in plaats van één lange lijst -->
           <label class="prwho"
             >Schaatser
@@ -1526,7 +1523,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v59 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v60 (19-11-2026)
     </footer>
 
     <script>
@@ -3718,19 +3715,13 @@
         $('ageTable').innerHTML = html;
       }
       /* Tabel "PR-verloop": elk PR met datum, leeftijd, verbetering, baan en wedstrijd */
-      /* Sortering van het PR-verloop: '' = per schaatser (standaard), 'new' = nieuwste eerst,
-         'old' = oudste eerst. Klik op "Datum" wisselt: standaard → nieuwste → oudste → standaard. */
-      let prSort = '';
+      /* Het PR-verloop staat altijd met het nieuwste PR bovenaan (vanaf v60; de sorteerknop is vervallen
+         sinds je per schaatser kiest) */
       /* Welke schaatser het PR-verloop toont: id, of 'all' voor alle schaatsers; null = nog niet gekozen
          (dan de eerste gehighlighte schaatser, anders de eerste in de selectie) */
       let prWho = null;
       $('prWho').addEventListener('change', (e) => {
         prWho = e.target.value === 'all' ? 'all' : +e.target.value;
-        renderPRTable();
-      });
-      $('prTable').addEventListener('click', (e) => {
-        if (!e.target.closest('th[data-sort]')) return;
-        prSort = prSort === '' ? 'new' : prSort === 'new' ? 'old' : '';
         renderPRTable();
       });
       function renderPRTable() {
@@ -3765,18 +3756,8 @@
           return;
         }
         const byDate = (a, b) => (a.p.date < b.p.date ? -1 : a.p.date > b.p.date ? 1 : 0);
-        if (prSort === 'new') rows.sort((a, b) => byDate(b, a));
-        else if (prSort === 'old') rows.sort(byDate);
-        else
-          rows.sort((a, b) =>
-            a.s.id !== b.s.id ? state.selected.indexOf(a.s) - state.selected.indexOf(b.s) : byDate(a, b),
-          );
-        $('mPrSort').textContent =
-          prSort === 'new' ? 'Nieuwste eerst ▼' : prSort === 'old' ? 'Oudste eerst ▲' : 'Per schaatser';
-        const dateHead =
-          `<th class="sortable" data-sort="date" title="Klik: per schaatser → nieuwste eerst → oudste eerst">Datum` +
-          (prSort === 'new' ? ' ▼' : prSort === 'old' ? ' ▲' : '') +
-          '</th>';
+        rows.sort((a, b) => byDate(b, a));
+        const dateHead = '<th>Datum</th>';
         $('prTable').innerHTML =
           '<table><thead><tr><th>Schaatser</th>' +
           dateHead +
@@ -3916,10 +3897,6 @@
         const b = e.target.closest('button[data-id]');
         if (b) toggleHighlight(+b.dataset.id);
       });
-      $('mPrSort').addEventListener('click', () => {
-        prSort = prSort === 'new' ? 'old' : prSort === 'old' ? '' : 'new';
-        renderPRTable();
-      });
       // wisselen tussen smal/breed of rechtop/liggend: namen aan de lijn opnieuw bepalen
       MQ_MOBILE.addEventListener('change', () => {
         openFilters(false);
@@ -3932,7 +3909,6 @@
       document
         .querySelectorAll('.mtabs button')
         .forEach((b) => b.classList.toggle('on', b.dataset.mtab === document.body.dataset.mtab));
-      if (MQ_MOBILE.matches) prSort = 'new';
 
       /* ---------- Start van de pagina ---------- */
       /* Uitleg "Over deze tool" als venster (vanaf v59): knop ⓘ in de kopbalk; bij het eerste bezoek vanzelf open */
