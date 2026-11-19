@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v48** (19 november 2026)
+**Huidige versie: v49** (19 november 2026)
 
 ---
+
+## v49 – Ingevulde geboortedatum als tekst (19-11-2026)
+- Bij **Geselecteerd** staat een ingevulde geboortedatum als tekst, bijvoorbeeld "Geboren maart 2013", zonder keuzelijsten.
+- Klik op de datum om hem te wijzigen: dan verschijnen de keuzelijsten weer, met **Klaar** en × (wissen).
+- Zonder geboortedatum staan de keuzelijsten er gewoon; zodra maand en jaar zijn ingevuld, wordt het tekst.
 
 ## v48 – PR-verloop per schaatser (19-11-2026)
 - Boven het **PR-verloop** staat een keuzelijst **Schaatser**: de tabel toont dan alleen de PR's van die schaatser in plaats van één lange lijst. Met "Alle schaatsers" zie je weer iedereen, bijvoorbeeld om met "nieuwste eerst" de laatste PR's van de hele groep te bekijken.

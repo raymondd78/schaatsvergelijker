@@ -319,6 +319,15 @@
         margin-top: 6px;
         font-size: 12px;
       }
+      /* ingevulde geboortedatum als klikbare tekst (vanaf v49) */
+      .sel .birthlink {
+        background: transparent;
+        border: 0;
+        padding: 2px 0;
+        color: var(--link);
+        font-weight: 600;
+        text-decoration: underline dotted;
+      }
       .sel .birth select {
         width: auto;
         flex: 1;
@@ -915,7 +924,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v48 van 19-11-2026">v48</span>
+      <span class="ver" title="Versie v49 van 19-11-2026">v49</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1185,7 +1194,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v48 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v49 (19-11-2026)
     </footer>
 
     <script>
@@ -1614,6 +1623,23 @@
    Jeugd/junioren/neo-senioren: leeftijd op 1 juli van het lopende seizoen.
    Senioren (SA) 23-29. Masters: leeftijd op 1 juli van het eindjaar van het seizoen, klassen van 5 jaar. */
       const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+      const MONTHS_FULL = [
+        'januari',
+        'februari',
+        'maart',
+        'april',
+        'mei',
+        'juni',
+        'juli',
+        'augustus',
+        'september',
+        'oktober',
+        'november',
+        'december',
+      ];
+      /* Schaatsers waarvan de ingevulde geboortedatum nu wordt gewijzigd (vanaf v49; alleen in het geheugen).
+         Een ingevulde datum staat anders als klikbare tekst, zonder keuzelijsten. */
+      const editBirth = new Set();
       const CAT_AGE = {
         YF: 7,
         YE: 8,
@@ -2310,7 +2336,11 @@
         <span><button class="star ${s.hl ? 'on' : ''}" data-act="hl" title="${s.hl ? 'Highlight uitzetten' : 'Highlighten: dikkere lijn in de grafiek'}">${s.hl ? '★' : '☆'}</button><button class="x" data-act="rm" title="Verwijderen">×</button></span></div>
       <div class="meta">${esc(s.country)} · ${s.gender === 'f' ? 'v' : 'm'}${s.category ? ' · ' + esc(catName(s.category)) : ''} · <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a></div>
       ${s.group ? `<div class="meta">Groep: ${esc(s.group)}</div>` : ''}
-      <div class="birth">Geboren ${monthSel}${yearSel}${s.birth ? '<button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</div>
+      ${
+        s.birth && !editBirth.has(s.id)
+          ? `<div class="birth">Geboren <button type="button" class="birthlink" data-act="bedit" title="Klik om de geboortedatum te wijzigen">${MONTHS_FULL[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}</button></div>`
+          : `<div class="birth">Geboren ${monthSel}${yearSel}${s.birth ? '<button class="small" data-act="bdone" title="Klaar met wijzigen">Klaar</button><button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</div>`
+      }
       <div class="meta" style="margin-top:3px">${badge}${!s.birth && (s.draftY || s.draftM) ? ' kies ook ' + (s.draftY ? 'de maand' : 'het jaar') : ''}</div>
       ${!s.birth && b ? `<div class="meta">schatting: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} (midden van categorie)</div>` : ''}
     </div>`;
@@ -2327,9 +2357,21 @@
           render();
           return;
         }
+        // klik op de geboortedatum: wijzigen; "Klaar": weer als tekst tonen
+        const bed = e.target.closest('[data-act=bedit],[data-act=bdone]');
+        if (bed) {
+          const id = +bed.closest('.sel').dataset.id;
+          if (bed.dataset.act === 'bedit') editBirth.add(id);
+          else editBirth.delete(id);
+          renderSelected();
+          const sel = $('selected').querySelector(`.sel[data-id="${id}"] [data-act=bm]`);
+          if (sel && bed.dataset.act === 'bedit') sel.focus();
+          return;
+        }
         const clr = e.target.closest('[data-act=bclear]');
         if (clr) {
           const s = state.selected.find((x) => x.id === +clr.closest('.sel').dataset.id);
+          editBirth.delete(s.id);
           s.birth = null;
           s.draftY = s.draftM = null;
           persistSel();
