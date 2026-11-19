@@ -101,6 +101,12 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Grafiek: open stip (`pointBackgroundColor` = `--card`, rand 2 px, 1 px groter). Tabellen: ✎ achter de tijd; tooltip en wedstrijdkolom tonen "Zelf ingevoerd (nog niet op SpeedskatingResults)".
 - Opruimen: een eigen tijd wordt verborgen zodra de API-rijen dezelfde datum en tijd (verschil < 0,015 s) bevatten, en `pruneManual()` verwijdert hem na elke `refresh()` uit de opslag.
 
+## Filters en weergave-opties (vanaf v56)
+
+- Boven de grafiek in `#controls`: filtergroepjes `.fgrp` (leeftijd, max. tijd), `#genderSeg` (Heren/Dames/Beide → `ui.showM`/`ui.showF`; beide uit wordt bij het laden hersteld naar beide aan) en `#filterReset` (zichtbaar als `filtersOn()`; wist `ageFrom`/`ageTo`, alle `maxT` en het geslachtsfilter).
+- Onder de grafiek in `#viewOpts`: schakelaartjes (`.sw`, opgemaakte checkboxes `showPR`, `showAll`, `fastTop`) en de knop `#ansBtn` (`aria-pressed`, `ui.ans`).
+- Mobiel: `#controls` blijft het filterpaneel (ook `.gseg` en `.freset` alleen in het open paneel); `#viewOpts` staat onder de grafiek en is verborgen in het tabblad Tabellen en liggend.
+
 ## Thema: licht en donker (vanaf v47)
 
 - Alle kleuren staan in CSS-variabelen op `:root` (o.a. `--bg`, `--card`, `--ink`, `--muted`, `--line`, `--accent`, `--warn-bg`, `--ok`, `--ok-bg`, `--seg`, `--faint`, `--link`). De donkere waarden gelden bij `:root[data-theme='dark']`, of via `prefers-color-scheme: dark` zolang er geen vaste keuze is.

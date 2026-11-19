@@ -2,9 +2,15 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v55** (19 november 2026)
+**Huidige versie: v56** (19 november 2026)
 
 ---
+
+## v56 – Rustiger filters en weergave-opties (19-11-2026)
+- **Boven de grafiek** staan alleen de filters, als groepjes met een klein label: **Leeftijd** (van – t/m), **Max. tijd** en een keuze **Heren / Dames / Beide** (in plaats van twee vinkjes; alles uitzetten kan niet meer).
+- **Filters wissen** verschijnt rechts zodra er een filter aan staat en zet leeftijd, max. tijd (alle afstanden) en heren/dames terug.
+- **Onder de grafiek**, klein en rechts: **Toon** PR-lijn · Alle tijden · Snelste boven als schakelaartjes, plus de knop **ANS · NL-banen**, die oplicht als hij aan staat.
+- Op mobiel zitten de filters nog in het paneel achter **Filters**; de weergave-opties staan onder de grafiek.
 
 ## v55 – KNSB-afkortingen voor banen (19-11-2026)
 - Bij toegevoegde tijden op het kaartje staat de baan nu met de gebruikelijke drieletterafkorting uit de KNSB-ranglijsten: ALK, AMS, BRE, DNH, DEV, EVN, ENS, GEL, GRO, HAA, HVN, HRN, LEE, LEI, NYM, TIL, UTR.

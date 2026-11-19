@@ -492,6 +492,116 @@
         color: var(--accent);
         font-weight: 600;
       }
+      /* filtergroepjes boven de grafiek (vanaf v56) */
+      .controls {
+        gap: 8px;
+      }
+      .controls .fgrp {
+        gap: 6px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 3px 8px;
+      }
+      .flbl {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .gseg {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .gseg button {
+        border: 0;
+        border-radius: 0;
+        background: var(--card);
+        color: var(--ink);
+        padding: 4px 12px;
+        font-size: 13px;
+      }
+      .gseg button + button {
+        border-left: 1px solid var(--line);
+      }
+      .gseg button.on {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .freset {
+        border: 0;
+        background: transparent;
+        color: var(--link);
+        font-size: 12px;
+        padding: 2px 4px;
+      }
+      /* weergave-opties onder de grafiek: klein en rechts */
+      .viewopts {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 6px 14px;
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .viewopts label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      /* vinkje als schakelaartje */
+      .viewopts .sw input {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 26px;
+        height: 14px;
+        margin: 0;
+        border-radius: 7px;
+        background: var(--faint);
+        position: relative;
+        cursor: pointer;
+        flex: none;
+      }
+      .viewopts .sw input::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--card);
+        transition: left 0.15s;
+      }
+      .viewopts .sw input:checked {
+        background: var(--accent);
+      }
+      .viewopts .sw input:checked::after {
+        left: 14px;
+      }
+      .viewopts .sw input:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .ansbtn {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card);
+        color: var(--muted);
+        padding: 2px 12px;
+        font-size: 12px;
+      }
+      .ansbtn.on {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
       .controls select.agesel {
         width: auto;
         padding: 3px 4px;
@@ -674,6 +784,7 @@
         body[data-mtab='chart'] #ageCard,
         body[data-mtab='chart'] #prCard,
         body[data-mtab='tables'] .chartwrap,
+        body[data-mtab='tables'] .viewopts,
         body[data-mtab='tables'] .mbar,
         body[data-mtab='tables'] #mChips,
         body[data-mtab='tables'] .controls,
@@ -727,11 +838,41 @@
           margin-left: 4px;
         }
         /* filters: alleen de statusregel blijft staan; de rest zit in een paneel dat van onderen opschuift */
-        .controls > label {
+        .controls > label,
+        .controls > .gseg,
+        .controls > .freset {
           display: none;
         }
         .controls {
           margin-bottom: 4px;
+        }
+        .controls.open > .gseg {
+          display: flex;
+          margin: 10px 0 4px;
+        }
+        .controls.open > .gseg button {
+          flex: 1;
+          min-height: 44px;
+          font-size: 14px;
+        }
+        .controls.open > .freset:not([hidden]) {
+          display: block;
+          margin-top: 8px;
+          font-size: 14px;
+          min-height: 40px;
+        }
+        .controls.open .fgrp {
+          border: 0;
+          border-radius: 0;
+          padding: 0;
+        }
+        .controls.open .flbl {
+          font-size: 14px;
+          color: var(--ink);
+          margin-right: auto;
+        }
+        .viewopts {
+          justify-content: flex-start;
         }
         .controls.open {
           position: fixed;
@@ -943,6 +1084,7 @@
         #prCard,
         .mtabs,
         footer,
+        .viewopts,
         #mChips {
           display: none !important;
         }
@@ -978,7 +1120,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v55 van 19-11-2026">v55</span>
+      <span class="ver" title="Versie v56 van 19-11-2026">v56</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1132,30 +1274,46 @@
             <div class="sheethead">
               Filters <button type="button" id="mFilterClose" aria-label="Filters sluiten">×</button>
             </div>
-            <label
-              >Leeftijd van
-              <select id="ageFrom" class="agesel"></select>
-              t/m
-              <select id="ageTo" class="agesel"></select
+            <!-- Filters (vanaf v56): bepalen welke tijden meetellen -->
+            <label class="fgrp"
+              ><span class="flbl">Leeftijd</span>
+              <select id="ageFrom" class="agesel" aria-label="Leeftijd vanaf"></select>
+              –
+              <select id="ageTo" class="agesel" aria-label="Leeftijd tot en met"></select
             ></label>
-            <label title="Tijden langzamer dan deze grens worden niet getoond en tellen niet mee voor PR's"
-              >Max. tijd
+            <label
+              class="fgrp"
+              title="Tijden langzamer dan deze grens worden niet getoond en tellen niet mee voor PR's"
+              ><span class="flbl">Max. tijd</span>
               <select id="maxT" class="agesel"></select
             ></label>
-            <label title="Toon jongens/mannen"><input type="checkbox" id="showM" checked /> Heren</label>
-            <label title="Toon meisjes/vrouwen"><input type="checkbox" id="showF" checked /> Dames</label>
-            <label
-              title="Alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan"
-              ><input type="checkbox" id="ansOn" /> Alleen NL-banen, ANS-gecorrigeerd</label
-            >
-            <label><input type="checkbox" id="showAll" /> Alle gereden tijden</label>
-            <label><input type="checkbox" id="showPR" checked /> PR-lijn</label>
-            <label><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
+            <div class="gseg" id="genderSeg" role="group" aria-label="Heren of dames">
+              <button type="button" data-g="m" title="Alleen jongens/mannen">Heren</button
+              ><button type="button" data-g="f" title="Alleen meisjes/vrouwen">Dames</button
+              ><button type="button" data-g="all">Beide</button>
+            </div>
+            <button type="button" class="freset" id="filterReset" hidden>Filters wissen</button>
             <span class="status" id="loadStatus"></span>
             <button type="button" class="sheetdone" id="mFilterDone">Toon resultaat</button>
           </div>
           <!-- De grafiek (Chart.js tekent op dit canvas) -->
           <div class="chartwrap"><canvas id="chart"></canvas></div>
+          <!-- Weergave-opties onder de grafiek (vanaf v56): hoe de tijden getekend worden -->
+          <div class="viewopts" id="viewOpts">
+            <span class="flbl">Toon</span>
+            <label class="sw"><input type="checkbox" id="showPR" checked /> PR-lijn</label>
+            <label class="sw"><input type="checkbox" id="showAll" /> Alle tijden</label>
+            <label class="sw"><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
+            <button
+              type="button"
+              class="ansbtn"
+              id="ansBtn"
+              aria-pressed="false"
+              title="Alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan"
+            >
+              ANS · NL-banen
+            </button>
+          </div>
           <!-- Mobiel: chips per schaatser om te highlighten (verborgen op desktop) -->
           <div id="mChips" class="mobile-only"></div>
         </div>
@@ -1248,7 +1406,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v55 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v56 (19-11-2026)
     </footer>
 
     <script>
@@ -2705,22 +2863,56 @@
         save(LS_UI, ui);
         render();
       });
-      $('ansOn').checked = ui.ans;
-      $('ansOn').addEventListener('change', () => {
-        ui.ans = $('ansOn').checked;
+      /* Knop ANS onder de grafiek (vanaf v56; was een vinkje) */
+      function syncAnsBtn() {
+        $('ansBtn').setAttribute('aria-pressed', ui.ans ? 'true' : 'false');
+        $('ansBtn').classList.toggle('on', ui.ans);
+      }
+      syncAnsBtn();
+      $('ansBtn').addEventListener('click', () => {
+        ui.ans = !ui.ans;
         save(LS_UI, ui);
+        syncAnsBtn();
         render();
       });
-      $('showM').checked = ui.showM;
-      $('showF').checked = ui.showF;
-      ['showM', 'showF'].forEach((id) =>
-        $(id).addEventListener('change', () => {
-          ui[id] = $(id).checked;
-          save(LS_UI, ui);
-          renderSelected();
-          render();
-        }),
-      );
+      /* Heren / Dames / Beide (vanaf v56; waren twee vinkjes). Twee keer "uit" kan zo niet meer. */
+      if (!ui.showM && !ui.showF) ui.showM = ui.showF = true;
+      function syncGenderSeg() {
+        const g = ui.showM && !ui.showF ? 'm' : ui.showF && !ui.showM ? 'f' : 'all';
+        $('genderSeg')
+          .querySelectorAll('button')
+          .forEach((b) => {
+            b.classList.toggle('on', b.dataset.g === g);
+            b.setAttribute('aria-pressed', b.dataset.g === g ? 'true' : 'false');
+          });
+      }
+      syncGenderSeg();
+      $('genderSeg').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-g]');
+        if (!b) return;
+        ui.showM = b.dataset.g !== 'f';
+        ui.showF = b.dataset.g !== 'm';
+        save(LS_UI, ui);
+        syncGenderSeg();
+        renderSelected();
+        render();
+      });
+      /* "Filters wissen": leeftijdsperiode, max. tijd (alle afstanden) en heren/dames terug naar alles */
+      function filtersOn() {
+        return ui.ageFrom != null || ui.ageTo != null || !!ui.maxT[state.distance] || !ui.showM || !ui.showF;
+      }
+      $('filterReset').addEventListener('click', () => {
+        ui.ageFrom = ui.ageTo = null;
+        ui.maxT = {};
+        ui.showM = ui.showF = true;
+        save(LS_UI, ui);
+        $('ageFrom').value = '';
+        $('ageTo').value = '';
+        fillMaxT();
+        syncGenderSeg();
+        renderSelected();
+        render();
+      });
       /* geslachtsfilter (onbekend geslacht: altijd tonen) */
       function genderOK(s) {
         return s.gender === 'm' ? ui.showM : s.gender === 'f' ? ui.showF : true;
@@ -3482,6 +3674,7 @@
       }
       /* Samenvatting van de filters, het aantal afwijkende filters en de chips onder de grafiek */
       function renderMobileBits() {
+        $('filterReset').hidden = !filtersOn();
         const parts = [];
         let n = 0;
         if (ui.ageFrom != null || ui.ageTo != null) {

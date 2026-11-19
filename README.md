@@ -30,9 +30,9 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 | Zelf ingevoerde tijd | Knop **+ tijd** op het kaartje: een zojuist gereden tijd (afstand, tijd, datum, baan) die nog niet op SpeedskatingResults staat. Op het kaartje onder **Toegevoegd** (baan als KNSB-afkorting, bijv. HVN), open stip in de grafiek, ✎ in de tabellen; verdwijnt vanzelf zodra de tijd officieel binnen is. Alleen in de browser bewaard |
 | Highlight | Ster ☆/★: gemarkeerde schaatsers krijgen een dikke lijn en liggen bovenop; de overige worden dan dunner |
 | Grafiek | Tijd tegen leeftijd. PR-lijn (trap, met de stap op de datum van het nieuwe PR); optioneel alle gereden tijden (stippen, standaard uit). Namen staan aan het eind van elke lijn (geen legenda) |
-| ANS | Vinkje "Alleen NL-banen, ANS-gecorrigeerd": alleen tijden op Nederlandse banen, omgerekend met de KNSB ANS-tabel (zie `docs/ANS.md`) |
+| ANS | Knop **ANS · NL-banen** onder de grafiek: alleen tijden op Nederlandse banen, omgerekend met de KNSB ANS-tabel (zie `docs/ANS.md`) |
 | Tijd-as | Altijd verdeeld naar snelheid (zoals km/u): een verbetering bij een snelle tijd neemt meer ruimte in dan dezelfde procentuele verbetering bij een langzame tijd. Langs de as staan gewoon tijden |
-| Filter heren/dames | Vinkjes **Heren** en **Dames** om jongens/mannen of meisjes/vrouwen te verbergen in grafiek en tabellen; de selectie zelf blijft staan |
+| Filter heren/dames | Keuze **Heren / Dames / Beide** boven de grafiek om jongens/mannen of meisjes/vrouwen te verbergen in grafiek en tabellen; de selectie zelf blijft staan |
 | Max. tijd | Keuzelijst om tijden langzamer dan een grens weg te laten (500 m in stappen van 10 s, andere afstanden naar rato); per afstand onthouden |
 | Leeftijdsperiode | Keuzelijsten van/t/m (5–80 jaar); geldt voor grafiek en beide tabellen |
 | Beste tijd per leeftijdsjaar | Kolommen per schaatser; vet = snelste op die leeftijd |
