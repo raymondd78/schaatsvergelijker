@@ -18,13 +18,15 @@
 6. Voeg een regel toe aan `versies/VERSIES.md` en een sectie aan `docs/RELEASENOTES.md`.
 7. Werk de claude.ai-projectdocs bij.
 8. Pas de documentatie in `docs/` aan als gedrag of opbouw verandert.
+9. Commit naar GitHub (`raymondd78/schaatsvergelijker`, branch `main`) met als bericht `vNN: korte omschrijving`: de HTML, de gewijzigde `docs/` en eventueel `README.md`/`CLAUDE.md`.
 
 ## Technische randvoorwaarden
 
 - Eén bestand, geen build-stap; alleen Chart.js via cdnjs.
 - Codestijl: opgemaakt met Prettier 3 (`--parser html --print-width 110 --single-quote --html-whitespace-sensitivity css`), met Nederlands commentaar per sectie en per functie. Houd die stijl aan bij wijzigingen.
 - De app kan **niet** als claude.ai-artifact draaien (CSP blokkeert `fetch` naar externe domeinen).
-- Git is nog niet mogelijk: de Linux-omgeving op de pc start niet door te weinig vrije schijfruimte (vereist tot 17 GB). Versiebeheer gebeurt daarom via `versies/`.
+- Versiebeheer: GitHub-repository **raymondd78/schaatsvergelijker** (publiek, vanaf 19-11-2026), branch `main`. Claude pusht vanuit de cloud-sessie; de pc is daarvoor niet nodig. `versies/` op de pc blijft als extra kopie bestaan, maar staat niet in de repository.
+- `.gitignore` houdt `data/` en alle `.json`-bestanden buiten de repository (persoonsgegevens, o.a. van minderjarigen). Controleer vóór elke commit met `git status` dat er geen data meegaat.
 - **Geen persoonsgegevens in `schaatsvergelijker.html`** (geen namen, ID-lijsten of geboortedata). Die horen in JSON-bestanden in `data/`, die niet in het claude.ai-project worden gezet.
 - **Uitzondering:** de ingebouwde lijst `TOP_SKATERS` met publiek bekende topschaatsers (NL: olympische medaille of WK/EK/WB-podium; plus 10 internationale wereldkampioenen). Op verzoek van Raymond (17-11-2026); alleen ID, naam, geslacht, geboortemaand en groep. Bron: `data/nl-topschaatsers-2021-2026.json`. Nooit uitbreiden met jeugd- of clubschaatsers.
 - Houd de bronvermelding naar SpeedskatingResults.com in de footer (licentievoorwaarde).
