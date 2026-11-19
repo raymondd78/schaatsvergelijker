@@ -978,7 +978,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v54 van 19-11-2026">v54</span>
+      <span class="ver" title="Versie v55 van 19-11-2026">v55</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1248,7 +1248,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v54 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v55 (19-11-2026)
     </footer>
 
     <script>
@@ -1697,25 +1697,26 @@
         const g = s.gender === 'f' ? 'Dames' : s.gender === 'm' ? 'Heren' : '';
         return [g, catName(s.category)].filter(Boolean).join(' ');
       }
-      /* Korte namen van de NL-banen voor de eigen tijden op het kaartje */
+      /* Afkortingen van de NL-banen zoals in de KNSB-ranglijsten op schaatsen.nl (vanaf v55),
+         voor de toegevoegde tijden op het kaartje */
       const RINK_SHORT = {
-        Alkmaar: 'Alkm',
-        Amsterdam: 'Adam',
-        Breda: 'Breda',
-        'Den Haag': 'DHg',
-        Deventer: 'Dev',
-        Eindhoven: 'Ehv',
-        Enschede: 'Ensch',
-        Geleen: 'Gel',
-        Groningen: 'Gron',
-        Haarlem: 'Hlm',
-        Heerenveen: 'Hvn',
-        Hoorn: 'Hrn',
-        Leeuwarden: 'Lwd',
-        Leiden: 'Ldn',
-        Nijmegen: 'Nijm',
-        Tilburg: 'Tilb',
-        Utrecht: 'Utr',
+        Alkmaar: 'ALK',
+        Amsterdam: 'AMS',
+        Breda: 'BRE',
+        'Den Haag': 'DNH',
+        Deventer: 'DEV',
+        Eindhoven: 'EVN',
+        Enschede: 'ENS',
+        Geleen: 'GEL',
+        Groningen: 'GRO',
+        Haarlem: 'HAA',
+        Heerenveen: 'HVN',
+        Hoorn: 'HRN',
+        Leeuwarden: 'LEE',
+        Leiden: 'LEI',
+        Nijmegen: 'NYM',
+        Tilburg: 'TIL',
+        Utrecht: 'UTR',
       };
       function catName(cat) {
         if (cat == null || cat === '') return '';

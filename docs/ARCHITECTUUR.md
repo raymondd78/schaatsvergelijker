@@ -97,7 +97,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Voor een zojuist gereden tijd die nog niet op SpeedskatingResults staat. Knop **+ tijd** op het kaartje opent een invoerregel (afstand, tijd, datum, baan); de open regels staan in `timeForm` (geheugen), zodat getypte tekst een nieuwe opbouw van het kaartje overleeft.
 - `normTimeInput()` accepteert `46,10`, `46.10`, `46`, `1.23,45` en `1:23,45`. Controle: tijd tussen `afstand/18` en `afstand` seconden, datum niet in de toekomst, baan verplicht (`NL_RINKS` = alle banen uit de ANS-tabel, of "buitenland/anders"). De laatst gekozen baan staat in `ui.rink`.
 - `rowsFor()` voegt de eigen tijden via `manualRows()` toe aan de API-rijen, vóór ANS-correctie en max.-tijdfilter; baan wordt `"<baan> (NED)"`, zodat `ansPct()` gewoon werkt. Buitenland/anders valt weg met ANS aan.
-- Kaartje: rij **Toegevoegd**, baan afgekort via `RINK_SHORT` (vanaf v54).
+- Kaartje: rij **Toegevoegd**, baan afgekort via `RINK_SHORT` met de drieletterafkortingen uit de KNSB-ranglijsten op schaatsen.nl (vanaf v55).
 - Grafiek: open stip (`pointBackgroundColor` = `--card`, rand 2 px, 1 px groter). Tabellen: ✎ achter de tijd; tooltip en wedstrijdkolom tonen "Zelf ingevoerd (nog niet op SpeedskatingResults)".
 - Opruimen: een eigen tijd wordt verborgen zodra de API-rijen dezelfde datum en tijd (verschil < 0,015 s) bevatten, en `pruneManual()` verwijdert hem na elke `refresh()` uit de opslag.
 

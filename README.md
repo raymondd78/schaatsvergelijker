@@ -27,7 +27,7 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 | Over deze tool | Uitlegblok bovenaan: standaard één zin, met "Meer…" uit te klappen (hoe werkt het, waarom de geboortemaand belangrijk is) |
 | Zoeken | Op (begin van) achter- en/of voornaam, alle landen; max. 20 resultaten (XML-variant van de lookup-API) |
 | Geselecteerd | Kleur per schaatser, ster om te highlighten, categorie, profiellink, bewerkbare groep, geboortedatum (maand + jaar) |
-| Zelf ingevoerde tijd | Knop **+ tijd** op het kaartje: een zojuist gereden tijd (afstand, tijd, datum, baan) die nog niet op SpeedskatingResults staat. Op het kaartje onder **Toegevoegd** (met afgekorte baan), open stip in de grafiek, ✎ in de tabellen; verdwijnt vanzelf zodra de tijd officieel binnen is. Alleen in de browser bewaard |
+| Zelf ingevoerde tijd | Knop **+ tijd** op het kaartje: een zojuist gereden tijd (afstand, tijd, datum, baan) die nog niet op SpeedskatingResults staat. Op het kaartje onder **Toegevoegd** (baan als KNSB-afkorting, bijv. HVN), open stip in de grafiek, ✎ in de tabellen; verdwijnt vanzelf zodra de tijd officieel binnen is. Alleen in de browser bewaard |
 | Highlight | Ster ☆/★: gemarkeerde schaatsers krijgen een dikke lijn en liggen bovenop; de overige worden dan dunner |
 | Grafiek | Tijd tegen leeftijd. PR-lijn (trap, met de stap op de datum van het nieuwe PR); optioneel alle gereden tijden (stippen, standaard uit). Namen staan aan het eind van elke lijn (geen legenda) |
 | ANS | Vinkje "Alleen NL-banen, ANS-gecorrigeerd": alleen tijden op Nederlandse banen, omgerekend met de KNSB ANS-tabel (zie `docs/ANS.md`) |

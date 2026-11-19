@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v54** (19 november 2026)
+**Huidige versie: v55** (19 november 2026)
 
 ---
+
+## v55 – KNSB-afkortingen voor banen (19-11-2026)
+- Bij toegevoegde tijden op het kaartje staat de baan nu met de gebruikelijke drieletterafkorting uit de KNSB-ranglijsten: ALK, AMS, BRE, DNH, DEV, EVN, ENS, GEL, GRO, HAA, HVN, HRN, LEE, LEI, NYM, TIL, UTR.
 
 ## v54 – Heren/Dames en compacter kaartje (19-11-2026)
 - Categorie met geslacht, zoals gebruikelijk: "Heren Pupillen C", "Dames Junioren C1" (ook in de zoekresultaten). Het filter heet nu **Heren** / **Dames** in plaats van m / v.
