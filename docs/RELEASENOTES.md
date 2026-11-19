@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v44** (19 november 2026)
+**Huidige versie: v45** (19 november 2026)
 
 ---
+
+## v45 – Liggende stand nauwkeuriger (19-11-2026)
+- Opent het toetsenbord op een telefoon die rechtop wordt gehouden (bijvoorbeeld bij zoeken), dan schakelt de pagina niet meer per ongeluk naar de liggende weergave.
 
 ## v44 – Mobiel bijgewerkt (19-11-2026)
 - De keuze PR-verloop / Per leeftijd staat alleen nog in het tabblad Tabellen (stond ook onder de grafiek).

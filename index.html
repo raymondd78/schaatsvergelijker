@@ -765,7 +765,7 @@
         }
       }
       /* Telefoon liggend: alleen de grafiek, zo groot mogelijk */
-      @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+      @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (pointer: coarse) {
         header {
           padding: 6px 14px;
         }
@@ -816,7 +816,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v44 van 19-11-2026">v44</span>
+      <span class="ver" title="Versie v45 van 19-11-2026">v45</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1076,7 +1076,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v44 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v45 (19-11-2026)
     </footer>
 
     <script>
@@ -2925,7 +2925,9 @@
       const mq = (q) =>
         window.matchMedia ? window.matchMedia(q) : { matches: false, addEventListener() {} };
       const MQ_MOBILE = mq('(max-width: 799px)');
-      const MQ_LANDSCAPE = mq('(orientation: landscape) and (max-height: 500px) and (pointer: coarse)');
+      const MQ_LANDSCAPE = mq(
+        '(orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (pointer: coarse)',
+      );
       function isMobilePortrait() {
         return MQ_MOBILE.matches && !MQ_LANDSCAPE.matches;
       }
