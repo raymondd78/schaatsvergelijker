@@ -519,6 +519,9 @@
         body[data-mtab='tables'][data-mtbl='age'] #prCard {
           display: none;
         }
+        body:not([data-mtab='tables']) #mTblSeg {
+          display: none;
+        }
         body[data-mtab='tables'] #ageCard,
         body[data-mtab='tables'] #prCard {
           margin-top: 10px;
@@ -701,10 +704,10 @@
           display: block;
         }
         #prTable tr {
-          display: flex;
-          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: auto auto minmax(0, 1fr) auto;
           align-items: baseline;
-          gap: 0 8px;
+          gap: 2px 8px;
           padding: 10px 2px;
           border-bottom: 1px solid var(--line);
         }
@@ -713,38 +716,37 @@
           padding: 0;
           white-space: normal;
         }
+        /* rij 1: naam en tijd; rij 2: datum, leeftijd, baan en verbetering */
         #prTable td.c-name {
-          flex: 1 1 60%;
+          grid-column: 1 / 4;
+          grid-row: 1;
           font-weight: 600;
         }
         #prTable td.c-time {
-          margin-left: auto;
+          grid-column: 4;
+          grid-row: 1;
           font-size: 18px;
         }
         #prTable td.c-date,
         #prTable td.c-age,
         #prTable td.c-loc {
+          grid-row: 2;
           font-size: 12px;
           color: var(--muted);
+          text-align: left;
         }
-        #prTable td.c-date {
-          flex-basis: 100%;
-          order: 3;
-        }
-        #prTable td.c-age,
         #prTable td.c-loc {
-          order: 4;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         #prTable td.c-gain {
-          order: 5;
-          margin-left: auto;
+          grid-column: 4;
+          grid-row: 2;
         }
         #prTable td.c-raw,
         #prTable td.c-comp {
           display: none;
-        }
-        #prTable td.c-date {
-          flex-basis: auto;
         }
         .mprhead {
           display: flex;
@@ -814,7 +816,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v43 van 19-11-2026">v43</span>
+      <span class="ver" title="Versie v44 van 19-11-2026">v44</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1074,7 +1076,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v43 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v44 (19-11-2026)
     </footer>
 
     <script>
