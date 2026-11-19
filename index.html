@@ -447,7 +447,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v41 van 19-11-2026">v41</span>
+      <span class="ver" title="Versie v42 van 19-11-2026">v42</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -627,7 +627,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v41 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v42 (19-11-2026)
     </footer>
 
     <script>
@@ -1978,7 +1978,8 @@
       }
       /* ---------- namen aan het eind van de lijnen ---------- */
       const LBL_FONT = (hl) =>
-        `${hl ? '700' : '500'} 12px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
+        `${hl ? '700' : '500'} 10px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
+      const LBL_STEP = 11; // verticale afstand (px) tussen namen die elkaar zouden raken (v42: was 13 bij 12px)
       let _mctx;
       /* breedte van een naam in pixels (om rechts genoeg ruimte te maken) */
       function labelWidth(text, hl) {
@@ -1987,7 +1988,7 @@
         return _mctx.measureText(text).width;
       }
       /* Chart.js-plugin: schrijft de naam van elke schaatser rechts van het laatste punt van zijn lijn.
-         Namen die elkaar zouden raken, schuiven 13 px uit elkaar. */
+         Namen die elkaar zouden raken, schuiven LBL_STEP px uit elkaar. */
       const endLabels = {
         id: 'endLabels',
         afterDatasetsDraw(ch) {
@@ -2009,17 +2010,20 @@
               sid: ds._sid,
             });
           });
-          // overlap voorkomen: labels die horizontaal overlappen minstens 13 px uit elkaar
+          // overlap voorkomen: labels die horizontaal overlappen minstens LBL_STEP px uit elkaar
           items.sort((a, b) => a.y - b.y);
-          // Let op: vergelijken met < 12.5 en niet < 13. Door afronding kon (o.ly + 13) - o.ly net
-          // kleiner dan 13 uitkomen, waardoor deze lus eindeloos bleef draaien (pagina liep vast, v37).
+          // Let op: vergelijken met < LBL_STEP - 0.5 en niet < LBL_STEP. Door afronding kon
+          // (o.ly + LBL_STEP) - o.ly net kleiner uitkomen, waardoor deze lus eindeloos bleef draaien (v37).
           const placed = [];
           for (const it of items) {
             let y = Math.min(Math.max(it.y, area.top + 6), area.bottom - 6);
             for (let k = 0, guard = 0; k < placed.length && guard < 10000; k++, guard++) {
               const o = placed[k];
-              if (Math.abs(it.x + 6 - (o.x + 6)) < Math.max(it.w, o.w) + 6 && Math.abs(y - o.ly) < 12.5) {
-                y = o.ly + 13;
+              if (
+                Math.abs(it.x + 6 - (o.x + 6)) < Math.max(it.w, o.w) + 6 &&
+                Math.abs(y - o.ly) < LBL_STEP - 0.5
+              ) {
+                y = o.ly + LBL_STEP;
                 k = -1; // opnieuw controleren tegen alle al geplaatste namen
               }
             }
@@ -2030,8 +2034,8 @@
           ch._lblBoxes = placed.map((it) => ({
             x0: it.x + 4,
             x1: it.x + 8 + it.w,
-            y0: it.ly - 8,
-            y1: it.ly + 8,
+            y0: it.ly - LBL_STEP / 2,
+            y1: it.ly + LBL_STEP / 2,
             sid: it.sid,
           }));
           ctx.save();
@@ -2045,6 +2049,15 @@
             ctx.fillText(it.text, it.x + 6, it.ly);
           }
           ctx.restore();
+        },
+        // Chart.js roept onClick/onHover alleen aan binnen het grafiekvlak. Namen die rechts náást de
+        // grafiek staan (in de marge), vangen we hier zelf af: klik = highlight, en een handje bij hover.
+        afterEvent(ch, args) {
+          if (args.inChartArea) return;
+          const e = args.event;
+          const id = chartHitSkater(ch, e.x, e.y);
+          if (e.type === 'mousemove') ch.canvas.style.cursor = id != null ? 'pointer' : '';
+          else if (e.type === 'click' && id != null) setTimeout(() => toggleHighlight(id), 0);
         },
       };
       /* Welke schaatser zit er onder de muis? Volgorde: naam aan de lijn, stip, stuk PR-lijn (binnen 5 px).

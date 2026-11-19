@@ -2,9 +2,13 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v41** (19 november 2026)
+**Huidige versie: v42** (19 november 2026)
 
 ---
+
+## v42 – Kleinere namen, klikken naast de grafiek (19-11-2026)
+- De namen aan het eind van de lijnen zijn kleiner (10 in plaats van 12 pixels) en staan dichter op elkaar, zodat ze elkaar minder snel in de weg zitten.
+- Klikken op een naam die rechts **naast** de grafiek staat (omdat de schaatser nog tijden buiten de leeftijdsperiode heeft), zet nu ook de highlight aan of uit. Ook daar verschijnt een handje.
 
 ## v41 – Topschaatsers met jeugdtijden (19-11-2026)
 - De lijst **Topschaatsers** bevat alleen nog schaatsers van wie ook de jeugdtijden in de bron staan: een 500m-tijd op elke leeftijd van 12 t/m 18 jaar, waarbij hooguit één tussenjaar mag ontbreken (11 jaar mag ook ontbreken). Zo heeft vergelijken met een jeugdschaatser altijd zin.
