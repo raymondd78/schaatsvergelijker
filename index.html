@@ -351,20 +351,6 @@
         border: 1px solid var(--line);
         border-radius: 6px;
       }
-      /* Labels "ingevuld" / "geschat" bij de geboortedatum */
-      .badge {
-        display: inline-block;
-        font-size: 11px;
-        padding: 1px 6px;
-        border-radius: 9px;
-        background: var(--warn-bg);
-        color: var(--warn);
-        white-space: nowrap;
-      }
-      .badge.ok {
-        background: var(--ok-bg);
-        color: var(--ok);
-      }
       /* Kleine pictogramknoppen: verwijderen (×) en highlighten (ster) */
       .x {
         border: none;
@@ -924,7 +910,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v49 van 19-11-2026">v49</span>
+      <span class="ver" title="Versie v50 van 19-11-2026">v50</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1194,7 +1180,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v49 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v50 (19-11-2026)
     </footer>
 
     <script>
@@ -2323,11 +2309,6 @@
         el.innerHTML = state.selected
           .map((s) => {
             const b = birthOf(s);
-            const badge = s.birth
-              ? '<span class="badge ok">ingevuld</span>'
-              : b
-                ? `<span class="badge">geschat${b.span > 1 ? ' (±' + Math.ceil(b.span / 2) + ' jr)' : ''}</span>`
-                : '<span class="badge">onbekend</span>';
             const selY = s.birth ? +s.birth.slice(0, 4) : s.draftY || '';
             const selM = s.birth ? +s.birth.slice(5, 7) : s.draftM || '';
             const { monthSel, yearSel } = birthSelects(s, selY, selM);
@@ -2341,8 +2322,8 @@
           ? `<div class="birth">Geboren <button type="button" class="birthlink" data-act="bedit" title="Klik om de geboortedatum te wijzigen">${MONTHS_FULL[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}</button></div>`
           : `<div class="birth">Geboren ${monthSel}${yearSel}${s.birth ? '<button class="small" data-act="bdone" title="Klaar met wijzigen">Klaar</button><button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</div>`
       }
-      <div class="meta" style="margin-top:3px">${badge}${!s.birth && (s.draftY || s.draftM) ? ' kies ook ' + (s.draftY ? 'de maand' : 'het jaar') : ''}</div>
-      ${!s.birth && b ? `<div class="meta">schatting: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} (midden van categorie)</div>` : ''}
+      ${!s.birth && (s.draftY || s.draftM) ? `<div class="meta">Kies ook ${s.draftY ? 'de maand' : 'het jaar'}</div>` : ''}
+      ${!s.birth && b ? `<div class="meta">schatting: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} (midden van categorie${b.span > 1 ? ', ±' + Math.ceil(b.span / 2) + ' jr' : ''})</div>` : ''}
     </div>`;
           })
           .join('');

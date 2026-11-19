@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v49** (19 november 2026)
+**Huidige versie: v50** (19 november 2026)
 
 ---
+
+## v50 – Geen label geschat/ingevuld meer (19-11-2026)
+- Bij **Geselecteerd** zijn de labels "ingevuld" en "geschat" weg. Een ingevulde datum herken je aan de klikbare tekst; bij een schatting staat de geschatte datum eronder, bij senioren en masters met de marge (bijv. ±5 jr).
 
 ## v49 – Ingevulde geboortedatum als tekst (19-11-2026)
 - Bij **Geselecteerd** staat een ingevulde geboortedatum als tekst, bijvoorbeeld "Geboren maart 2013", zonder keuzelijsten.
