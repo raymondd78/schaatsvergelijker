@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v56** (19 november 2026)
+**Huidige versie: v57** (19 november 2026)
 
 ---
+
+## v57 – ANS als schakelaar (19-11-2026)
+- ANS staat onder de grafiek nu als schakelaartje **ANS (NL-banen)**, net als PR-lijn, Alle tijden en Snelste boven.
 
 ## v56 – Rustiger filters en weergave-opties (19-11-2026)
 - **Boven de grafiek** staan alleen de filters, als groepjes met een klein label: **Leeftijd** (van – t/m), **Max. tijd** en een keuze **Heren / Dames / Beide** (in plaats van twee vinkjes; alles uitzetten kan niet meer).

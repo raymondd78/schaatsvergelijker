@@ -104,7 +104,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 ## Filters en weergave-opties (vanaf v56)
 
 - Boven de grafiek in `#controls`: filtergroepjes `.fgrp` (leeftijd, max. tijd), `#genderSeg` (Heren/Dames/Beide → `ui.showM`/`ui.showF`; beide uit wordt bij het laden hersteld naar beide aan) en `#filterReset` (zichtbaar als `filtersOn()`; wist `ageFrom`/`ageTo`, alle `maxT` en het geslachtsfilter).
-- Onder de grafiek in `#viewOpts`: schakelaartjes (`.sw`, opgemaakte checkboxes `showPR`, `showAll`, `fastTop`) en de knop `#ansBtn` (`aria-pressed`, `ui.ans`).
+- Onder de grafiek in `#viewOpts`: schakelaartjes (`.sw`, opgemaakte checkboxes `showPR`, `showAll`, `fastTop` en vanaf v57 `ansOn` → `ui.ans`).
 - Mobiel: `#controls` blijft het filterpaneel (ook `.gseg` en `.freset` alleen in het open paneel); `#viewOpts` staat onder de grafiek en is verborgen in het tabblad Tabellen en liggend.
 
 ## Thema: licht en donker (vanaf v47)

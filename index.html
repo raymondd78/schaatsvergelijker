@@ -588,20 +588,6 @@
         outline: 2px solid var(--accent);
         outline-offset: 2px;
       }
-      .ansbtn {
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        background: var(--card);
-        color: var(--muted);
-        padding: 2px 12px;
-        font-size: 12px;
-      }
-      .ansbtn.on {
-        border-color: var(--accent);
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-weight: 600;
-      }
       .controls select.agesel {
         width: auto;
         padding: 3px 4px;
@@ -1120,7 +1106,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v56 van 19-11-2026">v56</span>
+      <span class="ver" title="Versie v57 van 19-11-2026">v57</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1304,15 +1290,11 @@
             <label class="sw"><input type="checkbox" id="showPR" checked /> PR-lijn</label>
             <label class="sw"><input type="checkbox" id="showAll" /> Alle tijden</label>
             <label class="sw"><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
-            <button
-              type="button"
-              class="ansbtn"
-              id="ansBtn"
-              aria-pressed="false"
+            <label
+              class="sw"
               title="Alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan"
+              ><input type="checkbox" id="ansOn" /> ANS (NL-banen)</label
             >
-              ANS · NL-banen
-            </button>
           </div>
           <!-- Mobiel: chips per schaatser om te highlighten (verborgen op desktop) -->
           <div id="mChips" class="mobile-only"></div>
@@ -1406,7 +1388,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v56 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v57 (19-11-2026)
     </footer>
 
     <script>
@@ -2863,16 +2845,11 @@
         save(LS_UI, ui);
         render();
       });
-      /* Knop ANS onder de grafiek (vanaf v56; was een vinkje) */
-      function syncAnsBtn() {
-        $('ansBtn').setAttribute('aria-pressed', ui.ans ? 'true' : 'false');
-        $('ansBtn').classList.toggle('on', ui.ans);
-      }
-      syncAnsBtn();
-      $('ansBtn').addEventListener('click', () => {
-        ui.ans = !ui.ans;
+      /* Schakelaar ANS onder de grafiek (vanaf v57) */
+      $('ansOn').checked = ui.ans;
+      $('ansOn').addEventListener('change', () => {
+        ui.ans = $('ansOn').checked;
         save(LS_UI, ui);
-        syncAnsBtn();
         render();
       });
       /* Heren / Dames / Beide (vanaf v56; waren twee vinkjes). Twee keer "uit" kan zo niet meer. */
