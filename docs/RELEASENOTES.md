@@ -2,9 +2,15 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v51** (19 november 2026)
+**Huidige versie: v52** (19 november 2026)
 
 ---
+
+## v52 – Rustiger schaatserkaartje (19-11-2026)
+- Profiellink als klein ↗ achter de naam; daaronder één regel met categorie, m/v en land, en de groep als klein label.
+- Onder een scheidingslijn vaste rijen met links een label: **Geboren** (bijv. "feb 2014 · 12 jr 9 mnd", klikbaar om te wijzigen) en **Eigen** (zelf ingevoerde tijden, zonder jaartal als het dit jaar is).
+- Maand en jaar staan naast elkaar. Is de geboortedatum nog niet ingevuld, dan staat de schatting er in oranje onder ("≈ geschat: 1 jan 2013 (±6 mnd)").
+- **+ tijd** staat rechtsonder; het invoerformulier opent als rij in het kaartje, met **Opslaan** en **Annuleren**.
 
 ## v51 – Zelf een tijd invoeren (19-11-2026)
 - Op elk kaartje bij **Geselecteerd** staat **+ tijd**: voer een zojuist gereden tijd in die nog niet op SpeedskatingResults staat. Je kiest afstand (standaard het tabblad dat open staat), tijd (bijv. 46,10 of 1.23,45), datum (standaard vandaag) en baan. De laatst gekozen baan wordt onthouden.

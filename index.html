@@ -312,12 +312,39 @@
         font-size: 12px;
         color: var(--muted);
       }
-      .sel .birth {
-        display: flex;
+      /* rijen onder de kop (vanaf v52): links een label, rechts de waarde */
+      .sel .rows {
+        display: grid;
+        grid-template-columns: 70px minmax(0, 1fr);
+        gap: 5px 8px;
         align-items: center;
-        gap: 6px;
-        margin-top: 6px;
+        margin-top: 7px;
+        padding-top: 7px;
+        border-top: 1px solid var(--line);
         font-size: 12px;
+      }
+      .sel .k {
+        color: var(--muted);
+      }
+      .sel .dim {
+        color: var(--muted);
+      }
+      .sel .warn {
+        color: var(--warn);
+      }
+      .sel .prof {
+        color: var(--muted);
+        font-weight: 400;
+        text-decoration: none;
+        margin-left: 2px;
+      }
+      .sel .chip {
+        display: inline-block;
+        margin-left: 4px;
+        padding: 0 7px;
+        border-radius: 9px;
+        background: var(--seg);
+        font-size: 11px;
       }
       /* ingevulde geboortedatum als klikbare tekst (vanaf v49) */
       .sel .birthlink {
@@ -326,22 +353,21 @@
         padding: 2px 0;
         color: var(--link);
         font-weight: 600;
+        font-size: 12px;
         text-decoration: underline dotted;
       }
-      .sel .birth select {
+      /* maand en jaar naast elkaar */
+      .sel .bsel {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .sel .bsel select {
         width: auto;
-        flex: 1;
-        padding: 4px 6px;
+        padding: 3px 6px;
         font-size: 13px;
       }
-      .sel .birth select[data-act='bm'] {
-        flex: 0 0 76px;
-      }
-      /* zelf ingevoerde tijden op het kaartje (vanaf v51) */
-      .sel .owntimes {
-        margin-top: 4px;
-        font-size: 12px;
-      }
+      /* zelf ingevoerde tijden (vanaf v51) */
       .sel .own {
         display: flex;
         align-items: center;
@@ -351,6 +377,9 @@
       }
       .sel .own b {
         color: var(--ink);
+      }
+      .sel .addrow {
+        text-align: right;
       }
       .sel .ownadd {
         background: transparent;
@@ -364,20 +393,15 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 4px;
-        margin-top: 4px;
       }
       .sel .ownform select,
       .sel .ownform input {
         width: auto;
-        padding: 4px 6px;
+        padding: 3px 6px;
         font-size: 13px;
       }
       .sel .ownform input[data-f='time'] {
-        width: 72px;
-      }
-      .sel .ownform .ownerr {
-        flex-basis: 100%;
-        color: var(--warn);
+        width: 70px;
       }
       .sel .grp {
         display: flex;
@@ -952,7 +976,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v51 van 19-11-2026">v51</span>
+      <span class="ver" title="Versie v52 van 19-11-2026">v52</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1222,7 +1246,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v51 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v52 (19-11-2026)
     </footer>
 
     <script>
@@ -2387,19 +2411,25 @@
             const selY = s.birth ? +s.birth.slice(0, 4) : s.draftY || '';
             const selM = s.birth ? +s.birth.slice(5, 7) : s.draftM || '';
             const { monthSel, yearSel } = birthSelects(s, selY, selM);
+            const est = b ? (b.span > 1 ? '±' + Math.ceil(b.span / 2) + ' jr' : '±6 mnd') : '';
+            const own = ownTimesHtml(s);
+            let birthCell;
+            if (s.birth && !editBirth.has(s.id)) {
+              const a = ageParts(parseDate(s.birth), parseDate(todayStr()));
+              birthCell = `<span><button type="button" class="birthlink" data-act="bedit" title="Klik om de geboortedatum te wijzigen">${MONTHS[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}</button> <span class="dim">· ${a.y} jr ${a.m} mnd</span></span>`;
+            } else
+              birthCell = `<span class="bsel">${monthSel}${yearSel}${s.birth ? '<button class="small" data-act="bdone" title="Klaar met wijzigen">Klaar</button><button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</span>`;
             return `<div class="sel${s.hl ? ' hl' : ''}" style="--c:${cleanColor(s.color) || '#888'}${genderOK(s) ? '' : ';opacity:.45'}" data-id="${Number(s.id)}" ${genderOK(s) ? '' : 'title="Verborgen door het m/v-filter"'}>
-      <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)}</span>
+      <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)} <a class="prof" href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener" title="Profiel op SpeedskatingResults" aria-label="Profiel op SpeedskatingResults">↗</a></span>
         <span><button class="star ${s.hl ? 'on' : ''}" data-act="hl" title="${s.hl ? 'Highlight uitzetten' : 'Highlighten: dikkere lijn in de grafiek'}">${s.hl ? '★' : '☆'}</button><button class="x" data-act="rm" title="Verwijderen">×</button></span></div>
-      <div class="meta">${esc(s.country)} · ${s.gender === 'f' ? 'v' : 'm'}${s.category ? ' · ' + esc(catName(s.category)) : ''} · <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a></div>
-      ${s.group ? `<div class="meta">Groep: ${esc(s.group)}</div>` : ''}
-      ${
-        s.birth && !editBirth.has(s.id)
-          ? `<div class="birth">Geboren <button type="button" class="birthlink" data-act="bedit" title="Klik om de geboortedatum te wijzigen">${MONTHS_FULL[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}</button></div>`
-          : `<div class="birth">Geboren ${monthSel}${yearSel}${s.birth ? '<button class="small" data-act="bdone" title="Klaar met wijzigen">Klaar</button><button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</div>`
-      }
-      ${!s.birth && (s.draftY || s.draftM) ? `<div class="meta">Kies ook ${s.draftY ? 'de maand' : 'het jaar'}</div>` : ''}
-      ${!s.birth && b ? `<div class="meta">schatting: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} (midden van categorie${b.span > 1 ? ', ±' + Math.ceil(b.span / 2) + ' jr' : ''})</div>` : ''}
-      ${ownTimesHtml(s)}
+      <div class="meta">${s.category ? esc(catName(s.category)) + ' · ' : ''}${s.gender === 'f' ? 'v' : 'm'} · ${esc(s.country)}${s.group ? ` <span class="chip" title="Groep">${esc(s.group)}</span>` : ''}</div>
+      <div class="rows">
+        <span class="k">Geboren</span>${birthCell}
+        ${!s.birth && (s.draftY || s.draftM) ? `<span></span><span class="warn">Kies ook ${s.draftY ? 'de maand' : 'het jaar'}</span>` : ''}
+        ${!s.birth && b ? `<span></span><span class="warn">≈ geschat: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })} (${est})</span>` : ''}
+        ${own.rows}
+      </div>
+      ${own.add}
     </div>`;
           })
           .join('');
@@ -2425,31 +2455,37 @@
         }
         return parseTime(t);
       }
-      /* Lijst met eigen tijden plus de knop "+ tijd" of de open invoerregel */
+      /* Eigen tijden als rijen voor het raster op het kaartje ({rows}) plus de knop "+ tijd" ({add});
+         met een open invoerregel staat het formulier in de rijen en vervalt de knop */
       function ownTimesHtml(s) {
+        const yr = todayStr().slice(0, 4);
         const own = state.manual
           .filter((m) => m.id === s.id)
           .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.dist - b.dist));
-        const list = own
+        let rows = own
           .map(
-            (m) =>
-              `<div class="own" data-mid="${Number(m.mid)}"><span>✎ ${m.dist} m <b>${esc(m.time)}</b> · ${fmtDateNL(m.date)} · ${esc(m.loc || 'buitenland/anders')}</span><button class="x" data-act="tdel" title="Zelf ingevoerde tijd verwijderen">×</button></div>`,
+            (m, i) =>
+              `<span class="k">${i ? '' : 'Eigen'}</span><span class="own" data-mid="${Number(m.mid)}"><span>✎ ${m.dist} m <b>${esc(m.time)}</b> · ${m.date.startsWith(yr) ? fmtDateNL(m.date).replace(' ' + yr, '') : fmtDateNL(m.date)} · ${esc(m.loc || 'buitenland/anders')}</span><button class="x" data-act="tdel" title="Zelf ingevoerde tijd verwijderen">×</button></span>`,
           )
           .join('');
         const f = timeForm.get(s.id);
         if (!f)
-          return `<div class="owntimes">${list}<button type="button" class="ownadd" data-act="tadd" title="Zojuist gereden tijd invoeren die nog niet op SpeedskatingResults staat">+ tijd</button></div>`;
+          return {
+            rows,
+            add: `<div class="addrow"><button type="button" class="ownadd" data-act="tadd" title="Zojuist gereden tijd invoeren die nog niet op SpeedskatingResults staat">+ tijd</button></div>`,
+          };
         const rinks =
           `<option value="" ${f.loc === '' ? 'selected' : ''}>baan…</option>` +
           NL_RINKS.map((r) => `<option ${r === f.loc ? 'selected' : ''}>${esc(r)}</option>`).join('') +
           `<option value="-" ${f.loc === '-' ? 'selected' : ''}>buitenland/anders</option>`;
-        return `<div class="owntimes">${list}<div class="ownform">
+        rows += `<span class="k">Nieuwe tijd</span><span class="ownform">
         <select data-act="tf" data-f="dist" aria-label="Afstand">${DISTANCES.map((d) => `<option value="${d}" ${d === f.dist ? 'selected' : ''}>${d} m</option>`).join('')}</select>
         <input data-act="tf" data-f="time" inputmode="decimal" autocomplete="off" placeholder="46,10" value="${esc(f.time)}" aria-label="Tijd">
-        <input data-act="tf" data-f="date" type="date" max="${todayStr()}" value="${esc(f.date)}" aria-label="Datum">
-        <select data-act="tf" data-f="loc" aria-label="Baan">${rinks}</select>
-        <button class="small" data-act="tsave">Opslaan</button><button class="x" data-act="tcancel" title="Annuleren">×</button>
-        ${f.err ? `<div class="ownerr">${esc(f.err)}</div>` : ''}</div></div>`;
+        <select data-act="tf" data-f="loc" aria-label="Baan">${rinks}</select></span>
+        <span></span><span class="ownform"><input data-act="tf" data-f="date" type="date" max="${todayStr()}" value="${esc(f.date)}" aria-label="Datum">
+        <button class="small" data-act="tsave">Opslaan</button><button type="button" class="ownadd" data-act="tcancel">Annuleren</button></span>
+        ${f.err ? `<span></span><span class="warn">${esc(f.err)}</span>` : ''}`;
+        return { rows, add: '' };
       }
       /* Invoerregel controleren en de tijd bewaren; bij een andere afstand naar dat tabblad gaan */
       function saveOwnTime(id) {
