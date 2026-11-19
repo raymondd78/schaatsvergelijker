@@ -49,6 +49,8 @@ Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?sk
 | `genderOK()` | Valt een schaatser binnen het m/v-filter? Onbekend geslacht: altijd ja |
 | `ageBoundaryX()` | x-positie waarop een schaatser de beginleeftijd bereikt (voor het startpunt van de PR-lijn) |
 | `renderSelected()` | Kaartjes per schaatser met de keuzelijsten voor maand en jaar |
+| `birthSelects()` / `resolveBirthPick()` | Keuzelijsten voor maand en jaar (jaren passend bij de categorie) en de regel "laatste keuze wint"; gedeeld door Geselecteerd en de zoekresultaten (vanaf v46) |
+| `renderResults()` / `resBirth` | Zoekresultaten met keuze voor de geboortedatum vóór het toevoegen; de keuze staat alleen in het geheugen (`resBirth[id]`) en gaat bij toevoegen mee als `birth` of `draftY`/`draftM` (vanaf v46) |
 
 ## Invoercontrole (vanaf v30)
 

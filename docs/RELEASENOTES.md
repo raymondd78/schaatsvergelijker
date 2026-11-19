@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v45** (19 november 2026)
+**Huidige versie: v46** (19 november 2026)
 
 ---
+
+## v46 – Geboortedatum al bij het zoeken (19-11-2026)
+- Bij elk zoekresultaat kies je de **geboortemaand en het geboortejaar** al vóór je op **+ Toevoegen** klikt. Dezelfde regels als bij Geselecteerd: alleen jaren die bij de categorie passen, en de laatste keuze wint.
+- Een oranje melding wijst erop dat de geboortemaand belangrijk is, met een link naar het profiel waar die staat, en hoeveel de geschatte leeftijd anders kan afwijken (bijv. ±6 maanden of ±4 jaar). Na invullen wordt de melding groen.
+- Achteraf invullen bij Geselecteerd kan nog steeds.
 
 ## v45 – Liggende stand nauwkeuriger (19-11-2026)
 - Opent het toetsenbord op een telefoon die rechtop wordt gehouden (bijvoorbeeld bij zoeken), dan schakelt de pagina niet meer per ongeluk naar de liggende weergave.
