@@ -476,6 +476,20 @@
         overflow: auto;
         max-height: 520px;
       }
+      /* keuzelijst schaatser boven het PR-verloop */
+      .prwho {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 8px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .prwho select {
+        width: auto;
+        max-width: 100%;
+        flex: 0 1 320px;
+      }
       .dot {
         display: inline-block;
         width: 10px;
@@ -901,7 +915,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v47 van 19-11-2026">v47</span>
+      <span class="ver" title="Versie v48 van 19-11-2026">v48</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1099,6 +1113,11 @@
             PR-verloop
             <button type="button" class="mobile-only" id="mPrSort">Nieuwste eerst ▼</button>
           </h2>
+          <!-- Keuze van de schaatser voor het PR-verloop (vanaf v48), in plaats van één lange lijst -->
+          <label class="prwho"
+            >Schaatser
+            <select id="prWho"></select
+          ></label>
           <div class="tablewrap" id="prTable"></div>
         </div>
       </section>
@@ -1166,7 +1185,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v47 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v48 (19-11-2026)
     </footer>
 
     <script>
@@ -2979,6 +2998,13 @@
       /* Sortering van het PR-verloop: '' = per schaatser (standaard), 'new' = nieuwste eerst,
          'old' = oudste eerst. Klik op "Datum" wisselt: standaard → nieuwste → oudste → standaard. */
       let prSort = '';
+      /* Welke schaatser het PR-verloop toont: id, of 'all' voor alle schaatsers; null = nog niet gekozen
+         (dan de eerste gehighlighte schaatser, anders de eerste in de selectie) */
+      let prWho = null;
+      $('prWho').addEventListener('change', (e) => {
+        prWho = e.target.value === 'all' ? 'all' : +e.target.value;
+        renderPRTable();
+      });
       $('prTable').addEventListener('click', (e) => {
         if (!e.target.closest('th[data-sort]')) return;
         prSort = prSort === '' ? 'new' : prSort === 'new' ? 'old' : '';
@@ -2987,8 +3013,25 @@
       function renderPRTable() {
         const d = state.distance;
         const rows = [];
+        // keuzelijst: alle zichtbare schaatsers; een gekozen schaatser die weg is valt terug op de standaard
+        const vis = state.selected.filter(genderOK);
+        let who = prWho;
+        if (who !== 'all' && !vis.some((s) => s.id === who))
+          who = (vis.find((s) => s.hl) || vis[0] || {}).id ?? 'all';
+        $('prWho').innerHTML =
+          vis
+            .map(
+              (s) =>
+                `<option value="${Number(s.id)}" ${s.id === who ? 'selected' : ''}>${esc(s.givenname)} ${esc(s.familyname)}${s.hl ? ' ★' : ''}</option>`,
+            )
+            .join('') +
+          (vis.length > 1
+            ? `<option value="all" ${who === 'all' ? 'selected' : ''}>Alle schaatsers (${vis.length})</option>`
+            : '');
+        $('prWho').closest('label').hidden = !vis.length;
         for (const s of state.selected) {
           if (!genderOK(s)) continue;
+          if (who !== 'all' && s.id !== who) continue;
           const data = rowsFor(s, d);
           if (!Array.isArray(data)) continue;
           const b = birthOf(s);

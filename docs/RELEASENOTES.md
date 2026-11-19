@@ -2,9 +2,13 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v47** (19 november 2026)
+**Huidige versie: v48** (19 november 2026)
 
 ---
+
+## v48 – PR-verloop per schaatser (19-11-2026)
+- Boven het **PR-verloop** staat een keuzelijst **Schaatser**: de tabel toont dan alleen de PR's van die schaatser in plaats van één lange lijst. Met "Alle schaatsers" zie je weer iedereen, bijvoorbeeld om met "nieuwste eerst" de laatste PR's van de hele groep te bekijken.
+- Standaard staat de eerste gehighlighte schaatser gekozen, anders de eerste in je selectie.
 
 ## v47 – Groep is bestandsnaam, donkere modus (19-11-2026)
 - **Groepen eenvoudiger:** de naam van een schaatsersbestand is de groep (`C-selectie.json` → "C-selectie"). Je kunt meerdere bestanden tegelijk openen; de keuzelijst toont elk bestand plus "Alle geladen schaatsers". Het groepsveld bij elke geselecteerde schaatser is weg; de groep staat er als tekst. "Opslaan als JSON" bewaart geen groep meer: de naam die je het bestand geeft, wordt de groep.

@@ -41,7 +41,7 @@ Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?sk
 | `prProgression()` | Loopt chronologisch door de races en houdt elk nieuw PR bij (met vorige PR) |
 | `render()` | Bouwt de Chart.js-datasets: PR-lijn (`stepped:'before'`) en alle races (scatter) |
 | `renderAgeTable()` | Beste tijd per leeftijdsjaar per schaatser |
-| `renderPRTable()` | PR-verloop met verbetering en wedstrijdlink; sortering via klik op kolomkop Datum (`prSort`: `''` per schaatser, `'new'`, `'old'`; niet opgeslagen, vanaf v39) |
+| `renderPRTable()` | PR-verloop met verbetering en wedstrijdlink; sortering via klik op kolomkop Datum (`prSort`: `''` per schaatser, `'new'`, `'old'`; niet opgeslagen, vanaf v39); keuzelijst `#prWho` (`prWho`: schaatser-ID of `'all'`; standaard eerste gehighlighte, anders eerste schaatser; vanaf v48) |
 | `ANS` / `ansPct()` | KNSB ANS-percentages per baan en afstand; `ansPct(locatie, afstand)` geeft het percentage of `null` (niet-NL of onbekende baan) |
 | `rowsFor()` | Tijden van een schaatser zoals getoond: bij ANS gefilterd op NL-banen en omgerekend (`sec`), met de originele tijd in `raw`; daarna gefilterd op de maximale tijd (`ui.maxT[afstand]`) |
 | `fillMaxT()` / `maxTStep()` | Vult de keuzelijst Max. tijd voor de gekozen afstand: 3 t/m 20 stappen van `10 × afstand / 500` seconden |
