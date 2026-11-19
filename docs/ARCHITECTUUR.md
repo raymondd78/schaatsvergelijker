@@ -1,0 +1,93 @@
+# Architectuur
+
+## Uitgangspunten
+
+- **Eén statisch bestand** (`schaatsvergelijker.html`) zonder build-stap of backend.
+- **Data live uit de browser:** de API staat CORS toe (`*`), dus geen proxy nodig.
+- **Externe afhankelijkheid:** alleen Chart.js 4.4.1 via `cdnjs.cloudflare.com`.
+- **Opslag:** alleen `localStorage` van de gebruiker; niets gaat naar een server.
+- **Geen persoonsgegevens in de pagina:** namen, groepen en geboortedata komen uit JSON-bestanden die de gebruiker zelf opent (zie `GROEPEN.md`). Enige uitzondering: de ingebouwde lijst met publiek bekende topschaatsers (`TOP_SKATERS`).
+
+> Een gepubliceerde claude.ai-artifact kan deze app **niet** draaien: daar blokkeert de content security policy `fetch` naar andere domeinen. Lokaal openen of zelf hosten werkt wel.
+
+## Datastroom
+
+```
+Zoeken ──► xml/skater_lookup.php ──► resultatenlijst ──► + Toevoegen ──► state.selected (localStorage)
+                                                                        │
+Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?skater&distance
+                   (max. 4 gelijktijdig, cache 6 uur in localStorage)
+                                                                        │
+                       sorteren op datum ──► prProgression() ──► grafiek + tabellen
+```
+
+## Belangrijkste onderdelen in de code
+
+| Functie / object | Rol |
+|---|---|
+| `state` | `selected` (schaatsers), `distance`, `xMode` (vast `'age'`; de datumweergave is in v12 verwijderd, de code-paden voor `'date'` zijn nog aanwezig maar onbereikbaar), `data` (cache per `id_afstand`), `stale` (per `id_afstand` het tijdstip van oude cache die gebruikt wordt omdat de server niet reageerde, vanaf v38) |
+| `TOP_GROUPS` / `TOP_SKATERS` / `chosenTopSkaters()` | Ingebouwde lijst topschaatsers voor het blok "Topschaatsers"; groepen als bitmasker op `TOP_GROUPS` |
+| `addSkaterList()` | Voegt een lijst schaatsers toe (gedeeld door "Topschaatsers" en "Schaatsersbestand"); bestaande krijgen geboortedatum en groep bijgewerkt |
+| `parseSkaterFile()` / `loadSkaterFile()` | Leest een schaatsersbestand (JSON, formaat `schaatsvergelijker/1`) via `FileReader`; alleen in het geheugen (`fileSkaters`) |
+| `saveSel` (knop) | Exporteert `state.selected` als JSON-download (Blob + `<a download>`) |
+| `addSkater()` | Voegt een schaatser toe met een vrije kleur (20 kleuren), eventueel met `birth` en `group` |
+| `searchSkaters()` | Lookup via de XML-API (max. 20), parse met `DOMParser` |
+| `getResults()` | Haalt alle tijden op één afstand op; filtert onleesbare tijden; sorteert op datum; cachet |
+| `renderSoon()` / `retryFailed()` | Tijdens het laden de grafiek max. 1×/s bijwerken; schaatsers met fout of oude cache opnieuw ophalen (knop "Opnieuw proberen", vanaf v38) |
+| `limited()` / `pump()` | Wachtrij die maximaal 4 requests tegelijk uitvoert |
+| `parseTime()` / `fmtTime()` | `m.ss,hh` ↔ seconden |
+| `estimateBirth()` / `birthOf()` | Geboortedatum uit invoer of uit categorie (zie `LEEFTIJD.md`) |
+| `ageParts()` / `ageDecimal()` / `fmtAge()` | Leeftijd in jaren + maanden of als decimaal getal |
+| `prProgression()` | Loopt chronologisch door de races en houdt elk nieuw PR bij (met vorige PR) |
+| `render()` | Bouwt de Chart.js-datasets: PR-lijn (`stepped:'before'`) en alle races (scatter) |
+| `renderAgeTable()` | Beste tijd per leeftijdsjaar per schaatser |
+| `renderPRTable()` | PR-verloop met verbetering en wedstrijdlink; sortering via klik op kolomkop Datum (`prSort`: `''` per schaatser, `'new'`, `'old'`; niet opgeslagen, vanaf v39) |
+| `ANS` / `ansPct()` | KNSB ANS-percentages per baan en afstand; `ansPct(locatie, afstand)` geeft het percentage of `null` (niet-NL of onbekende baan) |
+| `rowsFor()` | Tijden van een schaatser zoals getoond: bij ANS gefilterd op NL-banen en omgerekend (`sec`), met de originele tijd in `raw`; daarna gefilterd op de maximale tijd (`ui.maxT[afstand]`) |
+| `fillMaxT()` / `maxTStep()` | Vult de keuzelijst Max. tijd voor de gekozen afstand: 3 t/m 20 stappen van `10 × afstand / 500` seconden |
+| `ageOK()` | Valt een race binnen de gekozen leeftijdsperiode (`ui.ageFrom`/`ui.ageTo`)? Zonder bekende leeftijd: altijd ja |
+| `genderOK()` | Valt een schaatser binnen het m/v-filter? Onbekend geslacht: altijd ja |
+| `ageBoundaryX()` | x-positie waarop een schaatser de beginleeftijd bereikt (voor het startpunt van de PR-lijn) |
+| `renderSelected()` | Kaartjes per schaatser met de keuzelijsten voor maand en jaar |
+
+## Invoercontrole (vanaf v30)
+
+Alles wat van buiten komt, gaat door een controlefunctie; de rest van de code vertrouwt daarna op het formaat.
+
+| Bron | Functie | Wat er gebeurt |
+|---|---|---|
+| Selectie in localStorage | `cleanSelection()` / `cleanSkater()` | Nieuw object per schaatser; ID positief geheel getal, kleur uit `COLORS`, tekstlengtes begrensd, geen dubbele, max. `MAX_SKATERS` (100) |
+| Instellingen in localStorage | `cleanUi()` | Alleen bekende sleutels met geldige waarden; oude sleutels (zoals `scale`, `log`) vallen weg |
+| Cache met tijden | `cleanResult()` in `getResults()` | Elke rij gecontroleerd; klopt er iets niet, dan wordt opnieuw opgehaald |
+| API (zoeken en tijden) | `fetchText()`, `cleanResult()`, `cleanId()` | Time-out 15 s (`FETCH_TIMEOUT_MS`), max. 5 MB per antwoord, velden gecontroleerd |
+| Wedstrijdlinks | `safeResultUrl()` | Alleen `https://(www.)speedskatingresults.com`; anders geen link |
+| Schaatsersbestand | `parseSkaterFile()` | Max. 1 MB (`MAX_FILE_BYTES`) en 100 schaatsers; ongeldige/dubbele ID's overgeslagen |
+
+Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor()`, als extra laag. Alle overige tekst in HTML gaat door `esc()`.
+
+## Opslag (localStorage)
+
+| Sleutel | Inhoud |
+|---|---|
+| `ssr.selected.v1` | Array met geselecteerde schaatsers: `id`, namen, `country`, `gender`, `category`, `color`, `birth` (`YYYY-MM-15` of `null`), `draftY`/`draftM` (half ingevuld), `catSeason` (seizoen waarin `category` gold), `group` |
+| `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), m/v-filter en ANS-vinkje |
+| `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
+
+Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
+
+## Grafiekdetails
+
+- Bij de PR-lijn betekent Chart.js `stepped:'before'` dat de lijn horizontaal blijft op het oude PR en verticaal springt op de datum van het nieuwe PR. (`'after'` doet het andersom en is fout.)
+- De PR-lijn wordt horizontaal doorgetrokken tot de laatst gereden race binnen de periode. Heeft de schaatser ná de eindleeftijd nog tijden, dan loopt de lijn door tot het einde van de periode (eindleeftijd + 1), net zoals hij links op de beginleeftijd start.
+- Met een beginleeftijd start de PR-lijn op die leeftijd met het PR dat er toen al stond (onzichtbaar punt), zodat de eerste verbetering binnen de periode correct als stap zichtbaar is.
+- PR's worden altijd over de **hele** carrière bepaald; de periode filtert alleen wat getoond wordt.
+- De y-as staat standaard omgekeerd, met de snelste tijd boven (schakelaar "Snelste boven").
+- De x-as is lineair: decimale leeftijd.
+- Namen aan de lijn: Chart.js-plugin `endLabels` (`afterDatasetsDraw`) tekent bij elke dataset met `_lbl` de naam rechts van het punt met de grootste leeftijd. Labels die elkaar raken worden 13 px uit elkaar geschoven; `layout.padding.right` krijgt de breedte van het langste label (`labelWidth()`). De legenda staat uit.
+- Klikken in de grafiek (vanaf v40): `onClick` → `chartHitSkater()` zoekt de schaatser onder de muis (eerst de naamvakjes die `endLabels` in `ch._lblBoxes` bewaart, dan stippen via Chart.js, dan PR-lijnstukken binnen 5 px; bij `stepped:'before'` horizontaal op de oude y en verticaal bij de nieuwe x) → `toggleHighlight()`. Elke dataset heeft `_sid` (schaatser-ID). `onHover` toont een handje.
+- Highlight (`s.hl` per schaatser, opgeslagen in `ssr.selected.v1`): lijndikte 3 px en stippen 3,5 px, `order` 0 zodat de lijn bovenop ligt. Is er minstens één (zichtbare) schaatser gemarkeerd, dan krijgen de anderen 1 px en kleinere stippen; anders de standaard 1,5 px.
+- Snelheidsschaal (vast sinds v31; in v26–v30 een keuzelijst met ook tijd en log): de geplotte waarde is `yT(t) = 1/t` (evenredig met km/u) op een lineaire as. `reverse` is `!fastTop`, omdat sneller een grotere waarde is. `niceTimeTicks()` zet ronde tijdstappen op de as en de labels tonen `fmtTime(yInv(v))`. Tooltips en tabellen gebruiken altijd de echte tijd (`r.sec`).
+
+## Testen
+
+Getest in de ingebouwde browser van de Claude-app. De app is daarvoor tijdelijk geladen op het domein van speedskatingresults.com (via `document.write`), omdat lokale bestanden daar niet geopend kunnen worden. Daarna zijn de `ssr.*`-sleutels in `localStorage` opgeruimd.

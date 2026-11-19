@@ -1,0 +1,10 @@
+# Persoonsgegevens (o.a. van minderjarigen): nooit in de repository
+data/
+*.json
+
+# Losse versiekopieën: de geschiedenis staat al in git
+versies/
+
+# Werkbestanden
+push/
+node_modules/

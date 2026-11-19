@@ -1,0 +1,2490 @@
+<!doctype html>
+<html lang="nl">
+  <!--
+    Schaatsvergelijker – PR-ontwikkeling van langebaanschaatsers vergeleken op leeftijd.
+
+    Eén zelfstandig HTML-bestand: opmaak (CSS), schermindeling (HTML) en werking (JavaScript).
+    Alle schaatsdata komt live uit de publieke API van SpeedskatingResults.com; er is geen server
+    of database. Externe afhankelijkheid: alleen Chart.js (grafieken), via cdnjs.
+
+    Opbouw van dit bestand:
+      1. style     opmaak van kopbalk, blokken (kaarten), knoppen, grafiek en tabellen
+      2. body      linkerkolom (uitleg, zoeken, topschaatsers, schaatsersbestand, geselecteerd)
+                   en rechterkolom (afstanden, filters, grafiek, tabellen)
+      3. script    instellingen, hulpfuncties, API, schermonderdelen, grafiek en tabellen
+
+    Documentatie: README.md en de map docs/ (ARCHITECTUUR.md, LEEFTIJD.md, ANS.md, GROEPEN.md).
+  -->
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Schaatsvergelijker – PR-ontwikkeling</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+      /* ===== Kleuren en basis =====
+         Alle kleuren als variabelen, zodat ze op één plek aan te passen zijn. */
+      :root {
+        --bg: #f6f7f9;
+        --card: #fff;
+        --ink: #1d2330;
+        --muted: #6b7385;
+        --line: #e3e6ec;
+        --accent: #1f5fbf;
+        --accent-soft: #e8f0fc;
+        --warn: #a15c00;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          14px/1.45 system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+      }
+      /* ===== Kopbalk (donkerblauw) met titel en bronvermelding ===== */
+      header {
+        background: #14213d;
+        color: #fff;
+        padding: 14px 22px;
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      header h1 {
+        font-size: 18px;
+        margin: 0;
+        font-weight: 600;
+      }
+      /* Klein versienummer achter de titel */
+      header .ver {
+        font-size: 11px;
+        color: #8f9bb8;
+        margin-left: -8px;
+      }
+      header span {
+        color: #b9c3d9;
+        font-size: 13px;
+      }
+      header .src {
+        margin-left: auto;
+        color: #dfe5f2;
+        font-size: 13px;
+      }
+      header .src a {
+        color: #fff;
+        font-weight: 600;
+      }
+      /* ===== Blok "Over deze tool" ===== */
+      .intro p,
+      .intro ul {
+        margin: 8px 0 0;
+        font-size: 13px;
+      }
+      .intro p:first-of-type {
+        margin-top: 0;
+      }
+      .intro ul {
+        padding-left: 18px;
+      }
+      .intro li {
+        margin: 3px 0;
+      }
+      .intro .key {
+        background: #fff4e0;
+        border-radius: 6px;
+        padding: 6px 8px;
+        margin-top: 8px;
+        font-size: 13px;
+      }
+      /* ===== Paginaindeling: smalle linkerkolom (340 px) en een rechterkolom die meekrimpt =====
+         minmax(0, 1fr) voorkomt dat een brede grafiek of tabel de hele pagina breder maakt. */
+      main {
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 340px minmax(0, 1fr);
+        gap: 18px;
+      }
+      main > section,
+      main > aside {
+        min-width: 0;
+      }
+      /* Smal scherm (telefoon/tablet): kolommen onder elkaar */
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+      /* ===== Blokken (kaarten) ===== */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px 16px;
+      }
+      .card h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin: 0 0 10px;
+        font-weight: 600;
+      }
+      /* ===== Formulieren en knoppen ===== */
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 6px 0 2px;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+      }
+      input[type='text'],
+      input[type='month'],
+      select {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #fff;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+      }
+      .row > * {
+        flex: 1;
+      }
+      button {
+        cursor: pointer;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 12px;
+      }
+      button.ghost {
+        background: #fff;
+        color: var(--accent);
+      }
+      button.small {
+        padding: 2px 8px;
+        font-size: 12px;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      /* ===== Zoekresultaten ===== */
+      #results {
+        margin-top: 10px;
+        max-height: 300px;
+        overflow: auto;
+      }
+      .res {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 4px;
+        border-bottom: 1px solid var(--line);
+        gap: 8px;
+      }
+      .res .meta {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .res.added {
+        opacity: 0.45;
+      }
+      /* ===== Kaartjes van geselecteerde schaatsers =====
+         De linkerrand krijgt de lijnkleur van de schaatser via de variabele --c. */
+      .sel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        border-left: 5px solid var(--c);
+      }
+      .sel .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+      }
+      .sel .name {
+        font-weight: 600;
+      }
+      .sel .meta {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .sel .birth {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+        font-size: 12px;
+      }
+      .sel .birth select {
+        width: auto;
+        flex: 1;
+        padding: 4px 6px;
+        font-size: 13px;
+      }
+      .sel .birth select[data-act='bm'] {
+        flex: 0 0 76px;
+      }
+      .sel .grp {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+        font-size: 12px;
+      }
+      .sel .grp input {
+        flex: 1;
+        padding: 4px 6px;
+        font-size: 13px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+      }
+      /* Labels "ingevuld" / "geschat" bij de geboortedatum */
+      .badge {
+        display: inline-block;
+        font-size: 11px;
+        padding: 1px 6px;
+        border-radius: 9px;
+        background: #fff4e0;
+        color: var(--warn);
+        white-space: nowrap;
+      }
+      .badge.ok {
+        background: #e6f5ea;
+        color: #1e7a3a;
+      }
+      /* Kleine pictogramknoppen: verwijderen (×) en highlighten (ster) */
+      .x {
+        border: none;
+        background: none;
+        color: var(--muted);
+        font-size: 16px;
+        padding: 0 4px;
+      }
+      .star {
+        border: none;
+        background: none;
+        color: #c5c9d2;
+        font-size: 17px;
+        padding: 0 2px;
+        line-height: 1;
+      }
+      .star.on {
+        color: #e9a03b;
+      }
+      .sel.hl {
+        box-shadow: 0 0 0 2px var(--c) inset;
+      }
+      /* ===== Afstand-tabbladen en de rij met opties boven de grafiek ===== */
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .tabs button {
+        background: #fff;
+        color: var(--ink);
+        border-color: var(--line);
+      }
+      .tabs button.on {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 13px;
+      }
+      .controls label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+        color: var(--ink);
+        font-size: 13px;
+      }
+      .seg {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .seg button {
+        border: none;
+        border-radius: 0;
+        background: #fff;
+        color: var(--ink);
+        padding: 5px 10px;
+      }
+      .seg button.on {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .controls select.agesel {
+        width: auto;
+        padding: 3px 4px;
+      }
+      /* ===== Grafiek en tabellen ===== */
+      .chartwrap {
+        position: relative;
+        height: 440px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 5px 8px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+      }
+      /* klikbare kolomkop (sorteren op datum in het PR-verloop) */
+      th.sortable {
+        cursor: pointer;
+        user-select: none;
+        text-decoration: underline dotted;
+      }
+      th.sortable:hover {
+        color: var(--accent);
+      }
+      th {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        background: #fff;
+      }
+      td.num,
+      th.num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .tablewrap {
+        overflow: auto;
+        max-height: 520px;
+      }
+      .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--c);
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+      /* ===== Overige teksten ===== */
+      .empty {
+        color: var(--muted);
+        padding: 30px;
+        text-align: center;
+      }
+      .status {
+        font-size: 12px;
+        color: var(--muted);
+        min-height: 18px;
+      }
+      /* knop "Opnieuw proberen" in de statusregel */
+      .status button.retry {
+        padding: 1px 8px;
+        font-size: 12px;
+        margin-left: 6px;
+      }
+      .best {
+        font-weight: 700;
+      }
+      .gain {
+        color: #1e7a3a;
+        font-size: 12px;
+      }
+      .section {
+        margin-top: 18px;
+      }
+      footer {
+        padding: 6px 18px 30px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      a {
+        color: var(--accent);
+      }
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== Kopbalk ===== -->
+    <header>
+      <h1>Schaatsvergelijker</h1>
+      <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
+      <span class="ver" title="Versie v40 van 18-11-2026">v40</span>
+      <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
+      <span class="src"
+        >Data:
+        <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
+        (Public API, niet-commercieel gebruik)</span
+      >
+    </header>
+
+    <!-- ===== Hoofdgedeelte: linkerkolom (aside) en rechterkolom (section) ===== -->
+    <main>
+      <aside>
+        <!-- Uitleg: standaard alleen de eerste zin; "Meer…" klapt de rest uit -->
+        <div class="card intro" id="introCard">
+          <h2>Over deze tool</h2>
+          <p>
+            Vergelijk de ontwikkeling van persoonlijke records (PR's) van schaatsers <b>op leeftijd</b> in
+            plaats van op categorie. <a href="#" id="introMore">Meer…</a>
+          </p>
+          <div id="introRest" hidden>
+            <p>
+              Zo zie je bijvoorbeeld hoe snel een topschaatser was toen hij of zij even oud was als jij nu.
+            </p>
+            <ul>
+              <li>
+                <b>Kies schaatsers:</b> zoek op naam, kies een topschaatser uit de lijst of open een eigen
+                schaatsersbestand (JSON).
+              </li>
+              <li>
+                <b>Kies een afstand</b> boven de grafiek. De trap-lijn is het PR-verloop; elke stap is een
+                nieuw PR.
+              </li>
+              <li>
+                <b>Verfijn</b> met de leeftijdsperiode, een maximale tijd, het m/v-filter of de ANS-correctie
+                (alleen Nederlandse banen, omgerekend naar een neutrale baan).
+              </li>
+              <li><b>Highlight</b> schaatsers met de ster ☆ en bewaar je selectie met "Opslaan als JSON".</li>
+            </ul>
+            <div class="key">
+              <b>Geboortemaand is belangrijk.</b> SpeedskatingResults geeft alleen de leeftijdscategorie door.
+              Zonder geboortemaand schat de tool de leeftijd op het midden van de categorie; dat kan tot een
+              half jaar (bij senioren en masters meerdere jaren) afwijken. Vul bij "Geselecteerd" de
+              geboortemaand en het geboortejaar in voor een eerlijke vergelijking.
+            </div>
+            <p style="color: var(--muted)">
+              Alles draait in je eigen browser: er wordt niets op een server opgeslagen.
+              <a href="#" id="introLess">Minder</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Zoeken op (begin van) achter- en/of voornaam via de API -->
+        <div class="card section">
+          <h2>Schaatser zoeken</h2>
+          <form id="searchForm">
+            <div class="row">
+              <div>
+                <label for="fFam">Achternaam</label><input id="fFam" type="text" autocomplete="off" />
+              </div>
+              <div><label for="fGiv">Voornaam</label><input id="fGiv" type="text" autocomplete="off" /></div>
+            </div>
+            <div style="margin-top: 10px"><button type="submit">Zoeken</button></div>
+          </form>
+          <div class="status" id="searchStatus"></div>
+          <div id="results"></div>
+        </div>
+
+        <!-- Ingebouwde lijst met publiek bekende topschaatsers (zie TOP_SKATERS in het script) -->
+        <div class="card section" id="topCard">
+          <h2>Topschaatsers</h2>
+          <div class="row" style="align-items: center">
+            <select id="topSel"></select>
+            <button type="button" id="topAdd" style="flex: 0 0 auto">Toevoegen</button>
+          </div>
+          <div class="hint" id="topInfo">
+            Nederlandse langebaanschaatsers met een olympische medaille (2022/2026) of een podiumplaats op WK,
+            EK of wereldbeker (2021–2026), plus internationale wereldkampioenen. Kies één schaatser of een
+            hele groep.
+          </div>
+        </div>
+
+        <!-- Eigen schaatsersbestand (JSON) openen of hierheen slepen; wordt alleen in het geheugen gelezen -->
+        <div class="card section" id="fileCard">
+          <h2>Schaatsersbestand (JSON)</h2>
+          <div class="row" style="align-items: center">
+            <button type="button" class="ghost" id="fileOpen" style="flex: 0 0 auto">Bestand openen…</button>
+            <span class="hint" id="fileName" style="margin: 0">of sleep een .json-bestand hierheen</span>
+            <input type="file" id="fileInput" accept=".json,application/json" hidden />
+          </div>
+          <div class="row" style="align-items: center; margin-top: 8px">
+            <select id="groupSel" disabled>
+              <option value="">Nog geen bestand geladen</option>
+            </select>
+            <button type="button" id="groupAdd" style="flex: 0 0 auto" disabled>Toevoegen</button>
+          </div>
+          <div class="hint" id="groupInfo"></div>
+        </div>
+
+        <!-- Geselecteerde schaatsers: kleur, highlight, groep en geboortedatum per schaatser -->
+        <div class="card section">
+          <h2 style="display: flex; justify-content: space-between; align-items: center; gap: 6px">
+            Geselecteerd
+            <span style="display: flex; gap: 6px">
+              <button
+                type="button"
+                class="small ghost"
+                id="saveSel"
+                style="text-transform: none; letter-spacing: 0"
+              >
+                Opslaan als JSON
+              </button>
+              <button
+                type="button"
+                class="small ghost"
+                id="clearSel"
+                style="text-transform: none; letter-spacing: 0"
+              >
+                Alles wissen
+              </button>
+            </span>
+          </h2>
+          <datalist id="grpList"></datalist>
+          <div id="selected"><div class="empty" style="padding: 10px">Nog niemand geselecteerd.</div></div>
+          <div class="hint">
+            Leeftijd wordt geschat uit de categorie (±6 mnd). Vul de geboortemaand in (staat op het profiel,
+            link ↗) of laad een JSON-bestand met geboortedata. De selectie blijft alleen in deze browser
+            bewaard; met "Opslaan als JSON" bewaar je hem als bestand, inclusief de groepen.
+          </div>
+        </div>
+      </aside>
+
+      <!-- Rechterkolom: afstand kiezen, filters, grafiek en tabellen -->
+      <section>
+        <div class="card">
+          <!-- Tabbladen per afstand (worden door het script gevuld) -->
+          <div class="tabs" id="distTabs"></div>
+          <!-- Opties: leeftijdsperiode, max. tijd, m/v, ANS, weergave, schaal -->
+          <div class="controls">
+            <label
+              >Leeftijd van
+              <select id="ageFrom" class="agesel"></select>
+              t/m
+              <select id="ageTo" class="agesel"></select
+            ></label>
+            <label title="Tijden langzamer dan deze grens worden niet getoond en tellen niet mee voor PR's"
+              >Max. tijd
+              <select id="maxT" class="agesel"></select
+            ></label>
+            <label title="Toon jongens/mannen"><input type="checkbox" id="showM" checked /> m</label>
+            <label title="Toon meisjes/vrouwen"><input type="checkbox" id="showF" checked /> v</label>
+            <label
+              title="Alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan"
+              ><input type="checkbox" id="ansOn" /> Alleen NL-banen, ANS-gecorrigeerd</label
+            >
+            <label><input type="checkbox" id="showAll" /> Alle gereden tijden</label>
+            <label><input type="checkbox" id="showPR" checked /> PR-lijn</label>
+            <label><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
+            <span class="status" id="loadStatus"></span>
+          </div>
+          <!-- De grafiek (Chart.js tekent op dit canvas) -->
+          <div class="chartwrap"><canvas id="chart"></canvas></div>
+        </div>
+
+        <div class="card section">
+          <h2>Beste tijd per leeftijdsjaar</h2>
+          <div class="tablewrap" id="ageTable"></div>
+        </div>
+
+        <div class="card section">
+          <h2>PR-verloop</h2>
+          <div class="tablewrap" id="prTable"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===== Voettekst met bronvermelding (licentievoorwaarde van SpeedskatingResults) ===== -->
+    <footer>
+      Data:
+      <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
+      (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v40 (18-11-2026)
+    </footer>
+
+    <script>
+      'use strict';
+      /* =====================================================================
+         Instellingen
+         ===================================================================== */
+      // Basisadres van de API, de afstanden waarvoor tabbladen worden gemaakt en de 20 lijnkleuren
+      const API = 'https://speedskatingresults.com/api/';
+      const DISTANCES = [100, 300, 500, 700, 1000, 1500, 3000, 5000, 10000];
+      const COLORS = [
+        '#1f5fbf',
+        '#d1495b',
+        '#2a9d8f',
+        '#e9a03b',
+        '#7b4fbf',
+        '#3d8b37',
+        '#c4467e',
+        '#5a6b7d',
+        '#0e7c86',
+        '#9c6b30',
+        '#e4572e',
+        '#4c9be8',
+        '#8cb33a',
+        '#a23b72',
+        '#f2b134',
+        '#3b3b98',
+        '#17a398',
+        '#b55d2f',
+        '#6c757d',
+        '#d63aaf',
+      ];
+
+      /* Er staan bewust GEEN persoonsgegevens in deze pagina, behalve de lijst publiek bekende topschaatsers
+   (TOP_SKATERS). Andere groepen en geboortedata komen uit een JSON-bestand dat de gebruiker zelf opent
+   (formaat: zie docs/GROEPEN.md). */
+      const FILE_FORMAT = 'schaatsvergelijker/1';
+      /* ---------- ANS-correctie (KNSB, tabellen d.d. 14-07-2026) ----------
+   Percentage per baan en afstand; ANS-tijd = tijd x (1 - pct/100).
+   Positief = langzame baan (tijd wordt sneller), negatief = snelle baan (bv. Heerenveen). */
+      const ANS = {
+        500: {
+          Alkmaar: 0.01,
+          Amsterdam: 1.49,
+          Breda: 0.1,
+          'Den Haag': -0.07,
+          Deventer: 0.0,
+          Eindhoven: 0.34,
+          Enschede: -0.76,
+          Geleen: 1.49,
+          Groningen: -0.37,
+          Haarlem: 0.57,
+          Heerenveen: -2.16,
+          Hoorn: 0.42,
+          Leeuwarden: -0.94,
+          Leiden: 0.92,
+          Nijmegen: 0.92,
+          Tilburg: 0.03,
+          Utrecht: 0.32,
+        },
+        1000: {
+          Alkmaar: 0.49,
+          Amsterdam: 2.28,
+          Breda: -0.24,
+          'Den Haag': 0.32,
+          Deventer: -0.21,
+          Eindhoven: 0.74,
+          Enschede: -1.09,
+          Geleen: 2.28,
+          Groningen: -0.8,
+          Haarlem: 0.67,
+          Heerenveen: -3.12,
+          Hoorn: 0.77,
+          Leeuwarden: -1.35,
+          Leiden: 0.32,
+          Nijmegen: 0.32,
+          Tilburg: 0.24,
+          Utrecht: 0.78,
+        },
+        1500: {
+          Alkmaar: 0.12,
+          Amsterdam: 3.17,
+          Breda: 0.57,
+          'Den Haag': -0.42,
+          Deventer: 0.06,
+          Eindhoven: 0.29,
+          Enschede: -1.12,
+          Geleen: 3.17,
+          Groningen: -1.02,
+          Haarlem: 0.8,
+          Heerenveen: -3.28,
+          Hoorn: 0.69,
+          Leeuwarden: -1.53,
+          Leiden: 0.03,
+          Nijmegen: 0.03,
+          Tilburg: 0.42,
+          Utrecht: 0.94,
+        },
+        3000: {
+          Alkmaar: 0.71,
+          Amsterdam: 2.62,
+          Breda: 0.38,
+          'Den Haag': 0.59,
+          Deventer: 0.46,
+          Eindhoven: 0.85,
+          Enschede: -1.14,
+          Geleen: 2.62,
+          Groningen: -1.01,
+          Haarlem: 0.88,
+          Heerenveen: -3.42,
+          Hoorn: 0.48,
+          Leeuwarden: -1.98,
+          Leiden: -0.91,
+          Nijmegen: -0.91,
+          Tilburg: 0.71,
+          Utrecht: 0.5,
+        },
+        5000: {
+          Alkmaar: 0.23,
+          Amsterdam: 4.07,
+          Breda: 0.04,
+          'Den Haag': 0.08,
+          Deventer: -0.79,
+          Eindhoven: 0.58,
+          Enschede: -1.32,
+          Geleen: 4.07,
+          Groningen: -0.99,
+          Haarlem: 0.17,
+          Heerenveen: -3.62,
+          Hoorn: 0.26,
+          Leeuwarden: -0.47,
+          Leiden: -0.69,
+          Nijmegen: -0.69,
+          Tilburg: 0.66,
+          Utrecht: 1.69,
+        },
+      };
+      /* Afstanden zonder eigen tabel: 100/300 m gebruiken 500 m, 700 m het gemiddelde van 500 en 1000 m, 10000 m gebruikt 5000 m. */
+      const ANS_BASE = {
+        100: [500],
+        300: [500],
+        500: [500],
+        700: [500, 1000],
+        1000: [1000],
+        1500: [1500],
+        3000: [3000],
+        5000: [5000],
+        10000: [5000],
+      };
+      /* ANS-percentage voor een race: alleen voor bekende Nederlandse banen ("Heerenveen (NED)"),
+         anders null (dan valt de tijd weg als het ANS-vinkje aan staat). */
+      function ansPct(location, dist) {
+        const m = String(location || '').match(/^(.+?)\s*\(NED\)\s*$/);
+        if (!m) return null;
+        const rink = m[1].trim(),
+          base = ANS_BASE[dist];
+        if (!base) return null;
+        const vals = base.map((b) => ANS[b][rink]);
+        if (vals.some((v) => v == null)) return null;
+        return vals.reduce((a, b) => a + b, 0) / vals.length;
+      }
+      // Afstanden met een eigen ANS-tabel; voor de andere wordt de correctie afgeleid
+      const ANS_EXACT = new Set([500, 1000, 1500, 3000, 5000]);
+
+      // Sleutels in localStorage en hoe lang opgehaalde tijden bewaard blijven (6 uur)
+      const LS_SEL = 'ssr.selected.v1',
+        LS_CACHE = 'ssr.cache.v1.',
+        CACHE_MS = 6 * 3600 * 1000;
+
+      /* =====================================================================
+         Invoercontrole
+         Alles wat van buiten komt (opgeslagen gegevens in localStorage, de API en
+         geïmporteerde JSON-bestanden) gaat door deze functies. Wat niet aan het
+         verwachte formaat voldoet, wordt gecorrigeerd of weggelaten.
+         ===================================================================== */
+      const MAX_SKATERS = 100; // maximaal aantal schaatsers in de selectie en in een bestand
+      const MAX_FILE_BYTES = 1024 * 1024; // maximale grootte van een schaatsersbestand (1 MB)
+      const MAX_RESPONSE_CHARS = 5 * 1024 * 1024; // maximale grootte van een API-antwoord
+      const FETCH_TIMEOUT_MS = 15000; // na 15 seconden zonder antwoord wordt een verzoek afgebroken
+
+      /* tekst inkorten tot max tekens; geen tekst -> '' */
+      function cleanStr(v, max) {
+        return typeof v === 'string' ? v.trim().slice(0, max) : '';
+      }
+      /* geheel getal binnen [lo, hi], anders null */
+      function cleanInt(v, lo, hi) {
+        return Number.isSafeInteger(v) && v >= lo && v <= hi ? v : null;
+      }
+      /* geldig schaatser-ID: positief geheel getal (ook als tekst "12345") */
+      function cleanId(v) {
+        const n = typeof v === 'string' && /^\d{1,9}$/.test(v.trim()) ? +v : v;
+        return cleanInt(n, 1, 999999999);
+      }
+      /* categoriecode zoals SpeedskatingResults die gebruikt (YA, C1, N4, SA, 40, …) */
+      function cleanCategory(v) {
+        return typeof v === 'string' && /^(Y[A-F]|[ABC][12]|N[1-4]|SA|\d{2})$/i.test(v.trim())
+          ? v.trim().toUpperCase()
+          : null;
+      }
+      /* lijnkleur: alleen een van de eigen 20 kleuren */
+      function cleanColor(v) {
+        return COLORS.includes(v) ? v : null;
+      }
+      /* Wedstrijdlink: alleen https-links naar SpeedskatingResults; anders null (dan alleen tekst tonen) */
+      function safeResultUrl(value) {
+        if (typeof value !== 'string') return null;
+        try {
+          const u = new URL(value.replace(/^http:/i, 'https:'));
+          if (u.protocol !== 'https:') return null;
+          if (u.hostname !== 'speedskatingresults.com' && u.hostname !== 'www.speedskatingresults.com')
+            return null;
+          return u.href;
+        } catch (e) {
+          return null;
+        }
+      }
+      /* Eén opgeslagen schaatser uit localStorage: altijd een nieuw, schoon object */
+      function cleanSkater(x) {
+        if (!x || typeof x !== 'object') return null;
+        const id = cleanId(x.id);
+        if (id == null) return null;
+        return {
+          id,
+          givenname: cleanStr(x.givenname, 60),
+          familyname: cleanStr(x.familyname, 80),
+          gender: x.gender === 'f' || x.gender === 'm' ? x.gender : '',
+          country: typeof x.country === 'string' && /^[A-Z]{3}$/.test(x.country) ? x.country : '',
+          category: cleanCategory(x.category),
+          catSeason: cleanInt(x.catSeason, 1900, 2100),
+          birth: normBirth(x.birth),
+          group: cleanStr(x.group, 200) || null,
+          color: cleanColor(x.color),
+          hl: x.hl === true,
+          draftY: cleanInt(x.draftY, 1925, 2100),
+          draftM: cleanInt(x.draftM, 1, 12),
+        };
+      }
+      /* De opgeslagen selectie: alleen geldige schaatsers, geen dubbele, maximaal MAX_SKATERS,
+         en wie geen geldige kleur heeft krijgt de eerste vrije kleur. */
+      function cleanSelection(list) {
+        if (!Array.isArray(list)) return [];
+        const out = [],
+          seen = new Set();
+        for (const x of list) {
+          const s = cleanSkater(x);
+          if (!s || seen.has(s.id)) continue;
+          seen.add(s.id);
+          out.push(s);
+          if (out.length >= MAX_SKATERS) break;
+        }
+        const used = new Set(out.map((s) => s.color).filter(Boolean));
+        for (const s of out) {
+          if (s.color) continue;
+          s.color = COLORS.find((c) => !used.has(c)) || COLORS[out.indexOf(s) % COLORS.length];
+          used.add(s.color);
+        }
+        return out;
+      }
+      /* De opgeslagen instellingen: alleen bekende sleutels met geldige waarden */
+      function cleanUi(x) {
+        const o = x && typeof x === 'object' ? x : {};
+        const bool = (v, d) => (typeof v === 'boolean' ? v : d);
+        const maxT = {};
+        if (o.maxT && typeof o.maxT === 'object')
+          for (const d of DISTANCES) {
+            const v = o.maxT[d];
+            if (typeof v === 'number' && isFinite(v) && v > 0 && v < 100000) maxT[d] = v;
+          }
+        return {
+          ageFrom: cleanInt(o.ageFrom, 5, 80),
+          ageTo: cleanInt(o.ageTo, 5, 80),
+          showM: bool(o.showM, true),
+          showF: bool(o.showF, true),
+          ans: bool(o.ans, false),
+          maxT,
+        };
+      }
+      /* Eén rij uit de API of uit de cache: alleen geldige velden, anders null */
+      function cleanResult(x) {
+        if (!x || typeof x !== 'object') return null;
+        const time = cleanStr(x.time, 20);
+        const sec = parseTime(time);
+        const date = typeof x.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.date) ? x.date : null;
+        if (sec == null || !(sec > 0) || !date) return null;
+        return {
+          time,
+          sec,
+          date,
+          location: cleanStr(x.location, 120),
+          name: cleanStr(x.name, 200),
+          link: safeResultUrl(x.link),
+        };
+      }
+      /* fetch met time-out en maximale grootte van het antwoord; geeft de tekst terug */
+      async function fetchText(url) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+        try {
+          const r = await fetch(url, { signal: ctrl.signal });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const text = await r.text();
+          if (text.length > MAX_RESPONSE_CHARS) throw new Error('antwoord te groot');
+          return text;
+        } catch (e) {
+          if (e.name === 'AbortError')
+            throw new Error('geen antwoord binnen ' + FETCH_TIMEOUT_MS / 1000 + ' s');
+          throw e;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      /* Toestand van de pagina: wie geselecteerd is, welke afstand, en de opgehaalde tijden */
+      const state = {
+        selected: cleanSelection(load(LS_SEL, [])), // gecontroleerd, zie cleanSelection()
+        distance: 500,
+        xMode: 'age', // x-as is altijd leeftijd (datumweergave is verwijderd)
+        data: {}, // key `${id}_${dist}` -> array of results | 'loading' | 'error'
+        stale: {}, // key -> tijdstip (ms) van oude cache die gebruikt wordt omdat de server niet reageerde
+      };
+
+      /* ---------- Opslag in de browser (localStorage) ---------- */
+      function load(k, d) {
+        try {
+          const v = localStorage.getItem(k);
+          return v ? JSON.parse(v) : d;
+        } catch (e) {
+          return d;
+        }
+      }
+      function save(k, v) {
+        try {
+          localStorage.setItem(k, JSON.stringify(v));
+        } catch (e) {}
+      }
+      function persistSel() {
+        save(LS_SEL, state.selected);
+      }
+      // oudere opslag: seizoen van de categorie vastleggen, zodat de schatting volgend seizoen niet verschuift
+      state.selected.forEach((s) => {
+        if (s.catSeason == null) s.catSeason = currentSeasonStart();
+      });
+
+      /* ---------- Hulpfuncties voor tijden, datums en leeftijden ---------- */
+      /* "1.23,45" of "38,12" -> aantal seconden (getal); onleesbare tijd -> null */
+      function parseTime(t) {
+        if (t == null) return null;
+        const m = String(t)
+          .trim()
+          .match(/^(?:(\d+)\.)?(\d{1,2}),(\d{1,3})$/);
+        if (!m) return null;
+        const frac = parseInt(m[3], 10) / Math.pow(10, m[3].length);
+        return (m[1] ? parseInt(m[1], 10) * 60 : 0) + parseInt(m[2], 10) + frac;
+      }
+      /* aantal seconden -> "1.23,45" of "38,12" */
+      function fmtTime(s) {
+        if (s == null || isNaN(s)) return '';
+        let cs = Math.round(s * 100);
+        const min = Math.floor(cs / 6000);
+        cs -= min * 6000;
+        const sec = Math.floor(cs / 100),
+          h = cs % 100;
+        const hs = String(h).padStart(2, '0');
+        return min ? `${min}.${String(sec).padStart(2, '0')},${hs}` : `${sec},${hs}`;
+      }
+      /* "2026-11-17" -> Date (in UTC, zodat tijdzones geen rol spelen) */
+      function parseDate(s) {
+        const [y, m, d] = s.split('-').map(Number);
+        return new Date(Date.UTC(y, m - 1, d));
+      }
+      /* datum -> jaartal met decimalen, bijv. 2026,88 */
+      function decYear(d) {
+        const y = d.getUTCFullYear();
+        const s = Date.UTC(y, 0, 1),
+          e = Date.UTC(y + 1, 0, 1);
+        return y + (d - s) / (e - s);
+      }
+      /* leeftijd op datum d in hele jaren en maanden: {y, m} */
+      function ageParts(birth, d) {
+        let y = d.getUTCFullYear() - birth.getUTCFullYear();
+        let m = d.getUTCMonth() - birth.getUTCMonth();
+        if (d.getUTCDate() < birth.getUTCDate()) m--;
+        if (m < 0) {
+          y--;
+          m += 12;
+        }
+        return { y, m };
+      }
+      /* leeftijd als decimaal getal, bijv. 12,54 jaar (x-as van de grafiek) */
+      function ageDecimal(birth, d) {
+        return (d - birth) / (365.2425 * 86400000);
+      }
+      /* leeftijd als tekst, bijv. "12 j 6 m"; met "≈" als die geschat is */
+      function fmtAge(birth, d, est) {
+        const a = ageParts(birth, d);
+        return `${est ? '≈ ' : ''}${a.y} j ${a.m} m`;
+      }
+      function fmtDateNL(s) {
+        const d = parseDate(s);
+        return d.toLocaleDateString('nl-NL', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          timeZone: 'UTC',
+        });
+      }
+
+      /* ---------- categoriecode (SpeedskatingResults) -> KNSB-naam ---------- */
+      function catName(cat) {
+        if (cat == null || cat === '') return '';
+        const c = String(cat).toUpperCase();
+        let m;
+        if ((m = c.match(/^Y([A-F])$/))) return 'Pupillen ' + m[1];
+        if ((m = c.match(/^([ABC])([12])$/))) return `Junioren ${m[1]}${m[2]}`;
+        if ((m = c.match(/^N([1-4])$/))) return 'Neo-senioren ' + m[1];
+        if (c === 'SA') return 'Senioren';
+        if (/^\d{2}$/.test(c)) {
+          const a = +c < 30 ? +c + 100 : +c;
+          return 'Masters ' + a;
+        }
+        return c;
+      }
+
+      /* ---------- Categorie -> geschatte geboortedatum ----------
+   Jeugd/junioren/neo-senioren: leeftijd op 1 juli van het lopende seizoen.
+   Senioren (SA) 23-29. Masters: leeftijd op 1 juli van het eindjaar van het seizoen, klassen van 5 jaar. */
+      const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+      const CAT_AGE = {
+        YF: 7,
+        YE: 8,
+        YD: 9,
+        YC: 10,
+        YB: 11,
+        YA: 12,
+        C1: 13,
+        C2: 14,
+        B1: 15,
+        B2: 16,
+        A1: 17,
+        A2: 18,
+        N1: 19,
+        N2: 20,
+        N3: 21,
+        N4: 22,
+      };
+      /* beginjaar van het lopende seizoen (seizoen loopt van 1 juli t/m 30 juni) */
+      function currentSeasonStart() {
+        const n = new Date();
+        return n.getMonth() >= 6 ? n.getFullYear() : n.getFullYear() - 1;
+      }
+      /* Schat de geboortedatum uit een categorie (bijv. "C1") en het seizoen waarin die gold.
+         Resultaat: 1 januari in het midden van het mogelijke geboortevenster, plus de breedte
+         van dat venster in jaren (voor de ±-aanduiding). Zie docs/LEEFTIJD.md. */
+      function estimateBirth(cat, season) {
+        const w = birthWindow(cat, season);
+        if (!w) return null;
+        // midden van het geboortevenster, afgerond op 1 januari
+        const mid = new Date((w.early + w.late) / 2);
+        const midYear = Math.round(decYear(mid));
+        return { date: new Date(Date.UTC(midYear, 0, 1)), spanYears: w.spanYears };
+      }
+      /* Mogelijk geboortevenster bij een categorie: vroegste en laatste geboortedatum (ms, UTC)
+         en de breedte in jaren. Gebruikt voor de schatting en voor de jaarkeuze bij "Geboren". */
+      function birthWindow(cat, season) {
+        if (cat == null || cat === '') return null;
+        cat = String(cat).toUpperCase();
+        const S = season ?? currentSeasonStart(); // seizoen waarin de categorie gold
+        let lo, hi; // age range on reference date
+        let ref = Date.UTC(S, 6, 1);
+        if (CAT_AGE[cat] != null) {
+          lo = hi = CAT_AGE[cat];
+        } else if (cat === 'SA') {
+          lo = 23;
+          hi = 29;
+        } else if (/^\d{2}$/.test(cat)) {
+          lo = parseInt(cat, 10);
+          if (lo < 30) lo += 100;
+          hi = lo + 4;
+          ref = Date.UTC(S + 1, 6, 1);
+        } else return null;
+        // born between ref-(hi+1)y and ref-lo y  -> midpoint
+        const refD = new Date(ref);
+        const early = Date.UTC(refD.getUTCFullYear() - hi - 1, 6, 1);
+        const late = Date.UTC(refD.getUTCFullYear() - lo, 5, 30);
+        return { early, late, spanYears: hi - lo + 1 };
+      }
+      /* Past geboortejaar y + maand m (1-12) in het geboortevenster w van de categorie? */
+      function inBirthWindow(w, y, m) {
+        const d = Date.UTC(y, m - 1, 15);
+        return d >= w.early && d <= w.late;
+      }
+      /* Geboortedatum van een schaatser: ingevuld (est:false) of geschat uit de categorie (est:true) */
+      function birthOf(sk) {
+        if (sk.birth) {
+          return { date: parseDate(sk.birth), est: false };
+        }
+        const e = estimateBirth(sk.category, sk.catSeason);
+        return e ? { date: e.date, est: true, span: e.spanYears } : null;
+      }
+
+      /* ---------- Communicatie met de SpeedskatingResults-API ---------- */
+      let active = 0;
+      const queue = [];
+      /* Wachtrij: maximaal 4 verzoeken tegelijk naar de API, om de server niet te overbelasten */
+      function limited(fn) {
+        return new Promise((res, rej) => {
+          queue.push({ fn, res, rej });
+          pump();
+        });
+      }
+      function pump() {
+        while (active < 4 && queue.length) {
+          const { fn, res, rej } = queue.shift();
+          active++;
+          fn()
+            .then(res, rej)
+            .finally(() => {
+              active--;
+              pump();
+            });
+        }
+      }
+      /* Zoek schaatsers op naam. De XML-variant van de API geeft tot 20 resultaten (JSON maar 10). */
+      async function searchSkaters(params) {
+        // XML-variant geeft max. 20 resultaten (JSON max. 10)
+        const q = new URLSearchParams(params).toString();
+        const xml = new DOMParser().parseFromString(
+          await fetchText(API + 'xml/skater_lookup.php?' + q),
+          'application/xml',
+        );
+        return [...xml.querySelectorAll('skater')]
+          .slice(0, 50)
+          .map((s) => {
+            const g = (n) => {
+              const el = s.querySelector(n);
+              return el ? el.textContent.trim() : '';
+            };
+            return {
+              id: cleanId(g('id')),
+              familyname: cleanStr(g('familyname'), 80),
+              givenname: cleanStr(g('givenname'), 60),
+              country: /^[A-Z]{3}$/.test(g('country')) ? g('country') : '',
+              gender: g('gender') === 'f' || g('gender') === 'm' ? g('gender') : '',
+              category: cleanCategory(g('category')),
+            };
+          })
+          .filter((s) => s.id != null);
+      }
+      /* Alle tijden van één schaatser op één afstand, gesorteerd op datum.
+         Uitkomst wordt 6 uur bewaard in localStorage, zodat wisselen van afstand snel gaat. */
+      async function getResults(id, dist) {
+        const key = `${id}_${dist}`;
+        // cache gebruiken als die jong genoeg is én het verwachte formaat heeft; anders opnieuw ophalen
+        const cached = load(LS_CACHE + key, null);
+        if (
+          cached &&
+          typeof cached.t === 'number' &&
+          Date.now() - cached.t < CACHE_MS &&
+          Array.isArray(cached.r)
+        ) {
+          const rows = cached.r.map(cleanResult);
+          if (rows.every(Boolean)) return rows;
+        }
+        let rows;
+        try {
+          const text = await limited(() =>
+            fetchText(`${API}json/skater_results.php?skater=${cleanId(id)}&distance=${+dist}`),
+          );
+          const j = JSON.parse(text);
+          rows = (Array.isArray(j && j.results) ? j.results : [])
+            .map(cleanResult)
+            .filter(Boolean)
+            .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.sec - b.sec));
+        } catch (err) {
+          // Server traag of onbereikbaar: dan liever oude tijden uit de cache (ouder dan 6 uur) dan niets
+          if (cached && typeof cached.t === 'number' && Array.isArray(cached.r)) {
+            const old = cached.r.map(cleanResult);
+            if (old.every(Boolean)) {
+              state.stale[key] = cached.t;
+              console.warn('Oude cache gebruikt voor', key, err);
+              return old;
+            }
+          }
+          throw err;
+        }
+        delete state.stale[key];
+        save(LS_CACHE + key, { t: Date.now(), r: rows });
+        return rows;
+      }
+      /* Loop chronologisch door de races en houd elk nieuw PR bij (met het vorige PR erbij) */
+      function prProgression(rows) {
+        const out = [];
+        let best = Infinity;
+        for (const r of rows) {
+          if (r.sec < best) {
+            out.push({ ...r, prev: best === Infinity ? null : best });
+            best = r.sec;
+          }
+        }
+        return out;
+      }
+
+      /* ---------- Blok "Schaatser zoeken" ---------- */
+      const $ = (id) => document.getElementById(id);
+      $('searchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const p = {};
+        const fam = $('fFam').value.trim(),
+          giv = $('fGiv').value.trim();
+        if (fam) p.familyname = fam;
+        if (giv) p.givenname = giv;
+        if (!fam && !giv) {
+          $('searchStatus').textContent = 'Vul (een deel van) een naam in.';
+          return;
+        }
+        $('searchStatus').textContent = 'Zoeken…';
+        $('results').innerHTML = '';
+        try {
+          const list = await searchSkaters(p);
+          $('searchStatus').textContent = list.length
+            ? `${list.length} gevonden${list.length >= 20 ? ' (max. 20 – verfijn je zoekopdracht)' : ''}`
+            : 'Niets gevonden.';
+          renderResults(list);
+        } catch (err) {
+          $('searchStatus').textContent = 'Zoeken mislukt: ' + err.message;
+        }
+      });
+      let lastResults = [];
+      /* Toon de zoekresultaten met een knop "+ Toevoegen" (of "Toegevoegd") */
+      function renderResults(list) {
+        lastResults = list;
+        const ids = new Set(state.selected.map((s) => s.id));
+        $('results').innerHTML = list
+          .map(
+            (s, i) => `
+    <div class="res ${ids.has(s.id) ? 'added' : ''}">
+      <div><div>${esc(s.givenname)} ${esc(s.familyname)}</div>
+      <div class="meta">${esc(s.country)} · ${s.gender === 'f' ? 'v' : 'm'}${s.category ? ' · ' + esc(catName(s.category)) : ''} · <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a></div></div>
+      <button class="small ${ids.has(s.id) ? 'ghost' : ''}" data-i="${i}" ${ids.has(s.id) ? 'disabled' : ''}>${ids.has(s.id) ? 'Toegevoegd' : '+ Toevoegen'}</button>
+    </div>`,
+          )
+          .join('');
+      }
+      $('results').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-i]');
+        if (!b) return;
+        const s = lastResults[+b.dataset.i];
+        if (addSkater({ ...s, catSeason: currentSeasonStart() })) {
+          persistSel();
+          renderResults(lastResults);
+          renderSelected();
+          refresh();
+        }
+      });
+      /* Voeg één schaatser toe aan de selectie met de eerste nog vrije kleur; false als hij er al in zat */
+      function addSkater(s) {
+        if (state.selected.some((x) => x.id === s.id)) return false;
+        if (state.selected.length >= MAX_SKATERS) return false; // selectie is vol
+        const used = new Set(state.selected.map((x) => x.color));
+        s.color = COLORS.find((c) => !used.has(c)) || COLORS[state.selected.length % COLORS.length];
+        s.birth = s.birth || null;
+        state.selected.push(s);
+        return true;
+      }
+
+      /* ---------- schaatsersbestand (JSON) laden en opslaan ---------- */
+      let fileSkaters = []; // alleen in het geheugen; wordt niet in de browser opgeslagen
+      /* "2014-02" of "2014-02-15" -> "2014-02-15"; anders null */
+      function normBirth(b) {
+        const m = String(b || '').match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?$/);
+        if (!m || +m[2] < 1 || +m[2] > 12) return null;
+        return `${m[1]}-${m[2].padStart(2, '0')}-${(m[3] || '15').padStart(2, '0')}`;
+      }
+      /* Lees de tekst van een schaatsersbestand (JSON) en zet elke schaatser om naar een vast formaat */
+      function parseSkaterFile(text) {
+        if (text.length > MAX_FILE_BYTES) throw new Error('bestand is groter dan 1 MB');
+        const j = JSON.parse(text);
+        const list = Array.isArray(j) ? j : j && j.skaters;
+        if (!Array.isArray(list)) throw new Error('geen lijst "skaters" gevonden');
+        if (list.length > MAX_SKATERS) throw new Error(`meer dan ${MAX_SKATERS} schaatsers in het bestand`);
+        const seen = new Set();
+        return list
+          .map((x) => {
+            if (!x || typeof x !== 'object') return null;
+            const id = cleanId(x.id);
+            if (id == null || seen.has(id)) return null; // ongeldig of dubbel ID: overslaan
+            seen.add(id);
+            let giv = cleanStr(x.givenname, 60),
+              fam = cleanStr(x.familyname, 80);
+            const name = cleanStr(x.name, 140);
+            if (!giv && !fam && name) {
+              const i = name.indexOf(' ');
+              giv = i > 0 ? name.slice(0, i) : name;
+              fam = i > 0 ? name.slice(i + 1) : '';
+            }
+            const groups = (Array.isArray(x.group) ? x.group : x.group ? [x.group] : [])
+              .filter((g) => typeof g === 'string')
+              .map((g) => cleanStr(g, 60))
+              .filter(Boolean)
+              .slice(0, 10);
+            return {
+              id,
+              givenname: giv,
+              familyname: fam,
+              gender: x.gender === 'f' || x.gender === 'm' ? x.gender : '',
+              country: typeof x.country === 'string' && /^[A-Z]{3}$/.test(x.country) ? x.country : '',
+              category: cleanCategory(x.category),
+              catSeason: cleanInt(x.catSeason, 1900, 2100),
+              birth: normBirth(x.birth),
+              groups,
+            };
+          })
+          .filter(Boolean);
+      }
+      /* Open een gekozen of gesleept bestand en vul de groep-keuzelijst */
+      function loadSkaterFile(file) {
+        if (file.size > MAX_FILE_BYTES) {
+          $('fileName').textContent = 'Kon bestand niet lezen: bestand is groter dan 1 MB';
+          return;
+        }
+        const rd = new FileReader();
+        rd.onload = () => {
+          try {
+            fileSkaters = parseSkaterFile(rd.result);
+            const groups = [...new Set(fileSkaters.flatMap((s) => s.groups))];
+            const noGroup = fileSkaters.filter((s) => !s.groups.length).length;
+            $('groupSel').innerHTML =
+              `<option value="*">Alle schaatsers uit bestand (${fileSkaters.length})</option>` +
+              groups
+                .map(
+                  (g) =>
+                    `<option value="g:${esc(g)}">${esc(g)} (${fileSkaters.filter((s) => s.groups.includes(g)).length})</option>`,
+                )
+                .join('') +
+              (noGroup && groups.length ? `<option value="-">Zonder groep (${noGroup})</option>` : '');
+            $('groupSel').disabled = $('groupAdd').disabled = false;
+            $('fileName').textContent = `${file.name}: ${fileSkaters.length} schaatsers`;
+            $('groupSel').dispatchEvent(new Event('change'));
+          } catch (err) {
+            fileSkaters = [];
+            $('fileName').textContent = 'Kon bestand niet lezen: ' + err.message;
+            $('groupSel').innerHTML = '<option value="">Nog geen bestand geladen</option>';
+            $('groupSel').disabled = $('groupAdd').disabled = true;
+            $('groupInfo').textContent = '';
+          }
+        };
+        rd.readAsText(file);
+      }
+      /* De schaatsers die bij de huidige keuze in de groep-keuzelijst horen */
+      function chosenFileSkaters() {
+        const v = $('groupSel').value;
+        if (v === '*') return fileSkaters;
+        if (v === '-') return fileSkaters.filter((s) => !s.groups.length);
+        if (v.startsWith('g:')) return fileSkaters.filter((s) => s.groups.includes(v.slice(2)));
+        return [];
+      }
+      $('fileOpen').addEventListener('click', () => $('fileInput').click());
+      $('fileInput').addEventListener('change', (e) => {
+        if (e.target.files[0]) loadSkaterFile(e.target.files[0]);
+        e.target.value = '';
+      });
+      ['dragover', 'dragenter'].forEach((t) =>
+        $('fileCard').addEventListener(t, (e) => {
+          e.preventDefault();
+          $('fileCard').style.outline = '2px dashed var(--accent)';
+        }),
+      );
+      ['dragleave', 'drop'].forEach((t) =>
+        $('fileCard').addEventListener(t, (e) => {
+          e.preventDefault();
+          $('fileCard').style.outline = '';
+        }),
+      );
+      $('fileCard').addEventListener('drop', (e) => {
+        const f = e.dataTransfer.files[0];
+        if (f) loadSkaterFile(f);
+      });
+      $('groupSel').addEventListener('change', () => {
+        const list = chosenFileSkaters();
+        $('groupInfo').textContent = list.length
+          ? list.map((s) => `${s.givenname} ${s.familyname}`.trim()).join(', ') + '.'
+          : '';
+      });
+      /* lijst {id,givenname,familyname,gender,country,category,catSeason,birth,groups} toevoegen; bestaande bijwerken */
+      function addSkaterList(list, infoEl) {
+        if (!list.length) return;
+        let added = 0,
+          updated = 0;
+        for (const f of list) {
+          const cur = state.selected.find((x) => x.id === f.id);
+          const grp = f.groups.join(', ') || null;
+          if (cur) {
+            // bestaat al: geboortedatum en groep overnemen
+            if (f.birth && f.birth !== cur.birth) {
+              cur.birth = f.birth;
+              cur.draftY = cur.draftM = null;
+              updated++;
+            }
+            if (grp) cur.group = grp;
+          } else if (
+            addSkater({
+              id: f.id,
+              givenname: f.givenname,
+              familyname: f.familyname,
+              gender: f.gender,
+              country: f.country,
+              category: f.category,
+              catSeason: f.catSeason ?? (f.category ? currentSeasonStart() : null),
+              birth: f.birth,
+              group: grp,
+            })
+          )
+            added++;
+        }
+        persistSel();
+        renderResults(lastResults);
+        renderSelected();
+        refresh();
+        infoEl.textContent =
+          `${added} toegevoegd` +
+          (updated ? `, bij ${updated} de geboortedatum bijgewerkt` : '') +
+          (list.length - added - updated > 0 ? `, ${list.length - added - updated} stond(en) er al` : '') +
+          (state.selected.length >= MAX_SKATERS ? ` De selectie is vol (max. ${MAX_SKATERS}).` : '.');
+      }
+      $('groupAdd').addEventListener('click', () => addSkaterList(chosenFileSkaters(), $('groupInfo')));
+
+      /* ---------- ingebouwde lijst topschaatsers (publiek bekende sporters) ---------- */
+      const TOP_GROUPS = [
+        'OS 2026 medaillewinnaars',
+        'OS 2022 medaillewinnaars',
+        'WK-podium 2021-26',
+        'EK-podium 2021-26',
+        'Wereldbeker-podium 2021-26',
+        'Internationale wereldkampioenen',
+      ];
+      /* [id, voornaam, achternaam, geslacht, geboortemaand, groepen (bitmasker op TOP_GROUPS), land (standaard NED)] */
+      const TOP_SKATERS = [
+        [9632, 'Reina', 'Anema', 'f', '1993-07', 16],
+        [4850, 'Jorrit', 'Bergsma', 'm', '1986-02', 29],
+        [32063, 'Joy', 'Beune', 'f', '1999-04', 29],
+        [31895, 'Anna', 'Boersma', 'f', '2001-04', 16],
+        [40443, 'Jenning', 'de Boo', 'm', '2004-01', 29],
+        [6537, 'Marcel', 'Bosker', 'm', '1997-01', 28],
+        [22922, 'Janno', 'Botman', 'm', '2000-03', 20],
+        [46266, 'Jorian', 'ten Cate', 'm', '2003-04', 16],
+        [36256, 'Merel', 'Conijn', 'f', '2001-10', 21],
+        [49350, 'Angel', 'Daleman', 'f', '2007-03', 20],
+        [11169, 'Wesly', 'Dijs', 'm', '1995-09', 28],
+        [25217, 'Helga', 'Drost', 'f', '1998-08', 16],
+        [25214, 'Elisa', 'Dul', 'f', '1998-09', 16],
+        [35521, 'Marrit', 'Fledderus', 'f', '2001-05', 24],
+        [49728, 'Isabel', 'Grevelt', 'f', '2002-04', 24],
+        [29434, 'Marijke', 'Groenewoud', 'f', '1999-01', 31],
+        [25026, 'Robin', 'Groot', 'f', '2001-01', 16],
+        [24508, 'Sanne', "in 't Hof", 'f', '1998-01', 8],
+        [23347, 'Louis', 'Hollaar', 'm', '1998-09', 24],
+        [44683, 'Chloé', 'Hoogendoorn', 'f', '2004-03', 24],
+        [23747, 'Bart', 'Hoolwerf', 'm', '1998-01', 28],
+        [23864, 'Chris', 'Huizinga', 'm', '1997-08', 28],
+        [16366, 'Kars', 'Jansman', 'm', '1995-06', 8],
+        [18046, 'Michelle', 'de Jong', 'f', '1999-07', 16],
+        [31024, 'Bente', 'Kerkhoff', 'f', '2001-12', 16],
+        [19550, 'Esther', 'Kiel', 'f', '1996-10', 16],
+        [26647, 'Femke', 'Kok', 'f', '2000-10', 29],
+        [831, 'Sven', 'Kramer', 'm', '1986-04', 24],
+        [7135, 'Thomas', 'Krol', 'm', '1992-08', 30],
+        [31536, 'Jutta', 'Leerdam', 'f', '1998-12', 31],
+        [18679, 'Dai Dai', "N'tab", 'm', '1994-08', 24],
+        [5487, 'Kjeld', 'Nuis', 'm', '1989-11', 31],
+        [2942, 'Hein', 'Otterspeer', 'm', '1988-11', 20],
+        [46368, 'Tim', 'Prins', 'm', '2003-08', 28],
+        [18036, 'Antoinette', 'Rijpma-de Jong', 'f', '1995-04', 31],
+        [14920, 'Patrick', 'Roest', 'm', '1995-12', 30],
+        [21597, 'Merijn', 'Scheperkamp', 'm', '2000-03', 28],
+        [5957, 'Irene', 'Schouten', 'f', '1992-06', 30],
+        [24522, 'Suzanne', 'Schulting', 'f', '1997-09', 20],
+        [52756, 'Wisse', 'Slendebroek', 'm', '2004-10', 8],
+        [24030, 'Tijmen', 'Snel', 'm', '1997-12', 8],
+        [36004, 'Beau', 'Snellink', 'm', '2001-05', 20],
+        [29455, 'Kim', 'Talsma', 'f', '2001-01', 8],
+        [6588, 'Kai', 'Verbij', 'm', '1994-09', 28],
+        [25742, 'Naomi', 'Verkerk', 'f', '2000-04', 16],
+        [27706, 'Evelien', 'Vijn', 'f', '2002-08', 8],
+        [26322, 'Kayo', 'Vos', 'm', '2003-06', 24],
+        [27663, 'Dione', 'Voskamp', 'f', '1997-01', 20],
+        [35048, 'Joep', 'Wennemars', 'm', '2002-10', 20],
+        [48222, 'Stefan', 'Westenbroek', 'm', '2002-03', 24],
+        [18959, 'Melissa', 'Wijfje', 'f', '1995-07', 16],
+        [687, 'Ireen', 'Wüst', 'f', '1986-04', 26],
+        /* internationale wereldkampioenen (bit 32) */
+        [48139, 'Jordan', 'Stolz', 'm', '2004-05', 32, 'USA'],
+        [17178, 'Pavel', 'Kulizhnikov', 'm', '1994-04', 32, 'RUS'],
+        [41852, 'Davide', 'Ghiotto', 'm', '1993-12', 32, 'ITA'],
+        [265, 'Shani', 'Davis', 'm', '1982-08', 32, 'USA'],
+        [5064, 'Denis', 'Yuskov', 'm', '1989-10', 32, 'RUS'],
+        [12830, 'Miho', 'Takagi', 'f', '1994-05', 32, 'JPN'],
+        [22, 'Martina', 'Sáblíková', 'f', '1987-05', 32, 'CZE'],
+        [29245, 'Brittany', 'Bowe', 'f', '1988-02', 32, 'USA'],
+        [1598, 'Nao', 'Kodaira', 'f', '1986-05', 32, 'JPN'],
+        [201, 'Claudia', 'Pechstein', 'f', '1972-02', 32, 'GER'],
+      ];
+      // Omzetten naar hetzelfde formaat als schaatsers uit een bestand
+      const topList = TOP_SKATERS.map(([id, giv, fam, g, b, mask, land]) => ({
+        id,
+        givenname: giv,
+        familyname: fam,
+        gender: g,
+        country: land || 'NED',
+        category: null,
+        catSeason: null,
+        birth: normBirth(b),
+        groups: TOP_GROUPS.filter((_, i) => mask & (1 << i)),
+      }));
+      (function fillTopSel() {
+        const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
+        const inG = (s, i) => s.groups.includes(TOP_GROUPS[i]);
+        const names = (list) =>
+          list
+            .map((s) =>
+              opt(
+                's:' + s.id,
+                `${s.givenname} ${s.familyname}${s.country !== 'NED' ? ' (' + s.country + ')' : ''}`,
+              ),
+            )
+            .join('');
+        const cur = topList.filter((s) => !inG(s, 5));
+        $('topSel').innerHTML =
+          '<option value="">Kies een topschaatser of groep…</option>' +
+          '<optgroup label="Groepen">' +
+          TOP_GROUPS.map((g) =>
+            opt('g:' + g, `${g} (${topList.filter((s) => s.groups.includes(g)).length})`),
+          ).join('') +
+          opt('*', `Alle topschaatsers (${topList.length})`) +
+          '</optgroup>' +
+          '<optgroup label="Vrouwen (NL, 2021–2026)">' +
+          names(cur.filter((s) => s.gender === 'f')) +
+          '</optgroup>' +
+          '<optgroup label="Mannen (NL, 2021–2026)">' +
+          names(cur.filter((s) => s.gender === 'm')) +
+          '</optgroup>' +
+          '<optgroup label="Internationale wereldkampioenen">' +
+          names(topList.filter((s) => inG(s, 5))) +
+          '</optgroup>';
+      })();
+      /* De schaatser(s) die bij de huidige keuze in de topschaatsers-lijst horen */
+      function chosenTopSkaters() {
+        const v = $('topSel').value;
+        if (v === '*') return topList;
+        if (v.startsWith('g:')) return topList.filter((s) => s.groups.includes(v.slice(2)));
+        if (v.startsWith('s:')) return topList.filter((s) => s.id === +v.slice(2));
+        return [];
+      }
+      $('topSel').addEventListener('change', () => {
+        const v = $('topSel').value,
+          list = chosenTopSkaters();
+        if (v.startsWith('s:') && list[0])
+          $('topInfo').textContent =
+            `${list[0].givenname} ${list[0].familyname}, geboren ${list[0].birth.slice(0, 7)}. ${list[0].groups.join(', ')}.`;
+        else if (list.length)
+          $('topInfo').textContent = list.map((s) => `${s.givenname} ${s.familyname}`).join(', ') + '.';
+      });
+      $('topAdd').addEventListener('click', () => {
+        const list = chosenTopSkaters();
+        if (!list.length) {
+          $('topInfo').textContent = 'Kies eerst een schaatser of groep.';
+          return;
+        }
+        addSkaterList(list, $('topInfo'));
+      });
+      $('topSel').addEventListener('dblclick', () => $('topAdd').click());
+
+      $('saveSel').addEventListener('click', () => {
+        if (!state.selected.length) {
+          $('groupInfo').textContent = 'Er is niets geselecteerd om op te slaan.';
+          return;
+        }
+        const doc = {
+          format: FILE_FORMAT,
+          description: 'Selectie uit de Schaatsvergelijker',
+          created: new Date().toISOString().slice(0, 10),
+          skaters: state.selected.map((s) => ({
+            id: s.id,
+            name: `${s.givenname} ${s.familyname}`.trim(),
+            givenname: s.givenname,
+            familyname: s.familyname,
+            gender: s.gender || null,
+            country: s.country || null,
+            birth: s.birth ? s.birth.slice(0, 7) : null,
+            group: ((g) => (g.length > 1 ? g : g[0] || null))(splitGroups(s.group)),
+            category: s.category ?? null,
+            catSeason: s.catSeason ?? null,
+          })),
+        };
+        const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `schaatsers-${doc.created}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      });
+      $('clearSel').addEventListener('click', () => {
+        if (!state.selected.length) return;
+        state.selected = [];
+        persistSel();
+        renderResults(lastResults);
+        renderSelected();
+        refresh();
+      });
+
+      /* ---------- Blok "Geselecteerd": kaartjes per schaatser ---------- */
+      /* "C-selectie, Talent" -> ["C-selectie", "Talent"] */
+      function splitGroups(g) {
+        return String(g || '')
+          .split(',')
+          .map((x) => x.trim())
+          .filter(Boolean);
+      }
+      /* Suggesties voor het veld Groep: alle groepen uit de selectie en het geopende bestand */
+      function fillGroupList() {
+        const all = new Set([
+          ...state.selected.flatMap((s) => splitGroups(s.group)),
+          ...fileSkaters.flatMap((s) => s.groups),
+        ]);
+        $('grpList').innerHTML = [...all]
+          .sort((a, b) => a.localeCompare(b, 'nl'))
+          .map((g) => `<option value="${esc(g)}">`)
+          .join('');
+      }
+      /* Bouw de kaartjes van alle geselecteerde schaatsers opnieuw op */
+      function renderSelected() {
+        fillGroupList();
+        const el = $('selected');
+        if (!state.selected.length) {
+          el.innerHTML = '<div class="empty" style="padding:10px">Nog niemand geselecteerd.</div>';
+          return;
+        }
+        el.innerHTML = state.selected
+          .map((s) => {
+            const b = birthOf(s);
+            const badge = s.birth
+              ? '<span class="badge ok">ingevuld</span>'
+              : b
+                ? `<span class="badge">geschat${b.span > 1 ? ' (±' + Math.ceil(b.span / 2) + ' jr)' : ''}</span>`
+                : '<span class="badge">onbekend</span>';
+            const selY = s.birth ? +s.birth.slice(0, 4) : s.draftY || '';
+            const selM = s.birth ? +s.birth.slice(5, 7) : s.draftM || '';
+            // Jaarkeuze: alleen de jaren die bij de categorie passen. Zonder (herkende) categorie
+            // alle jaren. Een al ingevuld jaar buiten het venster blijft zichtbaar.
+            const w = birthWindow(s.category, s.catSeason);
+            const thisY = new Date().getFullYear();
+            const years = [];
+            const yFrom = w ? new Date(w.late).getUTCFullYear() : thisY - 3;
+            const yTo = w ? new Date(w.early).getUTCFullYear() : 1925;
+            for (let y = yFrom; y >= yTo; y--) years.push(y);
+            if (selY && !years.includes(selY)) {
+              years.push(selY);
+              years.sort((a, b) => b - a);
+            }
+            const yOpt = (y) => `<option value="${y}" ${y === selY ? 'selected' : ''}>${y}</option>`;
+            const yearSel =
+              `<select data-act="by" title="Geboortejaar${w ? ' (passend bij de categorie)' : ''}"><option value="">jaar</option>` +
+              years.map(yOpt).join('') +
+              '</select>';
+            const monthSel =
+              `<select data-act="bm" title="Geboortemaand"><option value="">maand</option>` +
+              MONTHS.map(
+                (n, i) => `<option value="${i + 1}" ${i + 1 === selM ? 'selected' : ''}>${n}</option>`,
+              ).join('') +
+              '</select>';
+            return `<div class="sel${s.hl ? ' hl' : ''}" style="--c:${cleanColor(s.color) || '#888'}${genderOK(s) ? '' : ';opacity:.45'}" data-id="${Number(s.id)}" ${genderOK(s) ? '' : 'title="Verborgen door het m/v-filter"'}>
+      <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)}</span>
+        <span><button class="star ${s.hl ? 'on' : ''}" data-act="hl" title="${s.hl ? 'Highlight uitzetten' : 'Highlighten: dikkere lijn in de grafiek'}">${s.hl ? '★' : '☆'}</button><button class="x" data-act="rm" title="Verwijderen">×</button></span></div>
+      <div class="meta">${esc(s.country)} · ${s.gender === 'f' ? 'v' : 'm'}${s.category ? ' · ' + esc(catName(s.category)) : ''} · <a href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener">profiel ↗</a></div>
+      <div class="grp">Groep <input type="text" data-act="grp" list="grpList" value="${esc(s.group || '')}" placeholder="bijv. C-selectie (meerdere: komma ertussen)" title="Groep(en) voor het JSON-bestand; meerdere groepen scheiden met een komma"></div>
+      <div class="birth">Geboren ${monthSel}${yearSel}${s.birth ? '<button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</div>
+      <div class="meta" style="margin-top:3px">${badge}${!s.birth && (s.draftY || s.draftM) ? ' kies ook ' + (s.draftY ? 'de maand' : 'het jaar') : ''}</div>
+      ${!s.birth && b ? `<div class="meta">schatting: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} (midden van categorie)</div>` : ''}
+    </div>`;
+          })
+          .join('');
+      }
+      $('selected').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.dataset.act === 'grp') {
+          e.preventDefault();
+          e.target.blur();
+        }
+      });
+      $('selected').addEventListener('click', (e) => {
+        const hlb = e.target.closest('[data-act=hl]');
+        if (hlb) {
+          const s = state.selected.find((x) => x.id === +hlb.closest('.sel').dataset.id);
+          s.hl = !s.hl;
+          persistSel();
+          renderSelected();
+          render();
+          return;
+        }
+        const clr = e.target.closest('[data-act=bclear]');
+        if (clr) {
+          const s = state.selected.find((x) => x.id === +clr.closest('.sel').dataset.id);
+          s.birth = null;
+          s.draftY = s.draftM = null;
+          persistSel();
+          renderSelected();
+          render();
+          return;
+        }
+        const b = e.target.closest('[data-act=rm]');
+        if (!b) return;
+        const id = +b.closest('.sel').dataset.id;
+        state.selected = state.selected.filter((s) => s.id !== id);
+        persistSel();
+        renderSelected();
+        renderResults(lastResults);
+        refresh();
+      });
+      $('selected').addEventListener('change', (e) => {
+        const act = e.target.dataset.act;
+        if (act === 'grp') {
+          const s = state.selected.find((x) => x.id === +e.target.closest('.sel').dataset.id);
+          s.group = splitGroups(e.target.value).join(', ') || null;
+          e.target.value = s.group || '';
+          persistSel();
+          fillGroupList();
+          return;
+        }
+        if (act !== 'by' && act !== 'bm') return;
+        const card = e.target.closest('.sel');
+        const s = state.selected.find((x) => x.id === +card.dataset.id);
+        let y = +card.querySelector('[data-act=by]').value || null;
+        let m = +card.querySelector('[data-act=bm]').value || null;
+        // Maand en jaar moeten samen in het geboortevenster van de categorie passen.
+        // De laatste keuze wint; alles blijft kiesbaar, zodat je een vergissing altijd kunt herstellen.
+        const w = birthWindow(s.category, s.catSeason);
+        if (w && y && m && !inBirthWindow(w, y, m)) {
+          const y0 = new Date(w.early).getUTCFullYear();
+          const y1 = new Date(w.late).getUTCFullYear();
+          if (act === 'bm') {
+            // nieuwe maand: past die in maar één jaar (categorie van één jaar), dan dat jaar;
+            // anders het jaar leegmaken zodat je opnieuw kiest
+            const fits = [];
+            for (let yy = y0; yy <= y1; yy++) if (inBirthWindow(w, yy, m)) fits.push(yy);
+            y = fits.length === 1 ? fits[0] : null;
+          } else if (y >= y0 && y <= y1) {
+            m = null; // nieuw jaar binnen de categorie, maar de maand past daar niet bij: maand opnieuw kiezen
+          }
+        } else if (w && m && !y) {
+          // alleen een maand gekozen: past die in maar één jaar van de categorie, dan dat jaar invullen
+          const fits = [];
+          for (let yy = new Date(w.early).getUTCFullYear(); yy <= new Date(w.late).getUTCFullYear(); yy++)
+            if (inBirthWindow(w, yy, m)) fits.push(yy);
+          if (fits.length === 1) y = fits[0];
+        }
+        if (y && m) {
+          s.birth = `${y}-${String(m).padStart(2, '0')}-15`; // maand bekend → midden van de maand
+          s.draftY = s.draftM = null;
+        } else {
+          s.birth = null;
+          s.draftY = y;
+          s.draftM = m; // nog onvolledig: bewaar keuze, gebruik schatting
+        }
+        persistSel();
+        renderSelected();
+        render();
+        const again = $('selected').querySelector(
+          `.sel[data-id="${Number(s.id)}"] [data-act=${y && !m ? 'bm' : !y && m ? 'by' : act}]`,
+        );
+        if (again) again.focus();
+      });
+
+      /* ---------- Afstand-tabbladen en vinkjes boven de grafiek ---------- */
+      $('distTabs').innerHTML = DISTANCES.map(
+        (d) => `<button data-d="${d}" class="${d === state.distance ? 'on' : ''}">${d} m</button>`,
+      ).join('');
+      $('distTabs').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-d]');
+        if (!b) return;
+        state.distance = +b.dataset.d;
+        [...$('distTabs').children].forEach((x) => x.classList.toggle('on', +x.dataset.d === state.distance));
+        fillMaxT();
+        refresh();
+      });
+      ['showAll', 'showPR', 'fastTop'].forEach((id) => $(id).addEventListener('change', render));
+
+      /* ---------- leeftijdsperiode ---------- */
+      const LS_UI = 'ssr.ui.v1';
+      const ui = cleanUi(load(LS_UI, {})); // gecontroleerd, zie cleanUi()
+      /* ---------- maximale tijd per afstand (stappen van 10 s op de 500 m, naar rato voor andere afstanden) ---------- */
+      function maxTStep(d) {
+        return (10 * d) / 500;
+      }
+      function fmtShort(s) {
+        return fmtTime(s).replace(/,00$/, '');
+      }
+      /* Vul de keuzelijst Max. tijd voor de gekozen afstand (3 t/m 20 stappen) */
+      function fillMaxT() {
+        const d = state.distance,
+          st = maxTStep(d),
+          cur = ui.maxT[d] ?? null;
+        let h = '<option value="">geen</option>';
+        for (let i = 3; i <= 20; i++) {
+          const v = +(i * st).toFixed(2);
+          h += `<option value="${v}" ${v === cur ? 'selected' : ''}>${fmtShort(v)}</option>`;
+        }
+        $('maxT').innerHTML = h;
+      }
+      $('maxT').addEventListener('change', () => {
+        const v = $('maxT').value;
+        if (v === '') delete ui.maxT[state.distance];
+        else ui.maxT[state.distance] = +v;
+        save(LS_UI, ui);
+        render();
+      });
+      $('ansOn').checked = ui.ans;
+      $('ansOn').addEventListener('change', () => {
+        ui.ans = $('ansOn').checked;
+        save(LS_UI, ui);
+        render();
+      });
+      $('showM').checked = ui.showM;
+      $('showF').checked = ui.showF;
+      ['showM', 'showF'].forEach((id) =>
+        $(id).addEventListener('change', () => {
+          ui[id] = $(id).checked;
+          save(LS_UI, ui);
+          renderSelected();
+          render();
+        }),
+      );
+      /* geslachtsfilter (onbekend geslacht: altijd tonen) */
+      function genderOK(s) {
+        return s.gender === 'm' ? ui.showM : s.gender === 'f' ? ui.showF : true;
+      }
+      /* Vul een leeftijd-keuzelijst met 5 t/m 80 jaar */
+      function fillAgeSel(el, val, emptyLabel) {
+        let h = `<option value="">${emptyLabel}</option>`;
+        for (let a = 5; a <= 80; a++)
+          h += `<option value="${a}" ${a === val ? 'selected' : ''}>${a} jaar</option>`;
+        el.innerHTML = h;
+      }
+      fillAgeSel($('ageFrom'), ui.ageFrom, 'begin');
+      fillAgeSel($('ageTo'), ui.ageTo, 'eind');
+      ['ageFrom', 'ageTo'].forEach((id) =>
+        $(id).addEventListener('change', () => {
+          ui.ageFrom = $('ageFrom').value === '' ? null : +$('ageFrom').value;
+          ui.ageTo = $('ageTo').value === '' ? null : +$('ageTo').value;
+          if (ui.ageFrom != null && ui.ageTo != null && ui.ageTo < ui.ageFrom) {
+            // houd van ≤ t/m
+            if (document.activeElement && document.activeElement.id === 'ageFrom') ui.ageTo = ui.ageFrom;
+            else ui.ageFrom = ui.ageTo;
+            $('ageFrom').value = ui.ageFrom;
+            $('ageTo').value = ui.ageTo;
+          }
+          save(LS_UI, ui);
+          render();
+        }),
+      );
+      function ageFilterOn() {
+        return ui.ageFrom != null || ui.ageTo != null;
+      }
+      /* valt een race binnen de gekozen leeftijdsperiode? (zonder bekende leeftijd: altijd ja) */
+      function ageOK(s, dateStr) {
+        if (!ageFilterOn()) return true;
+        const b = birthOf(s);
+        if (!b) return true;
+        const a = ageParts(b.date, parseDate(dateStr)).y;
+        return (ui.ageFrom == null || a >= ui.ageFrom) && (ui.ageTo == null || a <= ui.ageTo);
+      }
+      /* x-positie van het moment waarop schaatser s de leeftijd 'age' bereikt */
+      function ageBoundaryX(s, age) {
+        if (state.xMode === 'age') return age;
+        const b = birthOf(s).date;
+        return decYear(new Date(Date.UTC(b.getUTCFullYear() + age, b.getUTCMonth(), b.getUTCDate())));
+      }
+
+      /* ---------- Tijden ophalen voor de gekozen afstand ---------- */
+      /* Haal ontbrekende tijden op voor de gekozen afstand en teken daarna opnieuw */
+      async function refresh() {
+        const d = state.distance;
+        const todo = state.selected.filter((s) => state.data[`${s.id}_${d}`] === undefined);
+        render();
+        if (!todo.length) return;
+        $('loadStatus').textContent = `Laden (${todo.length})…`;
+        await Promise.all(
+          todo.map(async (s) => {
+            const key = `${s.id}_${d}`;
+            state.data[key] = 'loading';
+            try {
+              state.data[key] = await getResults(s.id, d);
+            } catch (err) {
+              state.data[key] = 'error';
+              console.warn(err);
+            }
+            if (d === state.distance) renderSoon(); // grafiek tussentijds bijwerken
+          }),
+        );
+        if (d === state.distance) {
+          clearTimeout(renderTimer);
+          renderTimer = null;
+          $('loadStatus').textContent = '';
+          render();
+        }
+      }
+      /* Tijdens het laden de grafiek hoogstens eens per seconde opnieuw tekenen,
+         zodat binnengekomen schaatsers meteen zichtbaar zijn zonder op de traagste te wachten */
+      let renderTimer = null;
+      function renderSoon() {
+        if (renderTimer) return;
+        renderTimer = setTimeout(() => {
+          renderTimer = null;
+          render();
+        }, 1000);
+      }
+      /* Schaatsers met een fout of met oude cache opnieuw ophalen (knop "Opnieuw proberen") */
+      function retryFailed() {
+        const d = state.distance;
+        for (const s of state.selected) {
+          const key = `${s.id}_${d}`;
+          if (state.data[key] === 'error' || state.stale[key]) delete state.data[key];
+        }
+        refresh();
+      }
+
+      /* tijden van schaatser s op afstand d zoals ze getoond worden (met ANS-filter/correctie) */
+      function rowsFor(s, d) {
+        let rows = state.data[`${s.id}_${d}`];
+        if (!Array.isArray(rows)) return rows;
+        if (ui.ans)
+          rows = rows
+            .map((r) => {
+              const p = ansPct(r.location, d);
+              return p == null ? null : { ...r, raw: r.sec, ansPct: p, sec: r.sec * (1 - p / 100) };
+            })
+            .filter(Boolean);
+        const mt = ui.maxT[d];
+        if (mt) rows = rows.filter((r) => r.sec <= mt); // filter na ANS: de getoonde tijd telt
+        return rows;
+      }
+
+      /* ---------- Grafiek ---------- */
+      let chart;
+      /* Snelheidsschaal (vast sinds v31): de grafiek plot 1/tijd, wat evenredig is met de snelheid in km/u.
+         Daardoor neemt een verbetering bij een snelle tijd meer ruimte in dan dezelfde procentuele
+         verbetering bij een langzame tijd. Langs de as staan wel gewoon tijden. */
+      const yT = (t) => 1 / t; // tijd -> waarde op de as
+      const yInv = (v) => 1 / v; // waarde op de as -> tijd
+      /* ronde tijd-ticks: de as-waarden zijn geen tijden, dus Chart.js' eigen ticks zijn onbruikbaar */
+      function niceTimeTicks(scale) {
+        let lo = yInv(scale.min),
+          hi = yInv(scale.max);
+        if (lo > hi) [lo, hi] = [hi, lo];
+        // Bijna gelijke grenzen (bijv. alleen dezelfde tijd, met een afrondingsverschil) gaven
+        // een eindeloze of enorme lus met ticks: dan Chart.js' eigen ticks laten staan.
+        if (!(hi > lo) || !isFinite(hi) || hi - lo < hi * 1e-6) return;
+        const raw = (hi - lo) / 8,
+          p = Math.pow(10, Math.floor(Math.log10(raw)));
+        const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((s) => s >= raw) || 10 * p;
+        const ticks = [];
+        for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6 && ticks.length < 50; v += step)
+          ticks.push({ value: yT(+v.toFixed(6)) });
+        scale.ticks = ticks;
+      }
+      /* ---------- namen aan het eind van de lijnen ---------- */
+      const LBL_FONT = (hl) =>
+        `${hl ? '700' : '500'} 12px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
+      let _mctx;
+      /* breedte van een naam in pixels (om rechts genoeg ruimte te maken) */
+      function labelWidth(text, hl) {
+        _mctx = _mctx || document.createElement('canvas').getContext('2d');
+        _mctx.font = LBL_FONT(hl);
+        return _mctx.measureText(text).width;
+      }
+      /* Chart.js-plugin: schrijft de naam van elke schaatser rechts van het laatste punt van zijn lijn.
+         Namen die elkaar zouden raken, schuiven 13 px uit elkaar. */
+      const endLabels = {
+        id: 'endLabels',
+        afterDatasetsDraw(ch) {
+          const ctx = ch.ctx,
+            area = ch.chartArea,
+            items = [];
+          ch.data.datasets.forEach((ds, i) => {
+            if (!ds._lbl || !ch.isDatasetVisible(i)) return;
+            const els = ch.getDatasetMeta(i).data;
+            if (!els.length) return;
+            const last = els.reduce((a, b) => (b.x >= a.x ? b : a)); // punt met de grootste leeftijd
+            items.push({
+              x: last.x,
+              y: last.y,
+              text: ds._lbl,
+              color: ds.borderColor,
+              hl: ds._hl,
+              w: labelWidth(ds._lbl, ds._hl),
+              sid: ds._sid,
+            });
+          });
+          // overlap voorkomen: labels die horizontaal overlappen minstens 13 px uit elkaar
+          items.sort((a, b) => a.y - b.y);
+          // Let op: vergelijken met < 12.5 en niet < 13. Door afronding kon (o.ly + 13) - o.ly net
+          // kleiner dan 13 uitkomen, waardoor deze lus eindeloos bleef draaien (pagina liep vast, v37).
+          const placed = [];
+          for (const it of items) {
+            let y = Math.min(Math.max(it.y, area.top + 6), area.bottom - 6);
+            for (let k = 0, guard = 0; k < placed.length && guard < 10000; k++, guard++) {
+              const o = placed[k];
+              if (Math.abs(it.x + 6 - (o.x + 6)) < Math.max(it.w, o.w) + 6 && Math.abs(y - o.ly) < 12.5) {
+                y = o.ly + 13;
+                k = -1; // opnieuw controleren tegen alle al geplaatste namen
+              }
+            }
+            it.ly = y;
+            placed.push(it);
+          }
+          // plek van elke naam onthouden, zodat een klik op de naam de schaatser kan highlighten
+          ch._lblBoxes = placed.map((it) => ({
+            x0: it.x + 4,
+            x1: it.x + 8 + it.w,
+            y0: it.ly - 8,
+            y1: it.ly + 8,
+            sid: it.sid,
+          }));
+          ctx.save();
+          ctx.textBaseline = 'middle';
+          for (const it of placed) {
+            ctx.font = LBL_FONT(it.hl);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = 'rgba(255,255,255,.9)';
+            ctx.strokeText(it.text, it.x + 6, it.ly);
+            ctx.fillStyle = it.color;
+            ctx.fillText(it.text, it.x + 6, it.ly);
+          }
+          ctx.restore();
+        },
+      };
+      /* Welke schaatser zit er onder de muis? Volgorde: naam aan de lijn, stip, stuk PR-lijn (binnen 5 px).
+         Geeft het schaatser-ID of null. x en y zijn pixels binnen het canvas. */
+      function chartHitSkater(ch, x, y) {
+        for (const b of ch._lblBoxes || [])
+          if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1) return b.sid;
+        const pts = ch.getElementsAtEventForMode(
+          { x, y, native: true },
+          'nearest',
+          { intersect: true },
+          false,
+        );
+        if (pts.length) return ch.data.datasets[pts[0].datasetIndex]._sid ?? null;
+        // lijnstukken: bij stepped 'before' eerst horizontaal op de oude y, dan verticaal bij de nieuwe x
+        let best = null,
+          bestD = 5;
+        ch.data.datasets.forEach((ds, i) => {
+          if (!ds.showLine || !ch.isDatasetVisible(i)) return;
+          const els = ch.getDatasetMeta(i).data;
+          for (let k = 1; k < els.length; k++) {
+            const a = els[k - 1],
+              b = els[k];
+            const dH =
+              x >= Math.min(a.x, b.x) - bestD && x <= Math.max(a.x, b.x) + bestD
+                ? Math.abs(y - a.y)
+                : Infinity;
+            const dV =
+              y >= Math.min(a.y, b.y) - bestD && y <= Math.max(a.y, b.y) + bestD
+                ? Math.abs(x - b.x)
+                : Infinity;
+            const dd = Math.min(dH, dV);
+            if (dd < bestD) {
+              bestD = dd;
+              best = ds._sid;
+            }
+          }
+        });
+        return best;
+      }
+      /* Highlight (ster) van een schaatser aan/uit zetten, vanuit de grafiek */
+      function toggleHighlight(id) {
+        const s = state.selected.find((x) => x.id === id);
+        if (!s) return;
+        s.hl = !s.hl;
+        persistSel();
+        renderSelected();
+        render();
+      }
+
+      /* x-positie van een race: de leeftijd van de schaatser op die dag */
+      function pointX(sk, r) {
+        const d = parseDate(r.date);
+        if (state.xMode === 'date') return decYear(d);
+        const b = birthOf(sk);
+        return b ? ageDecimal(b.date, d) : null;
+      }
+      /* Teken de grafiek opnieuw: per schaatser een PR-lijn (trap) en eventueel alle losse tijden.
+         Houdt rekening met alle filters (m/v, leeftijdsperiode, max. tijd, ANS) en met de schaal. */
+      function render() {
+        const d = state.distance;
+        const showAll = $('showAll').checked,
+          showPR = $('showPR').checked,
+          fastTop = $('fastTop').checked;
+        const datasets = [];
+        const missingAge = [];
+        /* highlight: gemarkeerde schaatsers dik en bovenop, de rest dunner */
+        const anyHL = state.selected.some((s) => s.hl && genderOK(s));
+        const lw = (s) => (s.hl ? 3 : anyHL ? 1 : 1.5),
+          pr0 = (s) => (s.hl ? 3.5 : anyHL ? 1.5 : 2.5),
+          dot0 = (s) => (s.hl ? 3 : anyHL ? 1.5 : 2);
+        for (const s of state.selected) {
+          if (!genderOK(s)) continue;
+          const rows = rowsFor(s, d);
+          if (!Array.isArray(rows) || !rows.length) continue;
+          if (state.xMode === 'age' && !birthOf(s)) {
+            missingAge.push(s);
+            continue;
+          }
+          const name = `${s.givenname} ${s.familyname}`;
+          const mk = (r) => ({ x: pointX(s, r), y: yT(r.sec), r, s });
+          const win = rows.filter((r) => ageOK(s, r.date));
+          if (!win.length) continue;
+          if (showPR) {
+            const full = prProgression(rows);
+            const pr = full.filter((p) => ageOK(s, p.date)).map(mk);
+            // PR die al stond bij het begin van de periode: laat de lijn op de beginleeftijd starten
+            if (ui.ageFrom != null && birthOf(s)) {
+              const before = full.filter((p) => !ageOK(s, p.date) && p.date < win[0].date).pop();
+              if (before)
+                pr.unshift({ x: ageBoundaryX(s, ui.ageFrom), y: yT(before.sec), r: before, s, ext: true });
+            }
+            // verleng de PR-lijn: tot het einde van de periode als er daarna nog gereden is, anders tot de laatste race
+            const last = win[win.length - 1];
+            if (pr.length) {
+              const lp = pr[pr.length - 1];
+              const later =
+                ui.ageTo != null && birthOf(s) && rows.some((r) => r.date > last.date && !ageOK(s, r.date));
+              if (later) pr.push({ x: ageBoundaryX(s, ui.ageTo + 1), y: lp.y, r: lp.r, s, ext: true });
+              else if (last.date !== lp.r.date)
+                pr.push({ x: pointX(s, last), y: lp.y, r: lp.r, s, ext: true });
+            }
+            datasets.push({
+              label: name + ' – PR',
+              data: pr,
+              borderColor: s.color,
+              backgroundColor: s.color,
+              stepped:
+                'before' /* Chart.js 'before': horizontaal op oude PR, verticaal op de datum van de nieuwe PR */,
+              borderWidth: lw(s),
+              pointRadius: pr.map((p) => (p.ext ? 0 : pr0(s))),
+              pointHoverRadius: 5,
+              pointHitRadius: 6,
+              showLine: true,
+              order: s.hl ? 0 : 1,
+              _lbl: name,
+              _hl: !!s.hl,
+              _sid: s.id, // schaatser-ID, voor klikken in de grafiek
+            });
+          }
+          if (showAll) {
+            datasets.push({
+              label: name,
+              data: win.map(mk),
+              borderColor: s.color,
+              backgroundColor: s.color + '55',
+              showLine: false,
+              pointRadius: dot0(s),
+              pointHoverRadius: 4,
+              pointHitRadius: 5,
+              order: s.hl ? 1 : 2,
+              _lbl: showPR ? null : name,
+              _hl: !!s.hl,
+              _sid: s.id,
+            });
+          }
+        }
+        const allY = datasets.flatMap((ds) => ds.data.map((p) => p.y));
+        const opts = {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          interaction: { mode: 'nearest', intersect: true },
+          // klik op een lijn, stip of naam: highlight van die schaatser aan/uit
+          onClick: (evt, _els, ch) => {
+            const id = chartHitSkater(ch, evt.x, evt.y);
+            if (id != null) toggleHighlight(id);
+          },
+          // handje als de muis boven iets klikbaars staat
+          onHover: (evt, _els, ch) => {
+            ch.canvas.style.cursor = chartHitSkater(ch, evt.x, evt.y) != null ? 'pointer' : '';
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              title: { display: true, text: state.xMode === 'age' ? 'Leeftijd (jaren)' : 'Datum' },
+              ticks: {
+                maxRotation: 0,
+                autoSkipPadding: 12,
+                includeBounds: false,
+                callback: (v) => (Number.isInteger(v) ? (state.xMode === 'age' ? v + ' j' : v) : ''),
+              },
+            },
+            y: {
+              type: 'linear',
+              reverse: !fastTop, // sneller = grotere waarde, dus zonder omkeren staat de snelste al boven
+              title: {
+                display: true,
+                text: `Tijd ${d} m${ui.ans ? ' (ANS)' : ''}`,
+              },
+              ticks: { includeBounds: false, callback: (v) => fmtTime(yInv(v)) },
+              afterBuildTicks: niceTimeTicks,
+            },
+          },
+          plugins: {
+            legend: { display: false }, // namen staan aan het eind van de lijnen (plugin endLabels)
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const p = items[0].raw;
+                  return `${p.s.givenname} ${p.s.familyname}`;
+                },
+                label: (item) => {
+                  const p = item.raw,
+                    r = p.r,
+                    b = birthOf(p.s);
+                  const lines = [
+                    `${fmtTime(r.sec)}${r.raw != null ? ' ANS' : ''}  ${item.dataset.label.endsWith('– PR') ? '(PR)' : ''}`,
+                  ];
+                  if (r.raw != null)
+                    lines.push(
+                      `gereden ${fmtTime(r.raw)} · correctie ${r.ansPct > 0 ? '+' : ''}${r.ansPct.toFixed(2).replace('.', ',')}%`,
+                    );
+                  lines.push(`${fmtDateNL(r.date)} · ${r.location}`);
+                  if (b) lines.push('Leeftijd: ' + fmtAge(b.date, parseDate(r.date), b.est));
+                  lines.push(r.name);
+                  return lines;
+                },
+              },
+            },
+          },
+        };
+        if (allY.length) {
+          const mn = Math.min(...allY),
+            mx = Math.max(...allY),
+            // bij (bijna) gelijke tijden een vaste marge, anders 6% van het bereik
+            pad = mx - mn > mx * 1e-6 ? (mx - mn) * 0.06 : mx * 0.01;
+          opts.scales.y.min = Math.max(0, mn - pad);
+          opts.scales.y.max = mx + pad;
+        }
+        const allX = datasets.flatMap((ds) => ds.data.map((p) => p.x)).filter((x) => x != null);
+        if (allX.length) {
+          opts.scales.x.min = Math.floor(Math.min(...allX));
+          opts.scales.x.max = Math.ceil(Math.max(...allX));
+        }
+        if (state.xMode === 'age') {
+          if (ui.ageFrom != null) opts.scales.x.min = ui.ageFrom;
+          if (ui.ageTo != null) opts.scales.x.max = Math.max(ui.ageTo + 1, (opts.scales.x.min ?? 0) + 1);
+        }
+        // ruimte rechts voor de namen
+        const lblW = Math.max(
+          0,
+          ...datasets.filter((ds) => ds._lbl).map((ds) => labelWidth(ds._lbl, ds._hl)),
+        );
+        opts.layout = { padding: { right: lblW ? lblW + 10 : 0 } };
+        if (chart) chart.destroy();
+        chart = new Chart($('chart'), {
+          type: 'scatter',
+          data: { datasets },
+          options: opts,
+          plugins: [endLabels],
+        });
+
+        const loading = state.selected.some((s) => state.data[`${s.id}_${d}`] === 'loading');
+        const empty = state.selected.filter((s) => {
+          const r = rowsFor(s, d);
+          return genderOK(s) && Array.isArray(r) && !r.length;
+        });
+        const err = state.selected.filter((s) => state.data[`${s.id}_${d}`] === 'error');
+        let msg = loading ? 'Laden…' : '';
+        if (empty.length)
+          msg +=
+            (msg ? ' · ' : '') +
+            `Geen ${d} m${ui.ans ? ' op NL-banen' : ''}${ui.maxT[d] ? ' sneller dan ' + fmtShort(ui.maxT[d]) : ''}: ${empty.map((s) => s.givenname).join(', ')}`;
+        if (ui.ans && !ANS_EXACT.has(d))
+          msg +=
+            (msg ? ' · ' : '') +
+            `ANS voor ${d} m afgeleid (${d === 700 ? 'gemiddelde 500/1000 m' : d === 10000 ? '5000 m-tabel' : '500 m-tabel'})`;
+        if (err.length)
+          msg +=
+            (msg ? ' · ' : '') +
+            `SpeedskatingResults reageert niet, geen tijden voor: ${err.map((s) => s.givenname).join(', ')}`;
+        const stale = state.selected.filter((s) => state.stale[`${s.id}_${d}`] && !loading);
+        if (stale.length) {
+          const oldest = Math.min(...stale.map((s) => state.stale[`${s.id}_${d}`]));
+          const when = new Date(oldest).toLocaleString('nl-NL', {
+            day: 'numeric',
+            month: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+          msg +=
+            (msg ? ' · ' : '') +
+            `Server reageert niet, oudere tijden (van ${when}) voor: ${stale.map((s) => s.givenname).join(', ')}`;
+        }
+        if (missingAge.length)
+          msg +=
+            (msg ? ' · ' : '') +
+            `Niet getoond (geen leeftijd bekend, vul geboortedatum in): ${missingAge.map((s) => s.givenname).join(', ')}`;
+        $('loadStatus').textContent = msg;
+        if ((err.length || stale.length) && !loading) {
+          const b = document.createElement('button');
+          b.className = 'retry';
+          b.textContent = 'Opnieuw proberen';
+          b.addEventListener('click', retryFailed);
+          $('loadStatus').append(b);
+        }
+
+        renderAgeTable();
+        renderPRTable();
+      }
+
+      /* ---------- Tabellen onder de grafiek ---------- */
+      /* Tabel "Beste tijd per leeftijdsjaar": per leeftijd de snelste tijd van elke schaatser */
+      function renderAgeTable() {
+        const d = state.distance;
+        const cols = state.selected.filter((s) => {
+          const r = rowsFor(s, d);
+          return genderOK(s) && Array.isArray(r) && r.length && birthOf(s);
+        });
+        if (!cols.length) {
+          $('ageTable').innerHTML =
+            '<div class="empty">Selecteer schaatsers met tijden op deze afstand.</div>';
+          return;
+        }
+        const per = new Map();
+        let minA = 99,
+          maxA = 0;
+        for (const s of cols) {
+          const b = birthOf(s);
+          const m = new Map();
+          for (const r of rowsFor(s, d)) {
+            if (!ageOK(s, r.date)) continue;
+            const a = ageParts(b.date, parseDate(r.date)).y;
+            minA = Math.min(minA, a);
+            maxA = Math.max(maxA, a);
+            if (!m.has(a) || r.sec < m.get(a).sec) m.set(a, r);
+          }
+          per.set(s.id, m);
+        }
+        // beste tijd overall per kolom markeren
+        let html =
+          '<table><thead><tr><th>Leeftijd</th>' +
+          cols
+            .map(
+              (s) =>
+                `<th class="num"><span class="dot" style="--c:${cleanColor(s.color) || '#888'}"></span>${esc(s.givenname)} ${esc(s.familyname)}${birthOf(s).est ? ' ≈' : ''}</th>`,
+            )
+            .join('') +
+          '</tr></thead><tbody>';
+        for (let a = minA; a <= maxA; a++) {
+          const rowVals = cols.map((s) => per.get(s.id).get(a));
+          if (rowVals.every((v) => !v)) continue;
+          const fastest = Math.min(...rowVals.filter(Boolean).map((v) => v.sec));
+          html +=
+            `<tr><td>${a} jaar</td>` +
+            rowVals
+              .map((v) =>
+                v
+                  ? `<td class="num ${cols.length > 1 && v.sec === fastest ? 'best' : ''}" title="${esc(fmtDateNL(v.date) + ' · ' + v.location + ' · ' + v.name + (v.raw != null ? ' · gereden ' + fmtTime(v.raw) : ''))}">${fmtTime(v.sec)}</td>`
+                  : '<td class="num" style="color:#c5c9d2">–</td>',
+              )
+              .join('') +
+            '</tr>';
+        }
+        html +=
+          '</tbody></table><div class="hint">Snelste tijd die gereden is in dat leeftijdsjaar. Vet = snelste van de vergeleken schaatsers op die leeftijd. ≈ = leeftijd geschat.' +
+          (ui.ans ? ' Tijden zijn ANS-gecorrigeerd (alleen Nederlandse banen).' : '') +
+          '</div>';
+        $('ageTable').innerHTML = html;
+      }
+      /* Tabel "PR-verloop": elk PR met datum, leeftijd, verbetering, baan en wedstrijd */
+      /* Sortering van het PR-verloop: '' = per schaatser (standaard), 'new' = nieuwste eerst,
+         'old' = oudste eerst. Klik op "Datum" wisselt: standaard → nieuwste → oudste → standaard. */
+      let prSort = '';
+      $('prTable').addEventListener('click', (e) => {
+        if (!e.target.closest('th[data-sort]')) return;
+        prSort = prSort === '' ? 'new' : prSort === 'new' ? 'old' : '';
+        renderPRTable();
+      });
+      function renderPRTable() {
+        const d = state.distance;
+        const rows = [];
+        for (const s of state.selected) {
+          if (!genderOK(s)) continue;
+          const data = rowsFor(s, d);
+          if (!Array.isArray(data)) continue;
+          const b = birthOf(s);
+          for (const p of prProgression(data)) if (ageOK(s, p.date)) rows.push({ s, b, p });
+        }
+        if (!rows.length) {
+          $('prTable').innerHTML = '<div class="empty">Nog geen PR-gegevens op deze afstand.</div>';
+          return;
+        }
+        const byDate = (a, b) => (a.p.date < b.p.date ? -1 : a.p.date > b.p.date ? 1 : 0);
+        if (prSort === 'new') rows.sort((a, b) => byDate(b, a));
+        else if (prSort === 'old') rows.sort(byDate);
+        else
+          rows.sort((a, b) =>
+            a.s.id !== b.s.id ? state.selected.indexOf(a.s) - state.selected.indexOf(b.s) : byDate(a, b),
+          );
+        const dateHead =
+          `<th class="sortable" data-sort="date" title="Klik: per schaatser → nieuwste eerst → oudste eerst">Datum` +
+          (prSort === 'new' ? ' ▼' : prSort === 'old' ? ' ▲' : '') +
+          '</th>';
+        $('prTable').innerHTML =
+          '<table><thead><tr><th>Schaatser</th>' +
+          dateHead +
+          '<th>Leeftijd</th><th class="num">Tijd' +
+          (ui.ans ? ' (ANS)' : '') +
+          '</th>' +
+          (ui.ans ? '<th class="num">Gereden</th>' : '') +
+          '<th class="num">Verbetering</th><th>Baan</th><th>Wedstrijd</th></tr></thead><tbody>' +
+          rows
+            .map(
+              ({
+                s,
+                b,
+                p,
+              }) => `<tr><td><span class="dot" style="--c:${cleanColor(s.color) || '#888'}"></span>${esc(s.givenname)} ${esc(s.familyname)}</td>
+      <td>${fmtDateNL(p.date)}</td><td>${b ? fmtAge(b.date, parseDate(p.date), b.est) : ''}</td>
+      <td class="num"><b>${fmtTime(p.sec)}</b></td>${ui.ans ? `<td class="num">${fmtTime(p.raw)}</td>` : ''}
+      <td class="num">${p.prev != null ? `<span class="gain">−${(p.prev - p.sec).toFixed(2).replace('.', ',')}</span>` : 'eerste'}</td>
+      <td>${esc(p.location)}</td><td>${safeResultUrl(p.link) ? `<a href="${esc(safeResultUrl(p.link))}" target="_blank" rel="noopener">${esc(p.name)}</a>` : esc(p.name)}</td></tr>`,
+            )
+            .join('') +
+          '</tbody></table>';
+      }
+
+      /* Maak tekst veilig voor gebruik in HTML (voorkomt dat namen als code worden gelezen) */
+      function esc(s) {
+        return String(s ?? '').replace(
+          /[&<>"']/g,
+          (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
+        );
+      }
+
+      /* ---------- Start van de pagina ---------- */
+      /* uitleg: standaard alleen de eerste zin, uitklappen met "Meer…" */
+      function showIntro(open) {
+        $('introRest').hidden = !open;
+        $('introMore').hidden = open;
+      }
+      $('introMore').addEventListener('click', (e) => {
+        e.preventDefault();
+        showIntro(true);
+      });
+      $('introLess').addEventListener('click', (e) => {
+        e.preventDefault();
+        showIntro(false);
+      });
+      fillMaxT();
+      renderSelected();
+      refresh();
+    </script>
+  </body>
+</html>
