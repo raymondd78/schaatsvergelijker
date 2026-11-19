@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v52** (19 november 2026)
+**Huidige versie: v53** (19 november 2026)
 
 ---
+
+## v53 – Groepslabels apart (19-11-2026)
+- Hoort een schaatser bij meerdere groepen (zoals topschaatsers met WK-, EK- en wereldbekerpodium), dan krijgt elke groep een eigen klein label in plaats van één lang blok.
 
 ## v52 – Rustiger schaatserkaartje (19-11-2026)
 - Profiellink als klein ↗ achter de naam; daaronder één regel met categorie, m/v en land, en de groep als klein label.

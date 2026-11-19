@@ -345,6 +345,8 @@
         border-radius: 9px;
         background: var(--seg);
         font-size: 11px;
+        white-space: nowrap;
+        margin-top: 2px;
       }
       /* ingevulde geboortedatum als klikbare tekst (vanaf v49) */
       .sel .birthlink {
@@ -976,7 +978,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v52 van 19-11-2026">v52</span>
+      <span class="ver" title="Versie v53 van 19-11-2026">v53</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1246,7 +1248,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v52 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v53 (19-11-2026)
     </footer>
 
     <script>
@@ -2422,7 +2424,16 @@
             return `<div class="sel${s.hl ? ' hl' : ''}" style="--c:${cleanColor(s.color) || '#888'}${genderOK(s) ? '' : ';opacity:.45'}" data-id="${Number(s.id)}" ${genderOK(s) ? '' : 'title="Verborgen door het m/v-filter"'}>
       <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)} <a class="prof" href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener" title="Profiel op SpeedskatingResults" aria-label="Profiel op SpeedskatingResults">↗</a></span>
         <span><button class="star ${s.hl ? 'on' : ''}" data-act="hl" title="${s.hl ? 'Highlight uitzetten' : 'Highlighten: dikkere lijn in de grafiek'}">${s.hl ? '★' : '☆'}</button><button class="x" data-act="rm" title="Verwijderen">×</button></span></div>
-      <div class="meta">${s.category ? esc(catName(s.category)) + ' · ' : ''}${s.gender === 'f' ? 'v' : 'm'} · ${esc(s.country)}${s.group ? ` <span class="chip" title="Groep">${esc(s.group)}</span>` : ''}</div>
+      <div class="meta">${s.category ? esc(catName(s.category)) + ' · ' : ''}${s.gender === 'f' ? 'v' : 'm'} · ${esc(s.country)}${
+        s.group
+          ? ' ' +
+            s.group
+              .split(/,\s*/)
+              .filter(Boolean)
+              .map((g) => `<span class="chip" title="Groep">${esc(g)}</span>`)
+              .join('')
+          : ''
+      }</div>
       <div class="rows">
         <span class="k">Geboren</span>${birthCell}
         ${!s.birth && (s.draftY || s.draftM) ? `<span></span><span class="warn">Kies ook ${s.draftY ? 'de maand' : 'het jaar'}</span>` : ''}
