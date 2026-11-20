@@ -48,4 +48,4 @@ De KNSB-tabel heeft alleen 500, 1000, 1500, 3000 en 5000 m. Voor de andere afsta
 
 ## Baannamen
 
-De baan wordt herkend aan de locatie in SpeedskatingResults, bijvoorbeeld `Heerenveen (NED)` of `Den Haag (NED)`. Komt er een nieuwe tabel van de KNSB, werk dan de constante `ANS` in `schaatsvergelijker.html` bij, en dit document.
+De baan wordt herkend aan de locatie in SpeedskatingResults, bijvoorbeeld `Heerenveen (NED)` of `Den Haag (NED)`. Komt er een nieuwe tabel van de KNSB, werk dan de constante `ANS` in `data.js` bij (tot v82: in `schaatsvergelijker.html`), en dit document.

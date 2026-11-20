@@ -2,24 +2,29 @@
   Service worker van de Schaatsvergelijker (vanaf v63) – maakt de app installeerbaar en offline te openen.
 
   Wat er gecachet wordt:
-    - de app zelf (index.html), het manifest, de iconen en Chart.js van cdnjs;
+    - de app zelf (index.html, app.css, data.js en app.js; vanaf v83 gesplitst), het manifest, de iconen
+      en Chart.js van cdnjs;
   Wat NIET via deze cache loopt:
     - de API van SpeedskatingResults.com: de app bewaart tijden zelf in localStorage (6 uur, met oude
       cache als noodoplossing), dus die verzoeken gaan hier ongewijzigd door.
 
   Strategie:
-    - pagina (navigatie): eerst netwerk, zodat een nieuwe versie direct binnenkomt; offline uit de cache;
-    - overige bestanden uit APP_FILES: eerst cache, anders netwerk.
+    - pagina (navigatie) en de eigen CSS en scripts (vanaf v83): eerst netwerk, zodat pagina, opmaak en
+      code altijd van dezelfde versie zijn; offline uit de cache;
+    - overige bestanden (iconen, manifest, Chart.js): eerst cache, anders netwerk.
 
   Bij een nieuwe versie: verhoog CACHE (gelijk aan het versienummer van de app). De nieuwe service
   worker neemt het direct over (skipWaiting) en ruimt de oude cache op. Omdat de pagina netwerk-eerst
   wordt geladen, zie je een nieuwe versie bij de eerstvolgende keer openen.
 */
-const CACHE = 'schaatsvergelijker-v82';
+const CACHE = 'schaatsvergelijker-v83';
 const CHART_JS = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
 const APP_FILES = [
   './',
   './index.html',
+  './app.css',
+  './data.js',
+  './app.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -79,7 +84,24 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // eigen bestanden en Chart.js: cache eerst
+  // eigen CSS en scripts (vanaf v83): netwerk eerst, net als de pagina. Anders kan een nieuwe index.html
+  // samen met een oude app.js uit de cache worden geladen, tot de nieuwe service worker het overneemt.
+  if (url.origin === self.location.origin && (req.destination === 'script' || req.destination === 'style')) {
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req, { ignoreSearch: true })),
+    );
+    return;
+  }
+
+  // overige eigen bestanden en Chart.js: cache eerst
   if (url.origin === self.location.origin || req.url === CHART_JS) {
     e.respondWith(
       caches.match(req, { ignoreSearch: true }).then(

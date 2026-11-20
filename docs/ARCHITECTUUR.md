@@ -2,7 +2,8 @@
 
 ## Uitgangspunten
 
-- **Eén statisch bestand** (`schaatsvergelijker.html`) zonder build-stap of backend.
+- **Statische bestanden zonder build-stap of backend.** Tot en met v82 stond alles in één HTML-bestand; vanaf v83 is dat gesplitst in vier bestanden die naast elkaar staan (zie hieronder). Er is nog steeds geen build-stap: de browser laadt de bestanden zoals ze zijn, en dubbelklikken op `index.html` werkt nog.
+- **Gewone scripts, geen modules:** `data.js` en `app.js` zijn gewone `<script src>`-bestanden. Constanten op het bovenste niveau van `data.js` zijn daardoor ook in `app.js` beschikbaar. ES-modules zouden bij openen vanaf de pc (`file://`) door de browser worden geblokkeerd.
 - **Data live uit de browser:** de API staat CORS toe (`*`), dus geen proxy nodig.
 - **Externe afhankelijkheid:** alleen Chart.js 4.4.1 via `cdnjs.cloudflare.com`.
 - **Opslag:** alleen `localStorage` van de gebruiker; niets gaat naar een server.
@@ -10,6 +11,17 @@
 - **Geen persoonsgegevens in de pagina:** namen, groepen en geboortedata komen uit JSON-bestanden die de gebruiker zelf opent (zie `GROEPEN.md`). Enige uitzondering: de ingebouwde lijst met publiek bekende topschaatsers (`TOP_SKATERS`).
 
 > Een gepubliceerde claude.ai-artifact kan deze app **niet** draaien: daar blokkeert de content security policy `fetch` naar andere domeinen. Lokaal openen of zelf hosten werkt wel.
+
+## Bestanden (vanaf v83)
+
+| Bestand | Inhoud |
+|---|---|
+| `index.html` | Schermindeling: kopbalk, Toevoegen, Geselecteerd, afstandsbalk, filters, grafiek, tabellen, vensters en de tabbalk voor mobiel. Laadt Chart.js en `app.css` in `<head>` en onderaan `data.js` en daarna `app.js` |
+| `app.css` | Alle opmaak, inclusief donkere modus, mobiele weergave en de liggende telefoon |
+| `data.js` | Vaste gegevens zonder werking: `ANS` en `ANS_BASE` (KNSB-tabellen), `RINK_SHORT` (afkortingen van de banen) en `TOP_GROUP`/`TOP_SKATERS` (publiek bekende topschaatsers). Moet vóór `app.js` geladen worden |
+| `app.js` | Alle werking: instellingen, invoercontrole, opslag, API, schermonderdelen, grafiek en tabellen (zie de tabel hieronder) |
+
+De splitsing in v83 is mechanisch: de code is niet gewijzigd. Dat is gecontroleerd door de syntaxboom (AST) van `app.js` en `data.js` te vergelijken met het script uit v82, en door v82 en v83 in headless Chrome naast elkaar te testen (zelfde grafiek, tabellen, ANS, Uit lijst, mobiel en offline).
 
 ## Datastroom
 
@@ -145,7 +157,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 | Bestand | Rol |
 |---|---|
 | `manifest.webmanifest` | Naam, iconen, `display: standalone`, kleuren (`theme_color` = kopbalk `#14213d`). Bewust `.webmanifest` en geen `.json`: `.gitignore` sluit alle `.json`-bestanden uit |
-| `sw.js` | Service worker. Cache `schaatsvergelijker-vNN` met `./`, `index.html`, manifest en iconen; Chart.js los (een haperende CDN blokkeert de installatie niet; anders komt hij bij eerste gebruik in de cache). Pagina: **netwerk eerst**, offline uit de cache. Eigen bestanden en Chart.js: cache eerst. De API van SpeedskatingResults gaat er ongemoeid doorheen (de app cachet tijden zelf in `localStorage`). `skipWaiting` + `clients.claim`; oude caches worden bij activeren gewist |
+| `sw.js` | Service worker. Cache `schaatsvergelijker-vNN` met `./`, `index.html`, `app.css`, `data.js`, `app.js`, manifest en iconen; Chart.js los (een haperende CDN blokkeert de installatie niet; anders komt hij bij eerste gebruik in de cache). Pagina en eigen CSS/scripts (vanaf v83): **netwerk eerst**, offline uit de cache, zodat pagina en code altijd van dezelfde versie zijn. Iconen, manifest en Chart.js: cache eerst. De API van SpeedskatingResults gaat er ongemoeid doorheen (de app cachet tijden zelf in `localStorage`). `skipWaiting` + `clients.claim`; oude caches worden bij activeren gewist |
 | `icons/` | `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (volle achtergrond, veilige zone), `apple-touch-icon.png` (180 px), `favicon-32.png` |
 
 - In `<head>`: `link rel=manifest` (vanaf v69 met `crossorigin="use-credentials"`, nodig achter Cloudflare Access: zonder cookie geeft Access het inlogscherm in plaats van het manifest), `theme-color`, favicon, `apple-touch-icon` en de `apple-mobile-web-app-*`-metatags.

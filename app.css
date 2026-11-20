@@ -1,0 +1,1516 @@
+/*
+  Schaatsvergelijker – opmaak (vanaf v83 een apart bestand; tot v82 stond dit in index.html).
+  Kleuren, kopbalk, blokken, knoppen, grafiek en tabellen; daarna de mobiele weergave (< 800 px)
+  en de liggende telefoon.
+*/
+/* ===== Kleuren en basis =====
+   Alle kleuren als variabelen, zodat ze op één plek aan te passen zijn. */
+:root {
+  --bg: #f6f7f9;
+  --card: #fff;
+  --ink: #1d2330;
+  --muted: #6b7385;
+  --line: #e3e6ec;
+  --accent: #1f5fbf;
+  --accent-soft: #e8f0fc;
+  --warn: #a15c00;
+  --warn-bg: #fff4e0;
+  --ok: #1e7a3a;
+  --ok-bg: #e6f5ea;
+  --seg: #e9ecf1;
+  --faint: #c5c9d2;
+  --link: #1f5fbf;
+  color-scheme: light;
+}
+/* ===== Donkere modus (vanaf v47): volgt het systeem, of vast via de knop in de kopbalk ===== */
+:root[data-theme='dark'] {
+  --bg: #0f1420;
+  --card: #182030;
+  --ink: #e4e8f0;
+  --muted: #9ba4b6;
+  --line: #2b3547;
+  --accent: #2f6fd6;
+  --accent-soft: #1d2d4a;
+  --warn: #f0b45a;
+  --warn-bg: #362a14;
+  --ok: #6fd08c;
+  --ok-bg: #16301f;
+  --seg: #222b3b;
+  --faint: #4d586b;
+  --link: #82b1ff;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1420;
+    --card: #182030;
+    --ink: #e4e8f0;
+    --muted: #9ba4b6;
+    --line: #2b3547;
+    --accent: #2f6fd6;
+    --accent-soft: #1d2d4a;
+    --warn: #f0b45a;
+    --warn-bg: #362a14;
+    --ok: #6fd08c;
+    --ok-bg: #16301f;
+    --seg: #222b3b;
+    --faint: #4d586b;
+    --link: #82b1ff;
+    color-scheme: dark;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font:
+    14px/1.45 system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+/* ===== Kopbalk (donkerblauw) met titel en bronvermelding ===== */
+header {
+  background: #14213d;
+  color: #fff;
+  padding: 14px 22px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+header h1 {
+  font-size: 18px;
+  margin: 0;
+  font-weight: 600;
+}
+/* Klein versienummer achter de titel */
+header .ver {
+  font-size: 11px;
+  color: #8f9bb8;
+  margin-left: -8px;
+}
+header span {
+  color: #b9c3d9;
+  font-size: 13px;
+}
+header .src {
+  margin-left: auto;
+  color: #dfe5f2;
+  font-size: 13px;
+}
+/* knop licht/donker in de kopbalk */
+header .theme {
+  background: transparent;
+  border: 1px solid #3a4a6e;
+  color: #dfe5f2;
+  padding: 3px 8px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+header .src a {
+  color: #fff;
+  font-weight: 600;
+}
+/* knoppen rechts in de kopbalk (vanaf v59) */
+header .hbtns {
+  display: flex;
+  gap: 6px;
+  align-self: center;
+}
+/* verborgen knoppen (zoals "Installeren") echt verbergen; .theme zet anders display */
+header .hbtns [hidden] {
+  display: none;
+}
+header .hbtns .theme {
+  min-width: 28px;
+  justify-content: center;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+/* ===== Venster "Over deze tool" (vanaf v59) ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(20, 33, 61, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal[hidden] {
+  display: none;
+}
+.modalbox {
+  position: relative;
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modalx {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 20px;
+}
+/* melding onderin (vanaf v59) */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: var(--ink);
+  color: var(--card);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.toast[hidden] {
+  display: none;
+}
+.toast button {
+  background: transparent;
+  border: 0;
+  color: var(--accent-soft);
+  font-weight: 600;
+  text-decoration: underline;
+  padding: 0;
+  font-size: 13px;
+}
+/* tabjes in het blok "Toevoegen" */
+.addtabs {
+  display: flex;
+  margin-bottom: 10px;
+}
+/* vier tabjes (vanaf v67): kleiner en over de volle breedte, zodat ze naast elkaar passen
+   (.gseg.addtabs: gaat voor de algemene opmaak van .gseg verderop) */
+.gseg.addtabs {
+  width: 100%;
+}
+.gseg.addtabs button {
+  flex: 1 1 auto;
+  padding: 4px 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.row[hidden] {
+  display: none;
+}
+/* ===== Blok "Mijn schaatsers" (vanaf v67) ===== */
+#mineList {
+  margin-top: 8px;
+  overflow: auto;
+}
+.mine .chip {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 7px;
+  border-radius: 9px;
+  background: var(--seg);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.mine .prof {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 2px;
+}
+.mine .mbtns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+/* groepen van één schaatser aan- en uitzetten */
+.mine .mgroups {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 12px;
+}
+.mine .mgroups button {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  border-radius: 9px;
+  padding: 1px 8px;
+  font-size: 12px;
+}
+.mine .mgroups button.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.mineact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+#mineList {
+  max-height: 50vh;
+}
+#mineSel {
+  margin-bottom: 2px;
+}
+.mineact button {
+  text-transform: none;
+  letter-spacing: 0;
+}
+/* afstand zonder tijden bij de selectie (vanaf v59) */
+.tabs button.nodata:not(.on) {
+  color: var(--faint);
+}
+/* afstandslabel: voluit op desktop, kort (3k, 5k, 10k) op mobiel (vanaf v64) */
+.tabs .ds {
+  display: none;
+}
+/* laadweergave over de grafiek (vanaf v59) */
+.chartload {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 3px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.chartload[hidden] {
+  display: none;
+}
+.chartload span {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* ===== Blok "Over deze tool" ===== */
+.intro p,
+.intro ul {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+.intro p:first-of-type {
+  margin-top: 0;
+}
+.intro ul {
+  padding-left: 18px;
+}
+.intro li {
+  margin: 3px 0;
+}
+.intro .key {
+  background: var(--warn-bg);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+/* ===== Paginaindeling: smalle linkerkolom (340 px) en een rechterkolom die meekrimpt =====
+   minmax(0, 1fr) voorkomt dat een brede grafiek of tabel de hele pagina breder maakt. */
+main {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 18px;
+}
+main > section,
+main > aside {
+  min-width: 0;
+}
+/* Smal scherm (telefoon/tablet): kolommen onder elkaar */
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
+/* ===== Blokken (kaarten) ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.card h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+/* ===== Formulieren en knoppen ===== */
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 6px 0 2px;
+}
+input,
+select,
+button {
+  font: inherit;
+}
+input[type='text'],
+input[type='month'],
+select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+}
+.row {
+  display: flex;
+  gap: 8px;
+}
+.row > * {
+  flex: 1;
+}
+button {
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+button.ghost {
+  background: var(--card);
+  color: var(--accent);
+}
+button.small {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+/* ===== Zoekresultaten ===== */
+#results {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow: auto;
+}
+.res {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  gap: 8px;
+}
+.res .meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+/* geboortedatum al bij het zoekresultaat kiezen (vanaf v46) */
+.res {
+  flex-wrap: wrap;
+}
+.res .birth {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.res .birth select {
+  width: auto;
+  flex: 1;
+  padding: 4px 6px;
+}
+.birthhint {
+  margin: 6px 0;
+  font-size: 12px;
+  color: var(--warn);
+  background: var(--warn-bg);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.res .birthok {
+  color: var(--ok);
+  font-weight: 700;
+  font-size: 14px;
+}
+.res.added {
+  opacity: 0.45;
+}
+/* ===== Kaartjes van geselecteerde schaatsers =====
+   De linkerrand krijgt de lijnkleur van de schaatser via de variabele --c. */
+.sel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  border-left: 5px solid var(--c);
+}
+.sel .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+/* ster en × houden hun plek rechtsboven, ook als een lange naam doorloopt (vanaf v71) */
+.sel .top > span:last-child {
+  flex: none;
+  align-self: flex-start;
+}
+.sel .name {
+  font-weight: 600;
+}
+.sel .meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+/* rijen onder de kop (vanaf v52): links een label, rechts de waarde */
+.sel .rows {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 5px 8px;
+  align-items: center;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+.sel .k {
+  color: var(--muted);
+}
+.sel .dim {
+  color: var(--muted);
+}
+.sel .warn {
+  color: var(--warn);
+}
+.sel .prof {
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: none;
+  margin-left: 2px;
+}
+.sel .chip {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 7px;
+  border-radius: 9px;
+  background: var(--seg);
+  font-size: 11px;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+/* ingevulde geboortedatum als klikbare tekst (vanaf v49) */
+.sel .birthlink {
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  color: var(--link);
+  font-weight: 600;
+  font-size: 12px;
+  text-decoration: underline dotted;
+}
+/* ingevulde geboortedatum en leeftijd achter de naam (vanaf v71), klein en grijs */
+.sel .born {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.sel .born .birthlink {
+  color: inherit;
+  font-weight: 400;
+}
+/* maand en jaar naast elkaar */
+.sel .bsel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sel .bsel select {
+  width: auto;
+  padding: 3px 6px;
+  font-size: 13px;
+}
+/* zelf ingevoerde tijden (vanaf v51) */
+.sel .own {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--muted);
+}
+.sel .own b {
+  color: var(--ink);
+}
+.sel .addrow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+}
+.sel .ownadd {
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  color: var(--link);
+  font-size: 12px;
+}
+.sel .ownform {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.sel .ownform select,
+.sel .ownform input {
+  width: auto;
+  padding: 3px 6px;
+  font-size: 13px;
+}
+.sel .ownform input[data-f='time'] {
+  width: 70px;
+}
+.sel .grp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.sel .grp input {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+/* Kleine pictogramknoppen: verwijderen (×) en highlighten (ster) */
+.x {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 16px;
+  padding: 0 4px;
+}
+.star {
+  border: none;
+  background: none;
+  color: var(--faint);
+  font-size: 17px;
+  padding: 0 2px;
+  line-height: 1;
+}
+.star.on {
+  color: #e9a03b;
+}
+.sel.hl {
+  box-shadow: 0 0 0 2px var(--c) inset;
+}
+/* ===== Afstand-tabbladen en de rij met opties boven de grafiek ===== */
+/* Afstandsbalk (vanaf v72): één segmentbalk met de afstanden en als laatste vakje ANS.
+   Pc (vanaf v73): knoppen van normaal formaat met een vaste breedte, alle negen afstanden los; de balk
+   loopt niet over de hele breedte. Mobiel: over de hele breedte, met 3000/5000/10000 in de uitklapknop
+   3k+. ANS heeft een vaste inhoud, zodat er niets verschuift als je een lange afstand kiest of ANS aanzet. */
+.tabs {
+  display: inline-flex;
+  vertical-align: top;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+}
+.tabs button {
+  flex: 0 0 auto;
+  width: 76px;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--card);
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.tabs > :not(:first-child) {
+  border-left: 1px solid var(--line);
+}
+.tabs > :first-child {
+  border-radius: 7px 0 0 7px;
+}
+.tabs > :last-child {
+  border-radius: 0 7px 7px 0;
+}
+.tabs button.on {
+  background: var(--accent);
+  color: #fff;
+}
+/* uitklapknop 3k+ met het menu met de lange afstanden */
+.tabs .dmore {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: none; /* alleen op mobiel */
+}
+.tabs .dmore > button {
+  border-radius: 0;
+}
+.tabs .car {
+  margin-left: 3px;
+  font-size: 10px;
+}
+.dmenu {
+  position: absolute;
+  right: -1px;
+  top: calc(100% + 4px);
+  z-index: 25;
+  min-width: 130px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 4px 16px rgba(20, 33, 61, 0.18);
+}
+.dmenu[hidden] {
+  display: none;
+}
+.tabs .dmenu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.tabs .dmenu button.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+/* ANS als laatste vakje, na een dikkere scheidingslijn; het vinkje houdt altijd zijn plek */
+.tabs .ansseg {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0 12px;
+  border-left: 2px solid var(--faint);
+}
+.tabs .chk {
+  visibility: hidden;
+  margin-right: 3px;
+}
+.tabs .on > .chk {
+  visibility: visible;
+}
+.tabs .dmenu .chk {
+  margin: 0 0 0 8px;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+}
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.seg button {
+  border: none;
+  border-radius: 0;
+  background: var(--card);
+  color: var(--ink);
+  padding: 5px 10px;
+}
+.seg button.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+/* filtergroepjes boven de grafiek (vanaf v56) */
+.controls {
+  gap: 8px;
+}
+.controls .fgrp {
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 8px;
+}
+.flbl {
+  font-size: 11px;
+  color: var(--muted);
+}
+.gseg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.gseg button {
+  border: 0;
+  border-radius: 0;
+  background: var(--card);
+  color: var(--ink);
+  padding: 4px 12px;
+  font-size: 13px;
+}
+.gseg button + button {
+  border-left: 1px solid var(--line);
+}
+/* gekozen knop: blauw met witte tekst, net als de afstandsbalk (vanaf v77; niet vet, zodat de breedte
+   niet verandert) */
+.gseg button.on {
+  background: var(--accent);
+  color: #fff;
+}
+.freset {
+  border: 0;
+  background: transparent;
+  color: var(--link);
+  font-size: 12px;
+  padding: 2px 4px;
+}
+/* Filters op de pc even groot als de afstandsbalk (vanaf v75): tekst 14 px en vakjes 34 px hoog,
+   net als de afstandsknoppen (32 px + rand). Alleen op een breed scherm; op mobiel zitten de filters in
+   het paneel achter de knop Filters met eigen maten. */
+@media (min-width: 800px) {
+  .controls,
+  .controls label,
+  .controls .flbl,
+  .controls select.agesel,
+  .gseg button,
+  .freset {
+    font-size: 14px;
+  }
+  .controls .fgrp {
+    min-height: 34px;
+    padding: 0 10px;
+  }
+  .controls select.agesel {
+    padding: 4px 6px;
+  }
+  .controls .gseg button {
+    min-height: 32px;
+    padding: 0 14px;
+  }
+}
+/* Weergave-opties onder de grafiek: PR-lijn, Alle tijden en Snelste boven. Vanaf v77 één segmentbalk,
+   links uitgelijnd en opgemaakt als de afstandsbalk: aan = blauw met wit vinkje, net als ANS. Het vinkje
+   (.chk) houdt altijd zijn plek, zodat de breedte niet verandert. De checkbox is onzichtbaar; het label
+   is de knop. Op de pc tekst 14 px en 34 px hoog. */
+.viewopts {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card);
+}
+.viewopts > .flbl {
+  display: none;
+}
+.viewopts label.sw {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 12px;
+  background: var(--card);
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--ink);
+  cursor: pointer;
+}
+.viewopts label.sw + label.sw {
+  border-left: 1px solid var(--line);
+}
+.viewopts .sw input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.viewopts .chk {
+  visibility: hidden;
+  margin-right: 3px;
+}
+.viewopts label.sw:has(input:checked) {
+  background: var(--accent);
+  color: #fff;
+}
+.viewopts label.sw:has(input:checked) .chk {
+  visibility: visible;
+}
+.viewopts label.sw:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.controls select.agesel {
+  width: auto;
+  padding: 3px 4px;
+}
+/* ===== Grafiek en tabellen ===== */
+.chartwrap {
+  position: relative;
+  height: 440px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+th,
+td {
+  text-align: left;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+/* klikbare kolomkop (sorteren op datum in het PR-verloop) */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  text-decoration: underline dotted;
+}
+th.sortable:hover {
+  color: var(--accent);
+}
+th {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+}
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.tablewrap {
+  overflow: auto;
+  max-height: 520px;
+}
+/* keuzelijst schaatser boven het PR-verloop */
+.prwho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.prwho select {
+  width: auto;
+  max-width: 100%;
+  flex: 0 1 320px;
+}
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+/* ===== Overige teksten ===== */
+.empty {
+  color: var(--muted);
+  padding: 30px;
+  text-align: center;
+}
+.status {
+  font-size: 12px;
+  color: var(--muted);
+  min-height: 18px;
+}
+/* knop "Opnieuw proberen" in de statusregel */
+.status button.retry {
+  padding: 1px 8px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+.best {
+  font-weight: 700;
+}
+.gain {
+  color: var(--ok);
+  font-size: 12px;
+}
+.section {
+  margin-top: 18px;
+}
+footer {
+  padding: 6px 18px 30px;
+  color: var(--muted);
+  font-size: 12px;
+}
+a {
+  color: var(--link);
+}
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ===== Mobiele weergave (vanaf v43) =====
+   Alles hieronder geldt alleen op een smal scherm (< 800 px) of een telefoon die liggend wordt
+   gehouden. Op desktop zijn de mobiele onderdelen verborgen en verandert er niets. */
+.mobile-only,
+.mtabs,
+.sheethead,
+.sheetdone,
+#mBackdrop {
+  display: none;
+}
+@media (max-width: 799px) {
+  /* kopbalk compact: de bronvermelding staat in de voettekst */
+  header {
+    padding: 10px 14px;
+  }
+  header h1 {
+    font-size: 17px;
+  }
+  header > span:not(.ver) {
+    display: none;
+  }
+  header .hbtns {
+    margin-left: auto;
+  }
+  .toast {
+    bottom: 84px; /* boven de tabbalk */
+  }
+  main {
+    padding: 10px;
+    gap: 10px;
+  }
+  body {
+    padding-bottom: 72px; /* ruimte voor de tabbalk onderin */
+  }
+  .section {
+    margin-top: 10px;
+  }
+  .mobile-only {
+    display: block;
+  }
+  /* tabbalk onderin: Schaatsers / Grafiek / Tabellen / Mijn schaatsers (vanaf v68) */
+  .mtabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    background: var(--card);
+    border-top: 1px solid var(--line);
+    padding: 4px 0 8px;
+  }
+  .mtabs button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 52px;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .mtabs button.on {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  /* knoppen die alleen op de pc nodig zijn (op mobiel staan ze in de tabbalk) */
+  .desk-only {
+    display: none !important;
+  }
+  /* tabblad Mijn schaatsers (vanaf v68): het beheer staat dan gewoon op de pagina, niet als venster */
+  body[data-mtab='mine'] main {
+    display: none;
+  }
+  #mineWrap {
+    position: static;
+    background: none;
+    padding: 10px;
+    display: block;
+  }
+  #mineWrap[hidden] {
+    display: none;
+  }
+  #mineWrap .modalbox {
+    max-width: none;
+    max-height: none;
+  }
+  #mineWrap .modalx {
+    display: none;
+  }
+  #mineList {
+    max-height: none;
+  }
+  /* welk tabblad is zichtbaar (body data-mtab) */
+  body[data-mtab='chart'] aside,
+  body[data-mtab='tables'] aside,
+  body[data-mtab='skaters'] main > section,
+  body[data-mtab='chart'] #ageCard,
+  body[data-mtab='chart'] #prCard,
+  body[data-mtab='tables'] .chartwrap,
+  body[data-mtab='tables'] .viewopts,
+  body[data-mtab='tables'] .mbar,
+  body[data-mtab='tables'] #mChips,
+  body[data-mtab='tables'] .controls,
+  body[data-mtab='tables'][data-mtbl='pr'] #ageCard,
+  body[data-mtab='tables'][data-mtbl='age'] #prCard {
+    display: none;
+  }
+  body:not([data-mtab='tables']) #mTblSeg {
+    display: none;
+  }
+  body[data-mtab='tables'] #ageCard,
+  body[data-mtab='tables'] #prCard {
+    margin-top: 10px;
+  }
+  /* afstandsbalk op mobiel: hogere vakjes en korte labels (100, 3k+, 5k, …) (vanaf v64; v72 alleen maten) */
+  .tabs {
+    display: flex;
+    margin: 0 0 8px;
+  }
+  .tabs button {
+    flex: 1 1 0;
+    width: auto;
+    min-height: 36px;
+    padding: 0;
+    font-size: 11px;
+  }
+  /* lange afstanden zitten op mobiel in de uitklapknop 3k+ (vanaf v73) */
+  .tabs > .dlong {
+    display: none;
+  }
+  .tabs .dmore {
+    display: flex;
+  }
+  .tabs .ansseg {
+    flex: 0 0 auto;
+  }
+  .tabs .ansseg {
+    padding: 0 7px;
+  }
+  .tabs .car {
+    margin-left: 1px;
+  }
+  .tabs .dl {
+    display: none;
+  }
+  .tabs .ds {
+    display: inline;
+  }
+  /* regel boven de grafiek: samenvatting filters + knop Filters */
+  .mbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  /* knop Filters: groter tikvlak met icoon (vanaf v64) */
+  .mbar button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    min-height: 42px;
+    padding: 0 14px;
+    background: var(--card);
+    color: var(--ink);
+    border-color: var(--line);
+    font-size: 14px;
+  }
+  .mbar button svg {
+    width: 16px;
+    height: 16px;
+  }
+  .mbar .count {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 9px;
+    padding: 0 6px;
+    font-size: 11px;
+    margin-left: 4px;
+  }
+  /* filters: alleen de statusregel blijft staan; de rest zit in een paneel dat van onderen opschuift */
+  .controls > label,
+  .controls > .gseg,
+  .controls > .freset {
+    display: none;
+  }
+  .controls {
+    margin-bottom: 4px;
+  }
+  .controls.open > .gseg {
+    display: flex;
+    margin: 10px 0 4px;
+  }
+  .controls.open > .gseg button {
+    flex: 1;
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .controls.open > .freset:not([hidden]) {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+  .controls.open .fgrp {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  .controls.open .flbl {
+    font-size: 14px;
+    color: var(--ink);
+    margin-right: auto;
+  }
+  /* weergave-opties: zelfde balk als op de pc, met de maten van de afstandsbalk op mobiel (36 px hoog,
+     tekst 12 px) */
+  .viewopts label.sw {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .controls.open {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: var(--card);
+    border-radius: 16px 16px 0 0;
+    padding: 8px 20px 20px;
+    margin: 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    box-shadow: 0 -6px 24px rgba(20, 33, 61, 0.25);
+  }
+  .controls.open > label {
+    display: flex;
+    justify-content: space-between;
+    min-height: 48px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .controls.open input[type='checkbox'] {
+    width: 22px;
+    height: 22px;
+    order: 2;
+  }
+  .controls.open .sheethead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 4px 0 6px;
+  }
+  .controls.open .sheethead button {
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: 22px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .controls.open .sheetdone {
+    display: block;
+    margin-top: 14px;
+    min-height: 48px;
+    font-weight: 700;
+  }
+  .controls.open .status {
+    display: none;
+  }
+  #mBackdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(20, 33, 61, 0.45);
+  }
+  .chartwrap {
+    height: 340px;
+  }
+  /* gekleurde chips onder de grafiek: tik = highlight aan/uit */
+  #mChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  #mChips button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 10px;
+    border-radius: 18px;
+    background: var(--card);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  #mChips button.hl {
+    background: var(--accent-soft);
+    border-color: var(--c);
+    font-weight: 700;
+  }
+  #mChips .dot {
+    margin-right: 0;
+  }
+  /* keuze tussen de twee tabellen */
+  .mseg {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    background: var(--seg);
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .mseg button {
+    min-height: 38px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+  }
+  .mseg button.on {
+    background: var(--card);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .tablewrap {
+    max-height: none;
+  }
+  /* beste tijd per leeftijdsjaar: leeftijdskolom blijft staan bij opzij schuiven */
+  #ageTable th:first-child,
+  #ageTable td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--card);
+    z-index: 1;
+    border-right: 1px solid var(--line);
+  }
+  /* PR-verloop als kaartjes */
+  #prTable thead {
+    display: none;
+  }
+  #prTable table,
+  #prTable tbody {
+    display: block;
+  }
+  #prTable tr {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 2px 8px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  #prTable td {
+    border: 0;
+    padding: 0;
+    white-space: normal;
+  }
+  /* rij 1: naam en tijd; rij 2: datum, leeftijd, baan en verbetering */
+  #prTable td.c-name {
+    grid-column: 1 / 4;
+    grid-row: 1;
+    font-weight: 600;
+  }
+  #prTable td.c-time {
+    grid-column: 4;
+    grid-row: 1;
+    font-size: 18px;
+  }
+  #prTable td.c-date,
+  #prTable td.c-age,
+  #prTable td.c-loc {
+    grid-row: 2;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: left;
+  }
+  #prTable td.c-loc {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #prTable td.c-gain {
+    grid-column: 4;
+    grid-row: 2;
+  }
+  #prTable td.c-raw,
+  #prTable td.c-comp {
+    display: none;
+  }
+  .mprhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .mprhead button {
+    min-height: 34px;
+    background: var(--card);
+    color: var(--ink);
+    border-color: var(--line);
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  /* Lettergrootte op mobiel (vanaf v74): basistekst en invoervelden 15 px, kleine grijze tekst 13 px,
+     afstandsbalk, filterlabels en groepschips 12 px. Namen aan de grafieklijnen blijven 10 px; de tabbalk
+     onderin, de tabjes bij Toevoegen en de knoppen onder de grafiek houden hun maat (anders past het niet). */
+  body {
+    font-size: 15px;
+  }
+  input[type='text'],
+  input[type='date'],
+  select,
+  .res .birth select,
+  .sel .bsel select,
+  .sel .ownform select,
+  .sel .ownform input,
+  .sel .grp input {
+    font-size: 15px;
+  }
+  label,
+  .res .meta,
+  .res .birth,
+  .birthhint,
+  .sel .meta,
+  .sel .rows,
+  .sel .birthlink,
+  .sel .born,
+  .sel .ownadd,
+  .sel .grp,
+  .mbar,
+  .status,
+  .status button.retry,
+  .hint,
+  footer,
+  th,
+  .gain,
+  .freset,
+  #prTable td.c-date,
+  #prTable td.c-age,
+  #prTable td.c-loc {
+    font-size: 13px;
+  }
+  .tabs button,
+  .mbar .count,
+  .flbl,
+  .sel .chip,
+  .mine .chip {
+    font-size: 12px;
+  }
+}
+/* Telefoon liggend: alleen de grafiek over het hele scherm (vanaf v62 zonder kopbalk, filters
+   en afstandstabbladen; die staan in de staande weergave) */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (pointer: coarse) {
+  body {
+    padding-bottom: 0;
+  }
+  main {
+    display: block;
+    padding: 0;
+  }
+  header,
+  aside,
+  #ageCard,
+  #prCard,
+  .mtabs,
+  footer,
+  .tabs,
+  .mbar,
+  .controls,
+  .viewopts,
+  #mChips,
+  #mTblSeg,
+  #mBackdrop {
+    display: none !important;
+  }
+  main > section {
+    display: block !important;
+  }
+  .card {
+    padding: 4px 6px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .chartwrap {
+    height: calc(100vh - 8px);
+    height: calc(100dvh - 8px);
+  }
+}

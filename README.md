@@ -1,6 +1,6 @@
 # Schaatsvergelijker
 
-Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van langebaanschaatsers te vergelijken, over de jaren heen en **op leeftijd**. Alle data komt live van [SpeedskatingResults.com](https://speedskatingresults.com) via hun publieke API.
+Statische webapp (vier bestanden zonder build-stap: `index.html`, `app.css`, `data.js`, `app.js`) om de tijden en de PR-ontwikkeling van langebaanschaatsers te vergelijken, over de jaren heen en **op leeftijd**. Alle data komt live van [SpeedskatingResults.com](https://speedskatingresults.com) via hun publieke API.
 
 ## Doel
 
@@ -11,8 +11,8 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 
 ## Gebruik
 
-1. Open `schaatsvergelijker.html` in een browser. Dubbelklikken werkt, een webserver is niet nodig.
-   Online: https://raymondd78.github.io/schaatsvergelijker/ (GitHub Pages). In de GitHub-repository heet het bestand `index.html`; op de pc heet het `schaatsvergelijker.html`. Het is hetzelfde bestand.
+1. Open `index.html` in een browser. Dubbelklikken werkt, een webserver is niet nodig; `app.css`, `data.js` en `app.js` moeten er wel naast staan.
+   Online: https://raymondd78.github.io/schaatsvergelijker/ (GitHub Pages). Tot en met v82 was de app één bestand (op de pc `schaatsvergelijker.html`).
    **Als app:** de online versie is te installeren (PWA): knop ⤓ in de kopbalk (Chrome, Edge, Android) of op iPhone/iPad via Deel → "Zet op beginscherm". De app opent dan ook offline, met de eerder opgehaalde tijden.
 2. Zoek een schaatser (achternaam en/of voornaam) en klik **+ Toevoegen**, of open een **schaatsersbestand (JSON)** met namen en geboortemaanden en voeg alle schaatsers eruit in één keer toe (zie `docs/GROEPEN.md`). Met **Opslaan als JSON** bewaar je de huidige selectie als zo'n bestand.
 3. Vul eventueel de **geboortemaand en het geboortejaar** in. Zonder die gegevens schat de app de leeftijd uit de categorie (zie `docs/LEEFTIJD.md`).
@@ -45,7 +45,10 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 
 | Pad | Inhoud |
 |---|---|
-| `schaatsvergelijker.html` (in GitHub: `index.html`) | De app (HTML + CSS + JS, Chart.js via cdnjs) |
+| `index.html` | De app: schermindeling; laadt Chart.js (cdnjs), `app.css`, `data.js` en `app.js` |
+| `app.css` | Opmaak (licht/donker, pc en mobiel) |
+| `data.js` | Vaste gegevens: ANS-tabellen, afkortingen van de banen, lijst topschaatsers |
+| `app.js` | Werking: zoeken, selectie, API, grafiek en tabellen |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Maken de online versie installeerbaar als app (PWA) en offline te openen (zie `docs/ARCHITECTUUR.md`) |
 | `versies/` | Gedateerde kopieën van eerdere versies + `VERSIES.md` (logboek) |
 | `docs/API.md` | Referentie van de SpeedskatingResults API, incl. live geverifieerde bevindingen |

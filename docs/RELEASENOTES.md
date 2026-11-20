@@ -1,10 +1,15 @@
 # Release notes – Schaatsvergelijker
 
-Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
+Overzicht van alle versies van de Schaatsvergelijker (tot v82 `schaatsvergelijker.html`, vanaf v83 `index.html` met `app.css`, `data.js` en `app.js`), nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v82** (20 november 2026)
+**Huidige versie: v83** (20 november 2026)
 
 ---
+
+## v83 – App gesplitst in vier bestanden (20-11-2026)
+- De app staat niet meer in één HTML-bestand, maar in `index.html` (schermindeling), `app.css` (opmaak), `data.js` (ANS-tabellen, banen, topschaatsers) en `app.js` (werking). Nog steeds zonder build-stap; dubbelklikken op `index.html` werkt nog.
+- Voor gebruikers verandert er niets: de code is alleen verplaatst. Gecontroleerd met een vergelijking van de syntaxboom en een test van v82 en v83 naast elkaar in headless Chrome.
+- De service worker cachet de nieuwe bestanden en haalt CSS en scripts eerst van het netwerk (net als de pagina), zodat pagina en code altijd van dezelfde versie zijn. Cache verhoogd naar v83.
 
 ## v82 – Uit lijst voegt meteen toe (20-11-2026)
 - In het tabje **Uit lijst** wordt een schaatser of groep meteen toegevoegd zodra je hem kiest. De knop **Toevoegen** is weg.
