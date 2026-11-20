@@ -2,9 +2,18 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v73** (20 november 2026)
+**Huidige versie: v74** (20 november 2026)
 
 ---
+
+## v74 – Grotere letters op mobiel (20-11-2026)
+- Op de telefoon is de tekst beter leesbaar. Op de pc verandert er niets.
+  - Basistekst en invoervelden/keuzelijsten: 15 px (was 14, op de kaartjes 13).
+  - Kleine grijze tekst (onder de naam, op de kaartjes, hints, labels, de regel boven de grafiek, statusregel, tabellen): 13 px (was 12).
+  - Afstandsbalk, filterlabels en groepschips: 12 px (was 11).
+- Ongewijzigd: de namen aan de grafieklijnen (10 px), de tabbalk onderin, de tabjes bij Toevoegen en de drie knoppen onder de grafiek.
+- Getest op 360 en 375 px breed: de afstandsbalk past nog op één regel, zonder afgekapte tekst.
+- Let op: op een iPhone zoomt Safari nog in bij het tikken in een veld (dat gebeurt onder 16 px).
 
 ## v73 – Afstandsbalk op de pc compact (20-11-2026)
 - Op de pc loopt de afstandsbalk niet meer over de hele breedte van de grafiek. De knoppen hebben een normaal, vast formaat en alle negen afstanden staan er los in, ook **3000**, **5000** en **10000 m**. **ANS** blijft het laatste vakje.

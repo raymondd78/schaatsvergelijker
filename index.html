@@ -1462,6 +1462,52 @@
           text-transform: none;
           letter-spacing: 0;
         }
+        /* Lettergrootte op mobiel (vanaf v74): basistekst en invoervelden 15 px, kleine grijze tekst 13 px,
+           afstandsbalk, filterlabels en groepschips 12 px. Namen aan de grafieklijnen blijven 10 px; de tabbalk
+           onderin, de tabjes bij Toevoegen en de knoppen onder de grafiek houden hun maat (anders past het niet). */
+        body {
+          font-size: 15px;
+        }
+        input[type='text'],
+        input[type='date'],
+        select,
+        .res .birth select,
+        .sel .bsel select,
+        .sel .ownform select,
+        .sel .ownform input,
+        .sel .grp input {
+          font-size: 15px;
+        }
+        label,
+        .res .meta,
+        .res .birth,
+        .birthhint,
+        .sel .meta,
+        .sel .rows,
+        .sel .birthlink,
+        .sel .born,
+        .sel .ownadd,
+        .sel .grp,
+        .mbar,
+        .status,
+        .status button.retry,
+        .hint,
+        footer,
+        th,
+        .gain,
+        .freset,
+        #prTable td.c-date,
+        #prTable td.c-age,
+        #prTable td.c-loc {
+          font-size: 13px;
+        }
+        .tabs button,
+        .mbar .count,
+        .flbl,
+        .sel .chip,
+        .mine .chip {
+          font-size: 12px;
+        }
       }
       /* Telefoon liggend: alleen de grafiek over het hele scherm (vanaf v62 zonder kopbalk, filters
          en afstandstabbladen; die staan in de staande weergave) */
@@ -1509,7 +1555,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v73 van 20-11-2026">v73</span>
+      <span class="ver" title="Versie v74 van 20-11-2026">v74</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1920,7 +1966,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v73 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v74 (20-11-2026)
     </footer>
 
     <script>
