@@ -510,6 +510,11 @@
         align-items: center;
         gap: 6px;
       }
+      /* ster en × houden hun plek rechtsboven, ook als een lange naam doorloopt (vanaf v71) */
+      .sel .top > span:last-child {
+        flex: none;
+        align-self: flex-start;
+      }
       .sel .name {
         font-weight: 600;
       }
@@ -562,6 +567,18 @@
         font-weight: 600;
         font-size: 12px;
         text-decoration: underline dotted;
+      }
+      /* ingevulde geboortedatum en leeftijd achter de naam (vanaf v71), klein en grijs */
+      .sel .born {
+        margin-left: 4px;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .sel .born .birthlink {
+        color: inherit;
+        font-weight: 400;
       }
       /* maand en jaar naast elkaar */
       .sel .bsel {
@@ -1432,7 +1449,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v70 van 20-11-2026">v70</span>
+      <span class="ver" title="Versie v71 van 20-11-2026">v71</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1861,7 +1878,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v70 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v71 (20-11-2026)
     </footer>
 
     <script>
@@ -3534,14 +3551,27 @@
             const { monthSel, yearSel } = birthSelects(s, selY, selM);
             const est = b ? (b.span > 1 ? '±' + Math.ceil(b.span / 2) + ' jr' : '±6 mnd') : '';
             const own = ownTimesHtml(s);
-            let birthCell;
-            if (s.birth && !editBirth.has(s.id)) {
+            /* Vanaf v71: een ingevulde geboortedatum staat met de leeftijd achter de naam (klikbaar om te
+               wijzigen). De rij "Geboren" met keuzelijsten staat er alleen bij een onbekende datum of tijdens
+               het wijzigen. */
+            const birthRow = !s.birth || editBirth.has(s.id);
+            let born = '';
+            if (!birthRow) {
               const a = ageParts(parseDate(s.birth), parseDate(todayStr()));
-              birthCell = `<span><button type="button" class="birthlink" data-act="bedit" title="Klik om de geboortedatum te wijzigen">${MONTHS[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}</button> <span class="dim">· ${a.y} jr ${a.m} mnd</span></span>`;
-            } else
-              birthCell = `<span class="bsel">${monthSel}${yearSel}${s.birth ? '<button class="small" data-act="bdone" title="Klaar met wijzigen">Klaar</button><button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</span>`;
+              born = `<span class="born"><button type="button" class="birthlink" data-act="bedit" title="Geboortemaand; klik om te wijzigen">${MONTHS[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}</button> · ${a.y} jr ${a.m} mnd</span>`;
+            }
+            const rows =
+              (birthRow
+                ? `<span class="k">Geboren</span><span class="bsel">${monthSel}${yearSel}${s.birth ? '<button class="small" data-act="bdone" title="Klaar met wijzigen">Klaar</button><button class="x" data-act="bclear" title="Geboortedatum wissen">×</button>' : ''}</span>` +
+                  (!s.birth && (s.draftY || s.draftM)
+                    ? `<span></span><span class="warn">Kies ook ${s.draftY ? 'de maand' : 'het jaar'}</span>`
+                    : '') +
+                  (!s.birth && b
+                    ? `<span></span><span class="warn">≈ geschat: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })} (${est})</span>`
+                    : '')
+                : '') + own.rows;
             return `<div class="sel${s.hl ? ' hl' : ''}" style="--c:${cleanColor(s.color) || '#888'}${genderOK(s) ? '' : ';opacity:.45'}" data-id="${Number(s.id)}" ${genderOK(s) ? '' : 'title="Verborgen door het filter heren/dames"'}>
-      <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)} <a class="prof" href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener" title="Profiel op SpeedskatingResults" aria-label="Profiel op SpeedskatingResults">↗</a></span>
+      <div class="top"><span class="name">${esc(s.givenname)} ${esc(s.familyname)} <a class="prof" href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener" title="Profiel op SpeedskatingResults" aria-label="Profiel op SpeedskatingResults">↗</a>${born}</span>
         <span><button class="star ${s.hl ? 'on' : ''}" data-act="hl" title="${s.hl ? 'Highlight uitzetten' : 'Highlighten: dikkere lijn in de grafiek'}">${s.hl ? '★' : '☆'}</button><button class="x" data-act="rm" title="Verwijderen">×</button></span></div>
       <div class="meta">${esc(catLabel(s))}${
         s.group
@@ -3553,12 +3583,7 @@
               .join('')
           : ''
       }</div>
-      <div class="rows">
-        <span class="k">Geboren</span>${birthCell}
-        ${!s.birth && (s.draftY || s.draftM) ? `<span></span><span class="warn">Kies ook ${s.draftY ? 'de maand' : 'het jaar'}</span>` : ''}
-        ${!s.birth && b ? `<span></span><span class="warn">≈ geschat: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })} (${est})</span>` : ''}
-        ${own.rows}
-      </div>
+      ${rows ? `<div class="rows">${rows}</div>` : ''}
       <div class="addrow">${mineCardBtn(s)}${own.add}</div>
     </div>`;
           })

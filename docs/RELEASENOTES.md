@@ -2,9 +2,16 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v70** (20 november 2026)
+**Huidige versie: v71** (20 november 2026)
 
 ---
+
+## v71 – Geboortedatum achter de naam (20-11-2026)
+- Op het kaartje bij **Geselecteerd** staat een ingevulde geboortedatum nu klein en grijs achter de naam, met de leeftijd: "Roos Arends ↗ dec 2014 · 11 jr 11 mnd". Het label "Geboren" is daar weg.
+- Klik op de datum om hem te wijzigen: dan verschijnt de rij **Geboren** met de keuzelijsten, **Klaar** en ×.
+- Zonder ingevulde geboortedatum blijft de rij **Geboren** met keuzelijsten en de oranje schatting staan.
+- Zonder zelf toegevoegde tijden vervalt ook de scheidingslijn, zodat het kaartje een stuk lager is.
+- Ster en × blijven rechtsboven staan, ook als een lange naam over twee regels loopt.
 
 ## v70 – Groepen alleen bij Mijn schaatsers (20-11-2026)
 - **Toevoegen → Bestand** doet niets meer met groepen: open (of sleep) een JSON-bestand en klik **Toevoegen** om alle schaatsers eruit aan de selectie toe te voegen. De bestandsnaam wordt geen groep meer en de keuzelijst per bestand is weg. Er is steeds één bestand tegelijk geladen.
