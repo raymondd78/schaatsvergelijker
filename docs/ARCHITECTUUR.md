@@ -6,6 +6,7 @@
 - **Data live uit de browser:** de API staat CORS toe (`*`), dus geen proxy nodig.
 - **Externe afhankelijkheid:** alleen Chart.js 4.4.1 via `cdnjs.cloudflare.com`.
 - **Opslag:** alleen `localStorage` van de gebruiker; niets gaat naar een server.
+- **Installeerbaar (PWA, vanaf v63):** naast de HTML staan `manifest.webmanifest`, `sw.js` en `icons/`. Dat zijn de enige extra bestanden; de app blijft zonder build-stap.
 - **Geen persoonsgegevens in de pagina:** namen, groepen en geboortedata komen uit JSON-bestanden die de gebruiker zelf opent (zie `GROEPEN.md`). Enige uitzondering: de ingebouwde lijst met publiek bekende topschaatsers (`TOP_SKATERS`).
 
 > Een gepubliceerde claude.ai-artifact kan deze app **niet** draaien: daar blokkeert de content security policy `fetch` naar andere domeinen. Lokaal openen of zelf hosten werkt wel.
@@ -133,6 +134,21 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Telefoon liggend (`MQ_LANDSCAPE`: landscape, hoogte ≤ 500 px, breedte ≥ 600 px, touchscherm; de breedte-eis sinds v45 zodat een geopend toetsenbord niet meetelt): alleen de grafiek op schermhoogte (`100dvh`), met alle namen; geen kopbalk, filters of filterknop (vanaf v61) en geen afstandstabbladen (vanaf v62).
 - Bij wisselen van breedte of stand roept een `matchMedia`-listener `render()` opnieuw aan.
 
+## Installeerbare app (PWA, vanaf v63)
+
+| Bestand | Rol |
+|---|---|
+| `manifest.webmanifest` | Naam, iconen, `display: standalone`, kleuren (`theme_color` = kopbalk `#14213d`). Bewust `.webmanifest` en geen `.json`: `.gitignore` sluit alle `.json`-bestanden uit |
+| `sw.js` | Service worker. Cache `schaatsvergelijker-vNN` met `./`, `index.html`, manifest en iconen; Chart.js los (een haperende CDN blokkeert de installatie niet; anders komt hij bij eerste gebruik in de cache). Pagina: **netwerk eerst**, offline uit de cache. Eigen bestanden en Chart.js: cache eerst. De API van SpeedskatingResults gaat er ongemoeid doorheen (de app cachet tijden zelf in `localStorage`). `skipWaiting` + `clients.claim`; oude caches worden bij activeren gewist |
+| `icons/` | `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (volle achtergrond, veilige zone), `apple-touch-icon.png` (180 px), `favicon-32.png` |
+
+- In `<head>`: `link rel=manifest`, `theme-color`, favicon, `apple-touch-icon` en de `apple-mobile-web-app-*`-metatags.
+- Registratie onderaan het script, alleen bij `http(s)` (bij `file://` bestaat geen service worker).
+- Knop `#installBtn` (⤓) in `.hbtns`: verborgen tot `beforeinstallprompt` (Chrome/Edge/Android); klik roept `prompt()` aan. Na `appinstalled` verdwijnt hij en volgt een melding. iOS kent dit event niet; de uitleg in "Over deze tool" noemt Deel → "Zet op beginscherm".
+- **Bij elke nieuwe versie:** verhoog ook `CACHE` in `sw.js` naar het nieuwe versienummer, zodat de oude cache wordt opgeruimd.
+
 ## Testen
 
 Getest in de ingebouwde browser van de Claude-app. De app is daarvoor tijdelijk geladen op het domein van speedskatingresults.com (via `document.write`), omdat lokale bestanden daar niet geopend kunnen worden. Daarna zijn de `ssr.*`-sleutels in `localStorage` opgeruimd.
+
+De PWA (v63) is getest met headless Chrome (Playwright) op een lokale webserver: service worker actief, cache gevuld, manifest zonder fouten en de pagina opent offline.

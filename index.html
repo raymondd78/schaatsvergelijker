@@ -19,6 +19,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Schaatsvergelijker – PR-ontwikkeling</title>
+    <!-- Installeerbaar als app (PWA, vanaf v63): manifest, iconen en kleur van de statusbalk -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#14213d" />
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Schaatsvergelijker" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
       /* ===== Kleuren en basis =====
@@ -141,6 +149,10 @@
         display: flex;
         gap: 6px;
         align-self: center;
+      }
+      /* verborgen knoppen (zoals "Installeren") echt verbergen; .theme zet anders display */
+      header .hbtns [hidden] {
+        display: none;
       }
       header .hbtns .theme {
         min-width: 28px;
@@ -1217,7 +1229,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v62 van 20-11-2026">v62</span>
+      <span class="ver" title="Versie v63 van 20-11-2026">v63</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1225,8 +1237,19 @@
           >SpeedskatingResults.com</a
         ></span
       >
-      <!-- Knoppen rechts: uitleg (ⓘ) en thema (vanaf v59 als icoon) -->
+      <!-- Knoppen rechts: installeren als app (alleen als de browser dat aanbiedt, vanaf v63), uitleg (ⓘ)
+           en thema (vanaf v59 als icoon) -->
       <div class="hbtns">
+        <button
+          type="button"
+          class="theme"
+          id="installBtn"
+          hidden
+          title="Installeren als app"
+          aria-label="Installeren als app"
+        >
+          ⤓
+        </button>
         <button type="button" class="theme" id="infoBtn" title="Over deze tool" aria-label="Over deze tool">
           ⓘ
         </button>
@@ -1263,6 +1286,10 @@
             ANS-correctie (alleen Nederlandse banen, omgerekend naar een neutrale baan).
           </li>
           <li><b>Highlight</b> schaatsers met de ster ☆ en bewaar je selectie met "Opslaan als JSON".</li>
+          <li>
+            <b>Als app installeren:</b> met de knop ⤓ in de kopbalk (Chrome, Edge, Android) of op iPhone/iPad
+            via Deel → "Zet op beginscherm". Eerder opgehaalde tijden blijven dan ook zonder internet te zien.
+          </li>
         </ul>
         <div class="key">
           <b>Geboortemaand is belangrijk.</b> SpeedskatingResults geeft alleen de leeftijdscategorie door.
@@ -1516,7 +1543,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v62 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v63 (20-11-2026)
     </footer>
 
     <script>
@@ -3941,6 +3968,35 @@
       fillMaxT();
       renderSelected();
       refresh();
+
+      /* ---------- Installeerbare app (PWA, vanaf v63) ----------
+         De service worker (sw.js) bewaart de app en Chart.js, zodat de app ook offline opent. Alleen via
+         http(s): bij een lokaal geopend bestand (file://) bestaat geen service worker en werkt alles zoals
+         voorheen. De knop ⤓ verschijnt alleen als de browser installeren aanbiedt (Chrome, Edge, Android);
+         op iPhone/iPad gaat het via Deel → "Zet op beginscherm". */
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').catch(() => {}); // lukt het niet, dan gewoon zonder
+        });
+      }
+      let installPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); // geen eigen balk van de browser; wij tonen de knop ⤓
+        installPrompt = e;
+        $('installBtn').hidden = false;
+      });
+      $('installBtn').addEventListener('click', async () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        await installPrompt.userChoice;
+        installPrompt = null;
+        $('installBtn').hidden = true;
+      });
+      window.addEventListener('appinstalled', () => {
+        installPrompt = null;
+        $('installBtn').hidden = true;
+        showToast('Schaatsvergelijker is als app geïnstalleerd.');
+      });
     </script>
   </body>
 </html>

@@ -13,6 +13,7 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 
 1. Open `schaatsvergelijker.html` in een browser. Dubbelklikken werkt, een webserver is niet nodig.
    Online: https://raymondd78.github.io/schaatsvergelijker/ (GitHub Pages). In de GitHub-repository heet het bestand `index.html`; op de pc heet het `schaatsvergelijker.html`. Het is hetzelfde bestand.
+   **Als app:** de online versie is te installeren (PWA): knop ⤓ in de kopbalk (Chrome, Edge, Android) of op iPhone/iPad via Deel → "Zet op beginscherm". De app opent dan ook offline, met de eerder opgehaalde tijden.
 2. Zoek een schaatser (achternaam en/of voornaam) en klik **+ Toevoegen**, of open een **schaatsersbestand (JSON)** met namen, groepen en geboortemaanden en voeg een hele groep in één keer toe (zie `docs/GROEPEN.md`). Met **Opslaan als JSON** bewaar je de huidige selectie als zo'n bestand.
 3. Vul eventueel de **geboortemaand en het geboortejaar** in. Zonder die gegevens schat de app de leeftijd uit de categorie (zie `docs/LEEFTIJD.md`).
 4. Kies een afstand. De x-as is altijd de **leeftijd**; schaatsers zonder bekende of geschatte leeftijd worden niet getoond.
@@ -44,6 +45,7 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 | Pad | Inhoud |
 |---|---|
 | `schaatsvergelijker.html` (in GitHub: `index.html`) | De app (HTML + CSS + JS, Chart.js via cdnjs) |
+| `manifest.webmanifest`, `sw.js`, `icons/` | Maken de online versie installeerbaar als app (PWA) en offline te openen (zie `docs/ARCHITECTUUR.md`) |
 | `versies/` | Gedateerde kopieën van eerdere versies + `VERSIES.md` (logboek) |
 | `docs/API.md` | Referentie van de SpeedskatingResults API, incl. live geverifieerde bevindingen |
 | `docs/ANS.md` | ANS-correctietabel van de KNSB en hoe de app die toepast |

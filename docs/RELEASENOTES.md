@@ -2,9 +2,16 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v62** (20 november 2026)
+**Huidige versie: v63** (20 november 2026)
 
 ---
+
+## v63 – Installeerbaar als app (PWA) (20-11-2026)
+- De Schaatsvergelijker is te installeren als app op telefoon, tablet en pc. Hij opent dan in een eigen venster, zonder adresbalk, met een eigen icoon op het beginscherm.
+- **Installeren:** in Chrome, Edge en op Android met de nieuwe knop **⤓** in de kopbalk (die verschijnt alleen als de browser installeren aanbiedt). Op iPhone/iPad via Deel → **Zet op beginscherm**.
+- **Offline:** de app zelf opent ook zonder internet; eerder opgehaalde tijden blijven zichtbaar. Zoeken en nieuwe tijden ophalen vragen wel verbinding.
+- **Updates:** een nieuwe versie komt vanzelf binnen bij de eerstvolgende keer openen.
+- Werkt alleen via de website (GitHub Pages). Een lokaal geopend bestand (dubbelklikken) werkt zoals voorheen, maar is niet installeerbaar.
 
 ## v62 – Liggend: alleen de grafiek (20-11-2026)
 - Ook de rij met afstanden is in de liggende stand weg: het hele scherm is grafiek. Van afstand wisselen doe je rechtop.
