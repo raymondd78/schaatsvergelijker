@@ -1432,7 +1432,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v69 van 20-11-2026">v69</span>
+      <span class="ver" title="Versie v70 van 20-11-2026">v70</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1502,9 +1502,10 @@
             open een eigen schaatsersbestand (JSON).
           </li>
           <li>
-            <b>Mijn schaatsers:</b> bewaar je eigen schaatsers in groepen, zodat je ze later via "Uit lijst"
-            met één klik weer toevoegt. Beheren doe je via Mijn schaatsers (op de telefoon in de balk
-            onderin). Ze blijven in deze browser; met Exporteren/Importeren neem je ze mee.
+            <b>Mijn schaatsers:</b> bewaar je eigen schaatsers per stuk (knop "+ Mijn schaatsers" op het
+            kaartje) in groepen, zodat je ze later via "Uit lijst" met één klik weer toevoegt. Beheren doe je
+            via Mijn schaatsers (op de telefoon in de balk onderin). Ze blijven in deze browser; met
+            Exporteren/Importeren neem je ze mee.
           </li>
           <li>
             <b>Kies een afstand</b> boven de grafiek. De trap-lijn is het PR-verloop; elke stap is een nieuw
@@ -1577,24 +1578,20 @@
               Mijn schaatsers beheren…
             </button>
           </div>
-          <!-- Eigen schaatsersbestand (JSON) openen of hierheen slepen; wordt alleen in het geheugen gelezen -->
+          <!-- Eigen schaatsersbestand (JSON) openen of hierheen slepen; wordt alleen in het geheugen gelezen.
+               Vanaf v70 zonder groepen: alle schaatsers uit het bestand gaan in één keer naar de selectie. -->
           <div class="pane" id="fileCard" data-pane="file" hidden>
             <div class="row" style="align-items: center">
               <button type="button" class="ghost" id="fileOpen" style="flex: 0 0 auto">
                 Bestand openen…
               </button>
-              <span class="hint" id="fileName" style="margin: 0"
-                >of sleep een .json-bestand hierheen; de bestandsnaam wordt de groep</span
-              >
+              <span class="hint" id="fileName" style="margin: 0">of sleep een .json-bestand hierheen</span>
               <input type="file" id="fileInput" accept=".json,application/json" hidden />
             </div>
             <div class="row" style="align-items: center; margin-top: 8px">
-              <select id="groupSel" disabled>
-                <option value="">Nog geen bestand geladen</option>
-              </select>
-              <button type="button" id="groupAdd" style="flex: 0 0 auto" disabled>Toevoegen</button>
+              <button type="button" id="fileAdd" style="flex: 0 0 auto" disabled>Toevoegen</button>
             </div>
-            <div class="hint" id="groupInfo"></div>
+            <div class="hint" id="fileInfo"></div>
           </div>
         </div>
 
@@ -1625,8 +1622,8 @@
           <div class="hint">
             Leeftijd wordt geschat uit de categorie (±6 mnd). Vul de geboortemaand in (staat op het profiel,
             link ↗) of laad een JSON-bestand met geboortedata. De selectie blijft alleen in deze browser
-            bewaard; met "Opslaan als JSON" bewaar je hem als bestand. De bestandsnaam wordt de groepsnaam als
-            je het later weer opent.
+            bewaard; met "Opslaan als JSON" bewaar je hem als bestand, dat je later via Toevoegen → Bestand
+            weer opent.
           </div>
         </div>
       </aside>
@@ -1775,7 +1772,6 @@
         </div>
         <div id="mineList"></div>
         <div class="mineact">
-          <button type="button" class="small" id="mineKeep">Selectie bewaren</button>
           <button type="button" class="small ghost" id="mineImp">Importeren…</button>
           <button type="button" class="small ghost" id="mineExp">Exporteren</button>
           <input type="file" id="mineFile" accept=".json,application/json" hidden />
@@ -1865,7 +1861,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v69 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v70 (20-11-2026)
     </footer>
 
     <script>
@@ -2809,7 +2805,7 @@
               giv = i > 0 ? name.slice(0, i) : name;
               fam = i > 0 ? name.slice(i + 1) : '';
             }
-            // vanaf v47: de groep is de naam van het bestand (zie loadSkaterFile); het veld group telt niet meer
+            // groepen uit het bestand tellen alleen bij het importeren in Mijn schaatsers (opt.keepGroups)
             return {
               id,
               givenname: giv,
@@ -2833,10 +2829,8 @@
             : [];
         return [...new Set(raw.map(cleanGroupName).filter(Boolean))].slice(0, 10);
       }
-      /* Geopende schaatsersbestanden: [{ name, skaters }]. De bestandsnaam (zonder .json) is de groepsnaam.
-         Meerdere bestanden kunnen tegelijk open zijn; alles staat alleen in het geheugen. */
-      const fileSets = [];
-      /* Open een gekozen of gesleept bestand en vul de groep-keuzelijst */
+      /* Open een gekozen of gesleept bestand. Vanaf v70 zonder groepen: de schaatsers uit het bestand staan
+         klaar voor de knop Toevoegen (alleen in het geheugen). Groepen horen alleen bij Mijn schaatsers. */
       function loadSkaterFile(file) {
         if (file.size > MAX_FILE_BYTES) {
           $('fileName').textContent = 'Kon bestand niet lezen: bestand is groter dan 1 MB';
@@ -2845,45 +2839,20 @@
         const rd = new FileReader();
         rd.onload = () => {
           try {
-            const name = cleanStr(String(file.name).replace(/\.json$/i, ''), 60) || 'Bestand';
-            const skaters = parseSkaterFile(rd.result).map((s) => ({ ...s, groups: [name] }));
-            const i = fileSets.findIndex((f) => f.name === name);
-            if (i >= 0) fileSets[i] = { name, skaters };
-            else fileSets.push({ name, skaters }); // zelfde naam opnieuw geopend: vervangen
-            // alle geladen schaatsers; staat iemand in meer bestanden, dan krijgt hij al die groepen
-            const byId = new Map();
-            for (const f of fileSets)
-              for (const sk of f.skaters) {
-                const cur = byId.get(sk.id);
-                if (cur) cur.groups = [...new Set([...cur.groups, f.name])];
-                else byId.set(sk.id, { ...sk, groups: [f.name] });
-              }
-            fileSkaters = [...byId.values()];
-            $('groupSel').innerHTML =
-              (fileSets.length > 1
-                ? `<option value="*">Alle geladen schaatsers (${fileSkaters.length})</option>`
-                : '') +
-              fileSets
-                .map((f) => `<option value="g:${esc(f.name)}">${esc(f.name)} (${f.skaters.length})</option>`)
-                .join('');
-            $('groupSel').value = 'g:' + name;
-            $('groupSel').disabled = $('groupAdd').disabled = false;
-            $('fileName').textContent =
-              `${file.name}: ${skaters.length} schaatsers` +
-              (fileSets.length > 1 ? ` · ${fileSets.length} bestanden geladen` : '');
-            $('groupSel').dispatchEvent(new Event('change'));
+            fileSkaters = parseSkaterFile(rd.result);
+            $('fileName').textContent = `${file.name}: ${fileSkaters.length} schaatsers`;
+            $('fileAdd').disabled = !fileSkaters.length;
+            $('fileInfo').textContent = fileSkaters.length
+              ? fileSkaters.map((s) => `${s.givenname} ${s.familyname}`.trim()).join(', ') + '.'
+              : 'Geen geldige schaatsers in dit bestand.';
           } catch (err) {
+            fileSkaters = [];
+            $('fileAdd').disabled = true;
+            $('fileInfo').textContent = '';
             $('fileName').textContent = 'Kon bestand niet lezen: ' + err.message;
           }
         };
         rd.readAsText(file);
-      }
-      /* De schaatsers die bij de huidige keuze in de groep-keuzelijst horen */
-      function chosenFileSkaters() {
-        const v = $('groupSel').value;
-        if (v === '*') return fileSkaters;
-        if (v.startsWith('g:')) return fileSkaters.filter((s) => s.groups.includes(v.slice(2)));
-        return [];
       }
       $('fileOpen').addEventListener('click', () => $('fileInput').click());
       $('fileInput').addEventListener('change', (e) => {
@@ -2905,12 +2874,6 @@
       $('fileCard').addEventListener('drop', (e) => {
         const f = e.dataTransfer.files[0];
         if (f) loadSkaterFile(f);
-      });
-      $('groupSel').addEventListener('change', () => {
-        const list = chosenFileSkaters();
-        $('groupInfo').textContent = list.length
-          ? list.map((s) => `${s.givenname} ${s.familyname}`.trim()).join(', ') + '.'
-          : '';
       });
       /* lijst {id,givenname,familyname,gender,country,category,catSeason,birth,groups} toevoegen; bestaande bijwerken */
       function addSkaterList(list, infoEl) {
@@ -2953,7 +2916,7 @@
           (list.length - added - updated > 0 ? `, ${list.length - added - updated} stond(en) er al` : '') +
           (state.selected.length >= MAX_SKATERS ? ` De selectie is vol (max. ${MAX_SKATERS}).` : '.');
       }
-      $('groupAdd').addEventListener('click', () => addSkaterList(chosenFileSkaters(), $('groupInfo')));
+      $('fileAdd').addEventListener('click', () => addSkaterList(fileSkaters, $('fileInfo')));
 
       /* ---------- Blok "Mijn schaatsers" (vanaf v67) ----------
          Een coach bewaart zijn eigen schaatsers, verdeeld over groepen, in de localStorage van de eigen
@@ -3056,18 +3019,14 @@
           list = mineChosen();
         $('mineRen').disabled = $('mineDel').disabled = !g;
         $('mineExp').disabled = !list.length;
-        $('mineKeep').textContent = g ? `Selectie bewaren in "${g}"` : 'Selectie bewaren';
-        $('mineKeep').title = g
-          ? `Alle geselecteerde schaatsers bewaren in de groep ${g}`
-          : 'Alle geselecteerde schaatsers bewaren in Mijn schaatsers (zonder groep)';
         if (!m.skaters.length) {
           $('mineList').innerHTML =
-            '<div class="empty" style="padding:10px">Nog geen eigen schaatsers. Zoek een schaatser, voeg hem toe en klik op het kaartje op "+ Mijn schaatsers", of bewaar je hele selectie met de knop hieronder.</div>';
+            '<div class="empty" style="padding:10px">Nog geen eigen schaatsers. Zoek een schaatser, voeg hem toe en klik op het kaartje op "+ Mijn schaatsers".</div>';
           return;
         }
         if (!list.length) {
           $('mineList').innerHTML =
-            `<div class="empty" style="padding:10px">Nog niemand in deze groep. Kies de groep en klik op "Selectie bewaren in …", of zet bij een schaatser onder "groepen" deze groep aan.</div>`;
+            `<div class="empty" style="padding:10px">Nog niemand in deze groep. Kies de groep en klik bij Geselecteerd op een kaartje op "+ Mijn schaatsers", of zet bij een schaatser onder "groepen" deze groep aan.</div>`;
           return;
         }
         $('mineList').innerHTML = list
@@ -3130,22 +3089,6 @@
           );
         }
       });
-      // hele selectie bewaren (in de gekozen groep)
-      $('mineKeep').addEventListener('click', () => {
-        if (!state.selected.length) {
-          mineInfo('Er is niets geselecteerd om te bewaren.');
-          return;
-        }
-        const g = mineGroup();
-        const r = keepInMine(state.selected, g);
-        renderSelected();
-        mineInfo(
-          `${r.added} nieuw bewaard` +
-            (r.updated ? `, ${r.updated} bijgewerkt` : '') +
-            (g ? ` in ${g}` : '') +
-            (r.full ? `. ${r.full} niet bewaard: maximaal ${MAX_MINE} schaatsers.` : '.'),
-        );
-      });
       /* Groep aanmaken of hernoemen: één invoerregel onder de knoppen */
       let mineFormMode = null; // 'new' of 'rename'
       function openMineForm(mode) {
@@ -3185,7 +3128,7 @@
           if (m.groups.length >= MAX_GROUPS) return mineInfo(`Maximaal ${MAX_GROUPS} groepen.`);
           m.groups.push(name);
           mineInfo(
-            `Groep ${name} aangemaakt. Bewaar je selectie erin of zet de groep aan bij een schaatser.`,
+            `Groep ${name} aangemaakt. Voeg schaatsers toe met "+ Mijn schaatsers" op een kaartje, of zet de groep aan bij een schaatser.`,
           );
         }
         state.mineView = 'g:' + name;
@@ -3220,7 +3163,7 @@
         });
       });
       /* Exporteren: alles of alleen de gekozen groep als JSON-bestand. Het bestand kan ook in het tabje
-         Bestand worden geopend (lijst skaters, zelfde velden als "Opslaan als JSON"). */
+         Bestand worden geopend (lijst skaters, zelfde velden als "Opslaan als JSON"; groepen tellen daar niet). */
       $('mineExp').addEventListener('click', () => {
         const list = mineChosen(),
           g = mineGroup();
@@ -3246,7 +3189,7 @@
             groups: g ? [g] : s.groups,
           })),
         };
-        // bestandsnaam: de groepsnaam (zo heet de groep ook als je hem in het tabje Bestand opent)
+        // bestandsnaam: de groepsnaam
         const fileName = g ? g.replace(/[\\/:*?"<>|]/g, '-') : `mijn-schaatsers-${created}`;
         downloadJson(doc, fileName + '.json');
         mineInfo(`${list.length} schaatsers geëxporteerd naar ${fileName}.json.`);
@@ -3504,7 +3447,7 @@
 
       $('saveSel').addEventListener('click', () => {
         if (!state.selected.length) {
-          $('groupInfo').textContent = 'Er is niets geselecteerd om op te slaan.';
+          showToast('Er is niets geselecteerd om op te slaan.');
           return;
         }
         const doc = {

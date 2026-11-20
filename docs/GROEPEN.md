@@ -18,11 +18,11 @@ Kies een groep, "Alle topschaatsers" of één naam (vrouwen en mannen apart) en 
 
 ## In de pagina (eigen bestanden)
 
-- **Bestand openen…**, of sleep een `.json` op het blok "Schaatsersbestand". De inhoud blijft alleen in het geheugen van het tabblad.
-- **De bestandsnaam is de groep** (vanaf v47): `C-selectie.json` heet in de app "C-selectie". Je kunt meerdere bestanden openen; de keuzelijst toont elk bestand met het aantal schaatsers, en bij meer dan één bestand ook "Alle geladen schaatsers". Een bestand met dezelfde naam opnieuw openen vervangt het vorige.
-- **Toevoegen:** voegt de schaatsers uit de gekozen groep toe. Staat een schaatser er al in, dan worden de geboortedatum en groep uit het bestand overgenomen.
-- Bij elke geselecteerde schaatser staat de groep als tekst. Bewerken kan niet meer; pas daarvoor het bestand of de bestandsnaam aan.
-- **Opslaan als JSON** (bij "Geselecteerd"): downloadt de huidige selectie, inclusief de handmatig ingevulde geboortemaanden. Er gaat geen groep mee; de naam die je het bestand geeft, wordt de groep als je het later opent.
+- **Bestand openen…**, of sleep een `.json` op het tabje Bestand. De inhoud blijft alleen in het geheugen van het tabblad.
+- **Geen groepen** (vanaf v70): de bestandsnaam en eventuele groepsvelden in het bestand worden genegeerd. Er is één bestand tegelijk geladen; een nieuw bestand vervangt het vorige.
+- **Toevoegen:** voegt alle schaatsers uit het bestand toe. Staat een schaatser er al in, dan wordt de geboortedatum uit het bestand overgenomen.
+- Groepen bestaan alleen bij **Mijn schaatsers** (zie hieronder).
+- **Opslaan als JSON** (bij "Geselecteerd"): downloadt de huidige selectie, inclusief de handmatig ingevulde geboortemaanden. Er gaat geen groep mee.
 - **Alles wissen:** maakt de selectie leeg.
 
 Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `localStorage` van **jouw** browser bewaard, zodat hij er na herladen nog is. Met "Alles wissen" verdwijnt die.
@@ -32,9 +32,9 @@ Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `loc
 **Mijn schaatsers** is bedoeld voor een coach die steeds dezelfde schaatsers vergelijkt. Vanaf v68 staat het beheer apart: op de telefoon met de knop **Mijn schaatsers** in de balk onderin, op de pc als venster via de knop in de kopbalk (of via "Mijn schaatsers beheren…" onder Uit lijst). Toevoegen aan de selectie gaat via het tabje **Uit lijst** in Toevoegen: daar staan je eigen schaatsers bovenaan en de topschaatsers eronder. De schaatsers staan in de `localStorage` van **die** browser (sleutel `ssr.mine.v1`), niet in de pagina en niet op een server. Op een andere computer of browser zijn ze er dus niet; daarvoor dient Exporteren/Importeren.
 
 - **Groepen:** "+ Nieuwe groep", "Hernoemen" en "Verwijderen" (de laatste twee voor de gekozen groep). Een schaatser kan in meer groepen staan, of in geen enkele ("Zonder groep"). Verwijderen van een groep laat de schaatsers staan. Maximaal 30 groepen en 500 schaatsers.
-- **Bewaren:** "+ Mijn schaatsers" op een kaartje bij Geselecteerd bewaart die schaatser (in de gekozen groep). "Selectie bewaren" bewaart alle geselecteerde schaatsers. Een geboortemaand die later bij Geselecteerd wordt ingevuld, gaat mee naar Mijn schaatsers.
+- **Bewaren:** "+ Mijn schaatsers" op een kaartje bij Geselecteerd bewaart die schaatser (in de gekozen groep). Een geboortemaand die later bij Geselecteerd wordt ingevuld, gaat mee naar Mijn schaatsers.
 - **Toevoegen** (tabje Uit lijst): kies "Alle mijn schaatsers", een groep (de groepsnaam komt als label op het kaartje) of één naam en klik op Toevoegen.
-- **Exporteren:** downloadt alles (`mijn-schaatsers-JJJJ-MM-DD.json`) of alleen de gekozen groep (`<groepsnaam>.json`). Zo'n bestand kan ook in het tabje Bestand worden geopend.
+- **Exporteren:** downloadt alles (`mijn-schaatsers-JJJJ-MM-DD.json`) of alleen de gekozen groep (`<groepsnaam>.json`). Zo'n bestand kan ook in het tabje Bestand worden geopend (de groepen tellen daar niet).
 - **Importeren:** een eigen export neemt de groepen over; een gewoon schaatsersbestand wordt één groep met de naam van het bestand. Alles wordt samengevoegd met wat er al staat (geboortedatum uit het bestand gaat voor). Via "Ongedaan maken" in de melding gaat het terug.
 
 Formaat van een export: hetzelfde als hieronder, met `"format": "schaatsvergelijker-mijn/1"`, een lijst `groups` (namen) en per schaatser een lijst `groups`. Bij het importeren wordt ook een tekstveld `group` (groepen gescheiden door komma's) gelezen.
@@ -67,7 +67,7 @@ Formaat van een export: hetzelfde als hieronder, met `"format": "schaatsvergelij
 | `id` | ja | Rijder-ID van SpeedskatingResults (`s=` in de profiel-URL) |
 | `name` of `givenname` + `familyname` | aanbevolen | Weergavenaam |
 | `birth` | nee | `JJJJ-MM` (of `JJJJ-MM-DD`). De app rekent met de 15e van de maand als er geen dag is. Zonder `birth` schat de app uit `category`. |
-| `group` | nee | Wordt vanaf v47 genegeerd: de bestandsnaam is de groep. |
+| `group` / `groups` | nee | Alleen gebruikt bij Importeren in Mijn schaatsers; in het tabje Bestand genegeerd (vanaf v70). |
 | `category`, `catSeason` | nee | Categoriecode volgens SpeedskatingResults en het seizoen (beginjaar) waarin die gold. Alleen nodig voor de schatting als `birth` ontbreekt. |
 | `gender`, `country` | nee | Alleen voor de weergave |
 

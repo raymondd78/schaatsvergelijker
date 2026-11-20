@@ -2,9 +2,15 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v69** (20 november 2026)
+**Huidige versie: v70** (20 november 2026)
 
 ---
+
+## v70 – Groepen alleen bij Mijn schaatsers (20-11-2026)
+- **Toevoegen → Bestand** doet niets meer met groepen: open (of sleep) een JSON-bestand en klik **Toevoegen** om alle schaatsers eruit aan de selectie toe te voegen. De bestandsnaam wordt geen groep meer en de keuzelijst per bestand is weg. Er is steeds één bestand tegelijk geladen.
+- Groepen bestaan alleen nog bij **Mijn schaatsers**.
+- In Mijn schaatsers is de knop **Selectie bewaren** weg. Schaatsers bewaar je per stuk met **+ Mijn schaatsers** op het kaartje bij Geselecteerd.
+- Cache van de service worker verhoogd naar v70.
 
 ## v69 – Installeren achter Cloudflare Access (20-11-2026)
 - De app staat achter **Cloudflare Access** (alleen toegang voor vooraf bekende e-mailadressen). Daardoor verdween de installeerknop ⤓: de browser haalde het manifest op zonder inlogcookie en kreeg het inlogscherm terug.
