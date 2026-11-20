@@ -2,9 +2,13 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v80** (20 november 2026)
+**Huidige versie: v81** (20 november 2026)
 
 ---
+
+## v81 – Kortere uitleg (20-11-2026)
+- **Over deze tool** is korter: de voorbeeldzin is weg en de punten Mijn schaatsers, Verfijn, Als app installeren en de uitleg over de geboortemaand zijn ingekort. Het venster past nu op mobiel (getest op 360, 375 en 412 px breed) zonder scrollen.
+- Cache van de service worker verhoogd naar v81.
 
 ## v80 – Eén groep Topschaatsers (20-11-2026)
 - De topschaatsers staan in één groep **Topschaatsers** in plaats van de groepen OS-medaille, WK-, EK- en wereldbekerpodium en internationale wereldkampioenen.
