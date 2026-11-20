@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v64** (20 november 2026)
+**Huidige versie: v65** (20 november 2026)
 
 ---
+
+## v65 – Lege afstanden meteen grijs (20-11-2026)
+- Afstanden waarop geen van de gekozen schaatsers een tijd heeft, zijn nu meteen grijs. Eerst moest je er een keer op tikken.
+- De app haalt daarvoor per schaatser één keer de PR's op alle afstanden op (6 uur bewaard), na de tijden van de afstand die openstaat.
+- 100, 300 en 700 m worden alleen grijs als de API voor die schaatser ook PR's op die korte afstanden meegeeft; anders weten we het pas na een tik. Filters (ANS, max. tijd, leeftijd) tellen pas mee als de tijden van die afstand zijn opgehaald.
 
 ## v64 – Rustiger grafiekkop op mobiel (20-11-2026)
 - **Afstanden op één regel:** alle negen afstanden staan in één doorlopende balk, zonder scrollen en met gelijke breedte. De lange afstanden heten kort **3k**, **5k** en **10k**. Op de pc blijven de tabbladen zoals ze waren.

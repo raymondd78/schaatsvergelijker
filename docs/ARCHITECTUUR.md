@@ -78,6 +78,7 @@ Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor
 | `ssr.manual.v1` | Zelf ingevoerde tijden (vanaf v51): `[{mid, id, dist, time, date, loc}]`; `loc` = NL-baan of leeg (buitenland/anders). Niet in de JSON-export |
 | `ssr.intro.v1` | `1` zodra het venster "Over deze tool" een keer is gesloten (vanaf v59); daarna gaat het niet meer vanzelf open |
 | `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
+| `ssr.cache.v1.pr_<id>` | `{t: timestamp, d: [afstanden met een PR]}` uit `personal_records`; 6 uur geldig (vanaf v65) |
 
 Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 
@@ -115,7 +116,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - `#introModal`: venster met de uitleg; `openIntro()`; sluit met ×, Esc of klik naast het venster.
 - Linkerkolom: blok **Toevoegen** met tabjes `#addTabs` (`showAddTab()`, `ui.addTab`) en panelen `.pane` (zoeken, `#topCard`, `#fileCard`); daaronder **Geselecteerd**.
 - `showToast(tekst, knoptekst, actie)` / `hideToast()`: melding onderin (8 s). "Alles wissen" toont "Ongedaan maken" (`setSelection()`).
-- `markEmptyDistances()` (in `render()`): afstandstabblad krijgt klasse `nodata` als voor alle zichtbare schaatsers al bekend is dat er geen tijden zijn.
+- `markEmptyDistances()` (in `render()`): afstandstabblad krijgt klasse `nodata` als voor alle zichtbare schaatsers al bekend is dat er geen tijden zijn. Vanaf v65 ook voor nog niet opgehaalde afstanden: `loadPrDistances()` (aangeroepen in `refresh()`, na de tijden van de open afstand) haalt per schaatser `personal_records` op (alle afstanden, één verzoek; cache `ssr.cache.v1.pr_<id>`, 6 uur) in `prDist`. `prNone(id, afstand)` is waar als die lijst de afstand niet bevat; voor 100/300/700 m (niet gedocumenteerd bij dit endpoint) alleen als de lijst minstens één van die drie bevat. Opgehaalde tijden (`rowsFor()`, dus met ANS en max. tijd) en zelf ingevoerde tijden gaan voor.
 - `#chartLoad`: draaiend icoon met "Tijden ophalen…" boven de grafiek zolang er nog tijden worden opgehaald.
 
 ## Thema: licht en donker (vanaf v47)
