@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v78** (20 november 2026)
+**Huidige versie: v79** (20 november 2026)
 
 ---
+
+## v79 – Kortere voettekst (20-11-2026)
+- De zin over geschatte leeftijden is uit de voettekst gehaald; die nam op mobiel veel ruimte in. De uitleg staat nog in "Over deze tool" en bij Geselecteerd.
 
 ## v78 – Minder verzoeken naar SpeedskatingResults (20-11-2026)
 - Andere afstanden worden pas opgehaald als je op het tabblad klikt. De app vraagt niet meer vooraf per schaatser de PR-lijst op.
