@@ -26,7 +26,8 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 | Onderdeel | Inhoud |
 |---|---|
 | Over deze tool | Venster via de knop ⓘ in de kopbalk (hoe werkt het, waarom de geboortemaand belangrijk is); gaat bij het eerste bezoek vanzelf open. Het thema (◐ auto, ☀ licht, ☾ donker) wissel je met de knop ernaast |
-| Toevoegen | Eén blok met tabjes **Zoeken**, **Mijn schaatsers** (eigen schaatsers in groepen, met JSON-import/-export; vanaf v67), **Topschaatsers** en **Bestand**; het gekozen tabje wordt onthouden |
+| Toevoegen | Eén blok met tabjes **Zoeken**, **Uit lijst** (eigen schaatsers bovenaan, topschaatsers eronder; vanaf v68) en **Bestand**; het gekozen tabje wordt onthouden |
+| Mijn schaatsers | Beheer van eigen schaatsers in groepen, met JSON-import/-export (vanaf v67). Telefoon: knop in de balk onderin; pc: venster via de kopbalk (vanaf v68) |
 | Zoeken | Op (begin van) achter- en/of voornaam, alle landen; max. 20 resultaten (XML-variant van de lookup-API) |
 | Geselecteerd | Kleur per schaatser, ster om te highlighten, categorie, profiellink, bewerkbare groep, geboortedatum (maand + jaar) |
 | Zelf ingevoerde tijd | Knop **+ tijd** op het kaartje: een zojuist gereden tijd (afstand, tijd, datum, baan) die nog niet op SpeedskatingResults staat. Op het kaartje onder **Toegevoegd** (baan als KNSB-afkorting, bijv. HVN), open stip in de grafiek, ✎ in de tabellen; verdwijnt vanzelf zodra de tijd officieel binnen is. Alleen in de browser bewaard |

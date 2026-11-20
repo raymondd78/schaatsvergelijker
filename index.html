@@ -239,7 +239,6 @@
       /* ===== Blok "Mijn schaatsers" (vanaf v67) ===== */
       #mineList {
         margin-top: 8px;
-        max-height: 320px;
         overflow: auto;
       }
       .mine .chip {
@@ -289,6 +288,12 @@
         flex-wrap: wrap;
         gap: 6px;
         margin-top: 8px;
+      }
+      #mineList {
+        max-height: 50vh;
+      }
+      #mineSel {
+        margin-bottom: 2px;
       }
       .mineact button {
         text-transform: none;
@@ -939,10 +944,10 @@
         .mobile-only {
           display: block;
         }
-        /* tabbalk onderin: Schaatsers / Grafiek / Tabellen */
+        /* tabbalk onderin: Schaatsers / Grafiek / Tabellen / Mijn schaatsers (vanaf v68) */
         .mtabs {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(4, minmax(0, 1fr));
           position: fixed;
           left: 0;
           right: 0;
@@ -968,6 +973,33 @@
         .mtabs button.on {
           color: var(--accent);
           font-weight: 700;
+        }
+        /* knoppen die alleen op de pc nodig zijn (op mobiel staan ze in de tabbalk) */
+        .desk-only {
+          display: none !important;
+        }
+        /* tabblad Mijn schaatsers (vanaf v68): het beheer staat dan gewoon op de pagina, niet als venster */
+        body[data-mtab='mine'] main {
+          display: none;
+        }
+        #mineWrap {
+          position: static;
+          background: none;
+          padding: 10px;
+          display: block;
+        }
+        #mineWrap[hidden] {
+          display: none;
+        }
+        #mineWrap .modalbox {
+          max-width: none;
+          max-height: none;
+        }
+        #mineWrap .modalx {
+          display: none;
+        }
+        #mineList {
+          max-height: none;
         }
         /* welk tabblad is zichtbaar (body data-mtab) */
         body[data-mtab='chart'] aside,
@@ -1398,7 +1430,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v67 van 20-11-2026">v67</span>
+      <span class="ver" title="Versie v68 van 20-11-2026">v68</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1406,8 +1438,8 @@
           >SpeedskatingResults.com</a
         ></span
       >
-      <!-- Knoppen rechts: installeren als app (alleen als de browser dat aanbiedt, vanaf v63), uitleg (ⓘ)
-           en thema (vanaf v59 als icoon) -->
+      <!-- Knoppen rechts: installeren als app (alleen als de browser dat aanbiedt, vanaf v63), Mijn schaatsers
+           (alleen pc, vanaf v68), uitleg (ⓘ) en thema (vanaf v59 als icoon) -->
       <div class="hbtns">
         <button
           type="button"
@@ -1418,6 +1450,27 @@
           aria-label="Installeren als app"
         >
           ⤓
+        </button>
+        <button
+          type="button"
+          class="theme desk-only"
+          id="mineBtn"
+          title="Mijn schaatsers beheren"
+          aria-label="Mijn schaatsers beheren"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 3h12v18l-6-4-6 4z" />
+          </svg>
         </button>
         <button type="button" class="theme" id="infoBtn" title="Over deze tool" aria-label="Over deze tool">
           ⓘ
@@ -1443,12 +1496,13 @@
         <p>Zo zie je bijvoorbeeld hoe snel een topschaatser was toen hij of zij even oud was als jij nu.</p>
         <ul>
           <li>
-            <b>Kies schaatsers:</b> zoek op naam, kies een topschaatser uit de lijst of open een eigen
-            schaatsersbestand (JSON).
+            <b>Kies schaatsers:</b> zoek op naam, kies uit de lijst (je eigen schaatsers en topschaatsers) of
+            open een eigen schaatsersbestand (JSON).
           </li>
           <li>
-            <b>Mijn schaatsers:</b> bewaar je eigen schaatsers in groepen, zodat je ze later met één klik weer
-            toevoegt. Ze blijven in deze browser; met Exporteren/Importeren neem je ze mee.
+            <b>Mijn schaatsers:</b> bewaar je eigen schaatsers in groepen, zodat je ze later via "Uit lijst"
+            met één klik weer toevoegt. Beheren doe je via Mijn schaatsers (op de telefoon in de balk
+            onderin). Ze blijven in deze browser; met Exporteren/Importeren neem je ze mee.
           </li>
           <li>
             <b>Kies een afstand</b> boven de grafiek. De trap-lijn is het PR-verloop; elke stap is een nieuw
@@ -1479,13 +1533,13 @@
     <!-- ===== Hoofdgedeelte: linkerkolom (aside) en rechterkolom (section) ===== -->
     <main>
       <aside>
-        <!-- Schaatsers toevoegen (vanaf v59 één blok met tabjes): zoeken, topschaatsers of een eigen bestand -->
+        <!-- Schaatsers toevoegen (vanaf v59 één blok met tabjes): zoeken, uit de lijst (Mijn schaatsers en
+             topschaatsers, vanaf v68) of een eigen bestand -->
         <div class="card section">
           <h2>Toevoegen</h2>
           <div class="gseg addtabs" id="addTabs" role="tablist" aria-label="Manier van toevoegen">
             <button type="button" role="tab" data-pane="search">Zoeken</button
-            ><button type="button" role="tab" data-pane="mine">Mijn schaatsers</button
-            ><button type="button" role="tab" data-pane="top">Topschaatsers</button
+            ><button type="button" role="tab" data-pane="list">Uit lijst</button
             ><button type="button" role="tab" data-pane="file">Bestand</button>
           </div>
           <!-- Zoeken op (begin van) achter- en/of voornaam via de API -->
@@ -1504,62 +1558,22 @@
             <div class="status" id="searchStatus"></div>
             <div id="results"></div>
           </div>
-          <!-- Eigen schaatsers van de coach, in groepen (vanaf v67). Staan alleen in de localStorage van
-               deze browser; met Exporteren/Importeren gaan ze als JSON-bestand mee naar een andere browser. -->
-          <div class="pane" id="mineCard" data-pane="mine" hidden>
+          <!-- Uit lijst (vanaf v68): bovenaan Mijn schaatsers (groepen en namen), daaronder de ingebouwde
+               lijst publiek bekende topschaatsers (zie TOP_SKATERS in het script) -->
+          <div class="pane" id="listCard" data-pane="list" hidden>
             <div class="row" style="align-items: center">
-              <select id="mineSel" aria-label="Groep"></select>
-              <button type="button" id="mineAdd" style="flex: 0 0 auto">Toevoegen</button>
+              <select id="listSel" aria-label="Kies uit de lijst"></select>
+              <button type="button" id="listAdd" style="flex: 0 0 auto">Toevoegen</button>
             </div>
-            <div class="mineact">
-              <button type="button" class="small ghost" id="mineNew">+ Nieuwe groep</button>
-              <button type="button" class="small ghost" id="mineRen">Hernoemen</button>
-              <button
-                type="button"
-                class="small ghost"
-                id="mineDel"
-                title="Gekozen groep verwijderen (de schaatsers blijven bewaard)"
-              >
-                Verwijderen
-              </button>
-            </div>
-            <div class="row" id="mineForm" style="align-items: center; margin-top: 8px" hidden>
-              <input
-                id="mineName"
-                type="text"
-                maxlength="60"
-                autocomplete="off"
-                placeholder="Naam van de groep"
-              />
-              <button type="button" class="small" id="mineOk" style="flex: 0 0 auto">OK</button>
-              <button type="button" class="small ghost" id="mineCancel" style="flex: 0 0 auto">
-                Annuleren
-              </button>
-            </div>
-            <div id="mineList"></div>
-            <div class="mineact">
-              <button type="button" class="small" id="mineKeep">Selectie bewaren</button>
-              <button type="button" class="small ghost" id="mineImp">Importeren…</button>
-              <button type="button" class="small ghost" id="mineExp">Exporteren</button>
-              <input type="file" id="mineFile" accept=".json,application/json" hidden />
-            </div>
-            <div class="hint" id="mineInfo">
-              Je eigen schaatsers blijven alleen in deze browser bewaard. Met Exporteren maak je een
-              JSON-bestand (van alles of van de gekozen groep) als reservekopie of voor een andere computer.
-            </div>
-          </div>
-          <!-- Ingebouwde lijst met publiek bekende topschaatsers (zie TOP_SKATERS in het script) -->
-          <div class="pane" id="topCard" data-pane="top" hidden>
-            <div class="row" style="align-items: center">
-              <select id="topSel"></select>
-              <button type="button" id="topAdd" style="flex: 0 0 auto">Toevoegen</button>
-            </div>
-            <div class="hint" id="topInfo">
-              Nederlandse langebaanschaatsers met een olympische medaille (2022/2026) of een podiumplaats op
-              WK, EK of wereldbeker (2021–2026), plus internationale wereldkampioenen. Alleen schaatsers van
-              wie ook de jeugdtijden (500 m, 11–18 jaar) in de bron staan. Kies één schaatser of een hele
+            <div class="hint" id="listInfo">
+              Bovenaan je eigen schaatsers (Mijn schaatsers), daaronder topschaatsers: Nederlandse
+              langebaanschaatsers met een olympische medaille (2022/2026) of een podiumplaats op WK, EK of
+              wereldbeker (2021–2026), plus internationale wereldkampioenen. Kies één schaatser of een hele
               groep.
             </div>
+            <button type="button" class="freset" id="listManage" style="margin-top: 4px; padding-left: 0">
+              Mijn schaatsers beheren…
+            </button>
           </div>
           <!-- Eigen schaatsersbestand (JSON) openen of hierheen slepen; wordt alleen in het geheugen gelezen -->
           <div class="pane" id="fileCard" data-pane="file" hidden>
@@ -1725,6 +1739,52 @@
       </section>
     </main>
 
+    <!-- ===== Beheer van Mijn schaatsers (vanaf v67; vanaf v68 apart van Toevoegen) =====
+         Eigen schaatsers van de coach, in groepen. Staan alleen in de localStorage van deze browser; met
+         Exporteren/Importeren gaan ze als JSON-bestand mee. Op de pc een venster (knop in de kopbalk of
+         "Mijn schaatsers beheren…"), op mobiel een eigen tabblad in de balk onderin. -->
+    <div class="modal" id="mineWrap" hidden>
+      <div class="modalbox card" id="mineCard" role="dialog" aria-labelledby="mineTitle">
+        <button type="button" class="x modalx" id="mineClose" aria-label="Sluiten">×</button>
+        <h2 id="mineTitle">Mijn schaatsers</h2>
+        <select id="mineSel" aria-label="Groep"></select>
+        <div class="mineact">
+          <button type="button" class="small ghost" id="mineNew">+ Nieuwe groep</button>
+          <button type="button" class="small ghost" id="mineRen">Hernoemen</button>
+          <button
+            type="button"
+            class="small ghost"
+            id="mineDel"
+            title="Gekozen groep verwijderen (de schaatsers blijven bewaard)"
+          >
+            Verwijderen
+          </button>
+        </div>
+        <div class="row" id="mineForm" style="align-items: center; margin-top: 8px" hidden>
+          <input
+            id="mineName"
+            type="text"
+            maxlength="60"
+            autocomplete="off"
+            placeholder="Naam van de groep"
+          />
+          <button type="button" class="small" id="mineOk" style="flex: 0 0 auto">OK</button>
+          <button type="button" class="small ghost" id="mineCancel" style="flex: 0 0 auto">Annuleren</button>
+        </div>
+        <div id="mineList"></div>
+        <div class="mineact">
+          <button type="button" class="small" id="mineKeep">Selectie bewaren</button>
+          <button type="button" class="small ghost" id="mineImp">Importeren…</button>
+          <button type="button" class="small ghost" id="mineExp">Exporteren</button>
+          <input type="file" id="mineFile" accept=".json,application/json" hidden />
+        </div>
+        <div class="hint" id="mineInfo">
+          Je eigen schaatsers blijven alleen in deze browser bewaard. Met Exporteren maak je een JSON-bestand
+          (van alles of van de gekozen groep) als reservekopie of voor een andere computer.
+        </div>
+      </div>
+    </div>
+
     <!-- Mobiel: achtergrond achter het filterpaneel en de tabbalk onderin (verborgen op desktop) -->
     <div id="mBackdrop"></div>
     <nav class="mtabs" aria-label="Hoofdmenu">
@@ -1780,6 +1840,22 @@
         </svg>
         Tabellen
       </button>
+      <button type="button" data-mtab="mine">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 3h12v18l-6-4-6 4z" />
+        </svg>
+        Mijn schaatsers
+      </button>
     </nav>
 
     <!-- ===== Voettekst met bronvermelding (licentievoorwaarde van SpeedskatingResults) ===== -->
@@ -1787,7 +1863,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v67 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v68 (20-11-2026)
     </footer>
 
     <script>
@@ -2111,7 +2187,12 @@
           maxT,
           theme: ['auto', 'light', 'dark'].includes(o.theme) ? o.theme : 'auto',
           rink: NL_RINKS.includes(o.rink) || o.rink === '-' ? o.rink : '', // laatst gekozen baan bij + tijd
-          addTab: ['search', 'mine', 'top', 'file'].includes(o.addTab) ? o.addTab : 'search', // tabje in "Toevoegen"
+          // tabje in "Toevoegen"; vanaf v68 zijn Mijn schaatsers en Topschaatsers samen "Uit lijst"
+          addTab: ['mine', 'top'].includes(o.addTab)
+            ? 'list'
+            : ['search', 'list', 'file'].includes(o.addTab)
+              ? o.addTab
+              : 'search',
           ageSort: cleanInt(o.ageSort, 5, 80), // tabel per leeftijd: gesorteerd op deze leeftijd (null = niet)
         };
       }
@@ -2953,6 +3034,7 @@
       }
       /* Keuzelijst met groepen en de lijst met schaatsers opnieuw opbouwen */
       function renderMine() {
+        fillListSel(); // keuzelijst "Uit lijst" toont Mijn schaatsers bovenaan
         const m = state.mine,
           sel = $('mineSel');
         const count = (g) => m.skaters.filter((s) => s.groups.includes(g)).length;
@@ -2971,7 +3053,6 @@
         const g = mineGroup(),
           list = mineChosen();
         $('mineRen').disabled = $('mineDel').disabled = !g;
-        $('mineAdd').disabled = !list.length;
         $('mineExp').disabled = !list.length;
         $('mineKeep').textContent = g ? `Selectie bewaren in "${g}"` : 'Selectie bewaren';
         $('mineKeep').title = g
@@ -2987,10 +3068,8 @@
             `<div class="empty" style="padding:10px">Nog niemand in deze groep. Kies de groep en klik op "Selectie bewaren in …", of zet bij een schaatser onder "groepen" deze groep aan.</div>`;
           return;
         }
-        const inSel = new Set(state.selected.map((s) => s.id));
         $('mineList').innerHTML = list
           .map((s) => {
-            const on = inSel.has(s.id);
             const born = s.birth
               ? `geb. ${MONTHS[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}`
               : 'geboortedatum onbekend';
@@ -3001,7 +3080,6 @@
       <div><div>${esc(s.givenname)} ${esc(s.familyname)} <a class="prof" href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener" title="Profiel op SpeedskatingResults" aria-label="Profiel op SpeedskatingResults">↗</a></div>
       <div class="meta">${esc([catLabel(s), born].filter(Boolean).join(' · '))}${chips}</div></div>
       <span class="mbtns">
-        <button class="small ${on ? 'ghost' : ''}" data-act="madd" ${on ? 'disabled title="Staat al in de selectie"' : 'title="Toevoegen aan de selectie"'}>${on ? '✓' : '+'}</button>
         ${m.groups.length ? `<button class="small ghost" data-act="mgrp" aria-expanded="${edit}" title="Groepen van deze schaatser kiezen">groepen</button>` : ''}
         <button class="x" data-act="mrm" title="${g ? `Uit de groep ${esc(g)} halen` : 'Verwijderen uit Mijn schaatsers'}">×</button>
       </span>
@@ -3020,14 +3098,6 @@
         mineEdit.clear();
         renderSelected(); // ook de knop "+ Mijn schaatsers" noemt de gekozen groep
       });
-      // hele groep (of alles) aan de selectie toevoegen
-      $('mineAdd').addEventListener('click', () => {
-        const g = mineGroup();
-        addSkaterList(
-          mineChosen().map((s) => ({ ...s, groups: g ? [g] : s.groups })),
-          $('mineInfo'),
-        );
-      });
       $('mineList').addEventListener('click', (e) => {
         const b = e.target.closest('button[data-act]');
         if (!b) return;
@@ -3035,9 +3105,7 @@
         if (!s) return;
         const act = b.dataset.act,
           g = mineGroup();
-        if (act === 'madd') {
-          addSkaterList([{ ...s, groups: g ? [g] : s.groups }], $('mineInfo'));
-        } else if (act === 'mgrp') {
+        if (act === 'mgrp') {
           if (mineEdit.has(s.id)) mineEdit.delete(s.id);
           else mineEdit.add(s.id);
           renderMine();
@@ -3327,63 +3395,110 @@
         birth: normBirth(b),
         groups: TOP_GROUPS.filter((_, i) => mask & (1 << i)),
       }));
-      (function fillTopSel() {
+      /* Keuzelijst "Uit lijst" (vanaf v68): bovenaan Mijn schaatsers (groepen en namen), daaronder de
+         topschaatsers. Wordt opnieuw gevuld als Mijn schaatsers verandert (via renderMine()); de keuze blijft
+         staan zolang die nog bestaat. Waarden: m* / mg:groep / ms:id (eigen) en * / g:groep / s:id (top). */
+      function fillListSel() {
+        const sel = $('listSel'),
+          prev = sel.value,
+          m = state.mine;
         const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
         const inG = (s, i) => s.groups.includes(TOP_GROUPS[i]);
-        const names = (list) =>
+        const names = (list, pre) =>
           list
             .map((s) =>
               opt(
-                's:' + s.id,
-                `${s.givenname} ${s.familyname}${s.country !== 'NED' ? ' (' + s.country + ')' : ''}`,
+                pre + s.id,
+                `${s.givenname} ${s.familyname}${s.country && s.country !== 'NED' ? ' (' + s.country + ')' : ''}`,
               ),
             )
             .join('');
         const cur = topList.filter((s) => !inG(s, 5));
-        $('topSel').innerHTML =
-          '<option value="">Kies een topschaatser of groep…</option>' +
-          '<optgroup label="Groepen">' +
+        const mineOpts = m.skaters.length
+          ? '<optgroup label="Mijn schaatsers – groepen">' +
+            opt('m*', `Alle mijn schaatsers (${m.skaters.length})`) +
+            m.groups
+              .map((g) => [g, m.skaters.filter((s) => s.groups.includes(g)).length])
+              .filter(([, n]) => n)
+              .map(([g, n]) => opt('mg:' + g, `${g} (${n})`))
+              .join('') +
+            '</optgroup>' +
+            '<optgroup label="Mijn schaatsers">' +
+            names([...m.skaters].sort(byName), 'ms:') +
+            '</optgroup>'
+          : '<optgroup label="Mijn schaatsers"><option value="" disabled>Nog leeg – bewaar schaatsers via “+ Mijn schaatsers”</option></optgroup>';
+        sel.innerHTML =
+          '<option value="">Kies een schaatser of groep…</option>' +
+          mineOpts +
+          '<optgroup label="Topschaatsers – groepen">' +
           TOP_GROUPS.map((g) =>
             opt('g:' + g, `${g} (${topList.filter((s) => s.groups.includes(g)).length})`),
           ).join('') +
           opt('*', `Alle topschaatsers (${topList.length})`) +
           '</optgroup>' +
-          '<optgroup label="Vrouwen (NL, 2021–2026)">' +
-          names(cur.filter((s) => s.gender === 'f')) +
+          '<optgroup label="Topschaatsers – vrouwen (NL, 2021–2026)">' +
+          names(
+            cur.filter((s) => s.gender === 'f'),
+            's:',
+          ) +
           '</optgroup>' +
-          '<optgroup label="Mannen (NL, 2021–2026)">' +
-          names(cur.filter((s) => s.gender === 'm')) +
+          '<optgroup label="Topschaatsers – mannen (NL, 2021–2026)">' +
+          names(
+            cur.filter((s) => s.gender === 'm'),
+            's:',
+          ) +
           '</optgroup>' +
           '<optgroup label="Internationale wereldkampioenen">' +
-          names(topList.filter((s) => inG(s, 5))) +
+          names(
+            topList.filter((s) => inG(s, 5)),
+            's:',
+          ) +
           '</optgroup>';
-      })();
-      /* De schaatser(s) die bij de huidige keuze in de topschaatsers-lijst horen */
-      function chosenTopSkaters() {
-        const v = $('topSel').value;
+        sel.value = prev;
+        if (sel.value !== prev) sel.value = '';
+      }
+      fillListSel();
+      /* De schaatser(s) die bij de keuze in "Uit lijst" horen, in het formaat van addSkaterList().
+         Bij een eigen groep krijgen ze alleen die groep als label, anders al hun eigen groepen. */
+      function chosenListSkaters() {
+        const v = $('listSel').value,
+          mine = state.mine.skaters;
+        if (v === 'm*') return [...mine].sort(byName);
+        if (v.startsWith('mg:'))
+          return mine
+            .filter((s) => s.groups.includes(v.slice(3)))
+            .sort(byName)
+            .map((s) => ({ ...s, groups: [v.slice(3)] }));
+        if (v.startsWith('ms:')) return mine.filter((s) => s.id === +v.slice(3));
         if (v === '*') return topList;
         if (v.startsWith('g:')) return topList.filter((s) => s.groups.includes(v.slice(2)));
         if (v.startsWith('s:')) return topList.filter((s) => s.id === +v.slice(2));
         return [];
       }
-      $('topSel').addEventListener('change', () => {
-        const v = $('topSel').value,
-          list = chosenTopSkaters();
-        if (v.startsWith('s:') && list[0])
-          $('topInfo').textContent =
-            `${list[0].givenname} ${list[0].familyname}, geboren ${list[0].birth.slice(0, 7)}. ${list[0].groups.join(', ')}.`;
+      $('listSel').addEventListener('change', () => {
+        const v = $('listSel').value,
+          list = chosenListSkaters();
+        const one = list[0];
+        if ((v.startsWith('s:') || v.startsWith('ms:')) && one)
+          $('listInfo').textContent =
+            `${one.givenname} ${one.familyname}, ` +
+            (one.birth
+              ? `geboren ${MONTHS_FULL[+one.birth.slice(5, 7) - 1]} ${one.birth.slice(0, 4)}`
+              : 'geboortedatum onbekend') +
+            (one.groups.length ? `. ${one.groups.join(', ')}.` : '.');
         else if (list.length)
-          $('topInfo').textContent = list.map((s) => `${s.givenname} ${s.familyname}`).join(', ') + '.';
+          $('listInfo').textContent = list.map((s) => `${s.givenname} ${s.familyname}`).join(', ') + '.';
       });
-      $('topAdd').addEventListener('click', () => {
-        const list = chosenTopSkaters();
+      $('listAdd').addEventListener('click', () => {
+        const list = chosenListSkaters();
         if (!list.length) {
-          $('topInfo').textContent = 'Kies eerst een schaatser of groep.';
+          $('listInfo').textContent = 'Kies eerst een schaatser of groep.';
           return;
         }
-        addSkaterList(list, $('topInfo'));
+        addSkaterList(list, $('listInfo'));
       });
-      $('topSel').addEventListener('dblclick', () => $('topAdd').click());
+      $('listSel').addEventListener('dblclick', () => $('listAdd').click());
+      $('listManage').addEventListener('click', () => openMine());
 
       $('saveSel').addEventListener('click', () => {
         if (!state.selected.length) {
@@ -3633,12 +3748,8 @@
         const mb = e.target.closest('[data-act=mine]');
         if (mb) {
           const s = state.selected.find((x) => x.id === +mb.closest('.sel').dataset.id);
-          if (mineById(s.id)) {
-            ui.addTab = 'mine';
-            save(LS_UI, ui);
-            showAddTab('mine');
-            $('mineCard').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-          } else {
+          if (mineById(s.id)) openMine();
+          else {
             const g = mineGroup();
             keepInMine([s], g);
             renderSelected();
@@ -4617,8 +4728,8 @@
       applyTheme();
 
       /* ---------- Mobiele weergave (vanaf v43) ----------
-         Op een smal scherm (< 800 px) toont de pagina één tabblad tegelijk: Schaatsers, Grafiek of
-         Tabellen (body data-mtab). De opmaak zit in de CSS; hier alleen de knoppen en de chips. */
+         Op een smal scherm (< 800 px) toont de pagina één tabblad tegelijk: Schaatsers, Grafiek,
+         Tabellen of (vanaf v68) Mijn schaatsers (body data-mtab). De opmaak zit in de CSS; hier alleen de knoppen en de chips. */
       const mq = (q) =>
         window.matchMedia ? window.matchMedia(q) : { matches: false, addEventListener() {} };
       const MQ_MOBILE = mq('(max-width: 799px)');
@@ -4630,6 +4741,7 @@
       }
       function setMobileTab(tab) {
         document.body.dataset.mtab = tab;
+        $('mineWrap').hidden = tab !== 'mine'; // beheer Mijn schaatsers als eigen tabblad (vanaf v68)
         document
           .querySelectorAll('.mtabs button')
           .forEach((b) => b.classList.toggle('on', b.dataset.mtab === tab));
@@ -4727,7 +4839,33 @@
       });
       if (!load(LS_INTRO, 0)) openIntro(true);
 
-      /* Tabjes in het blok "Toevoegen": Zoeken, Mijn schaatsers, Topschaatsers of Bestand (keuze wordt onthouden) */
+      /* ---------- Beheer van Mijn schaatsers openen en sluiten (vanaf v68) ----------
+         Op mobiel het tabblad "Mijn schaatsers" in de balk onderin; op de pc een venster. */
+      function openMine() {
+        if (MQ_MOBILE.matches) setMobileTab('mine');
+        else {
+          $('mineWrap').hidden = false;
+          $('mineClose').focus();
+        }
+      }
+      function closeMine() {
+        if (!MQ_MOBILE.matches) $('mineWrap').hidden = true;
+      }
+      $('mineBtn').addEventListener('click', openMine);
+      $('mineClose').addEventListener('click', closeMine);
+      $('mineWrap').addEventListener('click', (e) => {
+        if (e.target === $('mineWrap')) closeMine(); // klik naast het venster
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !$('mineWrap').hidden && e.target.id !== 'mineName') closeMine();
+      });
+      // wisselen tussen pc en mobiel: venster of tabblad op de juiste manier tonen
+      MQ_MOBILE.addEventListener('change', () => {
+        if (MQ_MOBILE.matches) $('mineWrap').hidden = document.body.dataset.mtab !== 'mine';
+        else if (document.body.dataset.mtab === 'mine') setMobileTab('skaters');
+      });
+
+      /* Tabjes in het blok "Toevoegen": Zoeken, Uit lijst of Bestand (keuze wordt onthouden) */
       function showAddTab(tab) {
         document.querySelectorAll('#addTabs button').forEach((b) => {
           const on = b.dataset.pane === tab;

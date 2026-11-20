@@ -2,9 +2,17 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v67** (20 november 2026)
+**Huidige versie: v68** (20 november 2026)
 
 ---
+
+## v68 – Uit lijst en apart beheer (20-11-2026)
+- **Toevoegen** heeft nu drie tabjes: **Zoeken**, **Uit lijst** en **Bestand**. Uit lijst is één keuzelijst met bovenaan je eigen schaatsers (alle, per groep en per naam) en daaronder de topschaatsers. De tabjes Mijn schaatsers en Topschaatsers zijn daarin opgegaan.
+- **Beheren** van Mijn schaatsers (groepen, schaatsers in groepen zetten, verwijderen, Selectie bewaren, Importeren/Exporteren) gebeurt apart:
+  - op de telefoon via de nieuwe knop **Mijn schaatsers** in de balk onderin, naast Tabellen;
+  - op de pc via de knop met het bladwijzer-icoon in de kopbalk; het beheer opent dan als venster.
+  - Ook via **Mijn schaatsers beheren…** onder Uit lijst, of door op het kaartje op **✓ Mijn schaatsers** te klikken.
+- In het beheer staan geen knoppen meer om toe te voegen aan de selectie; dat gaat alleen via Uit lijst.
 
 ## v67 – Mijn schaatsers (20-11-2026)
 - Nieuw tabje **Mijn schaatsers** in het blok Toevoegen, tussen Zoeken en Topschaatsers. Hiermee bewaart een coach zijn eigen schaatsers, zodat hij ze later met één klik weer toevoegt.

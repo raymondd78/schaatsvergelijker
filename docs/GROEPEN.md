@@ -4,7 +4,7 @@ De webpagina bevat **geen persoonsgegevens**, behalve de ingebouwde lijst publie
 
 ## Ingebouwde topschaatsers
 
-Het blok **Topschaatsers** (tussen "Schaatser zoeken" en "Schaatsersbestand") bevat 42 van de 52 schaatsers uit `data/nl-topschaatsers-2021-2026.json`, plus 2 internationale wereldkampioenen: Jordan Stolz (USA) en Miho Takagi (JPN). Ze zijn ingebouwd in de pagina. Dat mag omdat het publiek bekende sporters zijn en er alleen naam, geslacht, geboortemaand en groep in staat.
+De **topschaatsers** (onderaan in het tabje Uit lijst, vanaf v68) bevat 42 van de 52 schaatsers uit `data/nl-topschaatsers-2021-2026.json`, plus 2 internationale wereldkampioenen: Jordan Stolz (USA) en Miho Takagi (JPN). Ze zijn ingebouwd in de pagina. Dat mag omdat het publiek bekende sporters zijn en er alleen naam, geslacht, geboortemaand en groep in staat.
 
 **Selectie op jeugddata (vanaf v41, gecontroleerd 19-11-2026):** alleen schaatsers met 500m-tijden in hun jeugd blijven in de lijst. Ze moeten een tijd hebben op elke leeftijd van 12 t/m 18 jaar; hooguit één tussenjaar mag ontbreken, en 11 jaar mag ook ontbreken. Gecontroleerd met het console-script `check-topschaatsers-500m.js`. Vervallen (18):
 - NL: Reina Anema, Jorrit Bergsma, Bart Hoolwerf, Sven Kramer, Thomas Krol, Dai Dai N'tab, Kjeld Nuis, Hein Otterspeer, Irene Schouten, Ireen Wüst.
@@ -29,11 +29,11 @@ Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `loc
 
 ## Mijn schaatsers (vanaf v67)
 
-Het tabje **Mijn schaatsers** (tussen Zoeken en Topschaatsers) is bedoeld voor een coach die steeds dezelfde schaatsers vergelijkt. De schaatsers staan in de `localStorage` van **die** browser (sleutel `ssr.mine.v1`), niet in de pagina en niet op een server. Op een andere computer of browser zijn ze er dus niet; daarvoor dient Exporteren/Importeren.
+**Mijn schaatsers** is bedoeld voor een coach die steeds dezelfde schaatsers vergelijkt. Vanaf v68 staat het beheer apart: op de telefoon met de knop **Mijn schaatsers** in de balk onderin, op de pc als venster via de knop in de kopbalk (of via "Mijn schaatsers beheren…" onder Uit lijst). Toevoegen aan de selectie gaat via het tabje **Uit lijst** in Toevoegen: daar staan je eigen schaatsers bovenaan en de topschaatsers eronder. De schaatsers staan in de `localStorage` van **die** browser (sleutel `ssr.mine.v1`), niet in de pagina en niet op een server. Op een andere computer of browser zijn ze er dus niet; daarvoor dient Exporteren/Importeren.
 
 - **Groepen:** "+ Nieuwe groep", "Hernoemen" en "Verwijderen" (de laatste twee voor de gekozen groep). Een schaatser kan in meer groepen staan, of in geen enkele ("Zonder groep"). Verwijderen van een groep laat de schaatsers staan. Maximaal 30 groepen en 500 schaatsers.
 - **Bewaren:** "+ Mijn schaatsers" op een kaartje bij Geselecteerd bewaart die schaatser (in de gekozen groep). "Selectie bewaren" bewaart alle geselecteerde schaatsers. Een geboortemaand die later bij Geselecteerd wordt ingevuld, gaat mee naar Mijn schaatsers.
-- **Toevoegen:** "Toevoegen" zet de hele gekozen groep in de selectie (de groepsnaam komt als label op het kaartje), "+" één schaatser.
+- **Toevoegen** (tabje Uit lijst): kies "Alle mijn schaatsers", een groep (de groepsnaam komt als label op het kaartje) of één naam en klik op Toevoegen.
 - **Exporteren:** downloadt alles (`mijn-schaatsers-JJJJ-MM-DD.json`) of alleen de gekozen groep (`<groepsnaam>.json`). Zo'n bestand kan ook in het tabje Bestand worden geopend.
 - **Importeren:** een eigen export neemt de groepen over; een gewoon schaatsersbestand wordt één groep met de naam van het bestand. Alles wordt samengevoegd met wat er al staat (geboortedatum uit het bestand gaat voor). Via "Ongedaan maken" in de melding gaat het terug.
 
