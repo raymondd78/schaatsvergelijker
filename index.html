@@ -228,6 +228,10 @@
       .tabs button.nodata:not(.on) {
         color: var(--faint);
       }
+      /* afstandslabel: voluit op desktop, kort (3k, 5k, 10k) op mobiel (vanaf v64) */
+      .tabs .ds {
+        display: none;
+      }
       /* laadweergave over de grafiek (vanaf v59) */
       .chartload {
         position: absolute;
@@ -915,18 +919,33 @@
         body[data-mtab='tables'] #prCard {
           margin-top: 10px;
         }
-        /* afstanden als schuifbare knoppenbalk */
+        /* afstanden als één doorlopende segmentbalk zonder tussenruimte (vanaf v64; was een schuifbalk) */
         .tabs {
           flex-wrap: nowrap;
-          overflow-x: auto;
-          margin: 0 -6px 8px;
-          padding: 0 6px 4px;
+          gap: 0;
+          margin: 0 0 8px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          overflow: hidden;
         }
         .tabs button {
-          flex: none;
+          flex: 1 1 0;
+          min-width: 0;
           min-height: 36px;
-          border-radius: 18px;
-          padding: 0 14px;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          font-size: 12px;
+          font-variant-numeric: tabular-nums;
+        }
+        .tabs button + button {
+          border-left: 1px solid var(--line);
+        }
+        .tabs .dl {
+          display: none;
+        }
+        .tabs .ds {
+          display: inline;
         }
         /* regel boven de grafiek: samenvatting filters + knop Filters */
         .mbar {
@@ -938,12 +957,22 @@
           font-size: 12px;
           color: var(--muted);
         }
+        /* knop Filters: groter tikvlak met icoon (vanaf v64) */
         .mbar button {
-          min-height: 36px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          flex: none;
+          min-height: 42px;
+          padding: 0 14px;
           background: var(--card);
           color: var(--ink);
           border-color: var(--line);
-          font-size: 13px;
+          font-size: 14px;
+        }
+        .mbar button svg {
+          width: 16px;
+          height: 16px;
         }
         .mbar .count {
           background: var(--accent);
@@ -987,8 +1016,27 @@
           color: var(--ink);
           margin-right: auto;
         }
+        /* weergave-opties als raster van 2 x 2 gelijke vakjes: label links, schakelaar rechts (vanaf v64) */
         .viewopts {
-          justify-content: flex-start;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 6px;
+          margin-top: 8px;
+        }
+        .viewopts > .flbl {
+          display: none;
+        }
+        .viewopts label.sw {
+          display: flex;
+          flex-direction: row-reverse;
+          justify-content: space-between;
+          gap: 8px;
+          min-height: 40px;
+          padding: 0 10px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          font-size: 13px;
+          color: var(--ink);
         }
         .controls.open {
           position: fixed;
@@ -1229,7 +1277,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v63 van 20-11-2026">v63</span>
+      <span class="ver" title="Versie v64 van 20-11-2026">v64</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1406,6 +1454,19 @@
           <div class="mbar mobile-only">
             <span id="mSummary"></span>
             <button type="button" id="mFilterBtn">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M4 6h10M20 6h0M4 12h4M14 12h6M4 18h12" />
+                <circle cx="17" cy="6" r="2" />
+                <circle cx="11" cy="12" r="2" />
+                <circle cx="19" cy="18" r="2" />
+              </svg>
               Filters<span class="count" id="mFilterCount" hidden></span>
             </button>
           </div>
@@ -1543,7 +1604,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v63 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v64 (20-11-2026)
     </footer>
 
     <script>
@@ -2990,7 +3051,9 @@
 
       /* ---------- Afstand-tabbladen en vinkjes boven de grafiek ---------- */
       $('distTabs').innerHTML = DISTANCES.map(
-        (d) => `<button data-d="${d}" class="${d === state.distance ? 'on' : ''}">${d} m</button>`,
+        (d) =>
+          `<button data-d="${d}" class="${d === state.distance ? 'on' : ''}" aria-label="${d} m">` +
+          `<span class="dl">${d} m</span><span class="ds">${d >= 3000 ? d / 1000 + 'k' : d}</span></button>`,
       ).join('');
       $('distTabs').addEventListener('click', (e) => {
         const b = e.target.closest('button[data-d]');
@@ -3870,7 +3933,7 @@
       /* Samenvatting van de filters, het aantal afwijkende filters en de chips onder de grafiek */
       function renderMobileBits() {
         $('filterReset').hidden = !filtersOn();
-        const parts = [];
+        const parts = [`${state.distance} m`]; // gekozen afstand vooraan (vanaf v64)
         let n = 0;
         if (ui.ageFrom != null || ui.ageTo != null) {
           parts.push(`${ui.ageFrom ?? '…'}–${ui.ageTo ?? '…'} jaar`);
@@ -3892,7 +3955,7 @@
           parts.push('alle tijden');
           n++;
         }
-        $('mSummary').textContent = parts.filter(Boolean).join(' · ') || 'Geen filters';
+        $('mSummary').textContent = parts.filter(Boolean).join(' · ');
         $('mFilterCount').textContent = n;
         $('mFilterCount').hidden = !n;
         $('mChips').innerHTML = state.selected

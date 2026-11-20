@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v63** (20 november 2026)
+**Huidige versie: v64** (20 november 2026)
 
 ---
+
+## v64 – Rustiger grafiekkop op mobiel (20-11-2026)
+- **Afstanden op één regel:** alle negen afstanden staan in één doorlopende balk, zonder scrollen en met gelijke breedte. De lange afstanden heten kort **3k**, **5k** en **10k**. Op de pc blijven de tabbladen zoals ze waren.
+- **Grotere knop Filters** met een icoon. De regel ernaast begint met de gekozen afstand (bijv. "500 m · 10–13 jaar · ANS").
+- **Schakelaars uitgelijnd:** PR-lijn, Alle tijden, Snelste boven en ANS staan in een raster van 2 x 2 gelijke vakjes, met het label links en de schakelaar rechts.
 
 ## v63 – Installeerbaar als app (PWA) (20-11-2026)
 - De Schaatsvergelijker is te installeren als app op telefoon, tablet en pc. Hij opent dan in een eigen venster, zonder adresbalk, met een eigen icoon op het beginscherm.
