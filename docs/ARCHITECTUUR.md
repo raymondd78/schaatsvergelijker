@@ -108,6 +108,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 
 - Boven de grafiek in `#controls`: filtergroepjes `.fgrp` (leeftijd, max. tijd), `#genderSeg` (Heren/Dames/Beide → `ui.showM`/`ui.showF`; beide uit wordt bij het laden hersteld naar beide aan) en `#filterReset` (zichtbaar als `filtersOn()`; wist `ageFrom`/`ageTo`, alle `maxT` en het geslachtsfilter).
 - Onder de grafiek in `#viewOpts`: schakelaartjes (`.sw`, opgemaakte checkboxes `showPR`, `showAll`, `fastTop` en vanaf v57 `ansOn` → `ui.ans`). Chart.js-plugin `alignViewOpts` (`afterLayout`) zet `padding-right` zodat de rij eindigt onder het einde van de x-as (vanaf v58).
+- Mobiel (vanaf v66): `#distTabs` staat samen met de knop `#mAnsBtn` in `.distrow`; de knop zet `#ansOn` om (change-event) en `renderMobileBits()` zet klasse `on` en `aria-pressed`. In `#viewOpts` is `#ansLbl` dan verborgen en zijn de andere drie schakelaars knoppen op één regel (de checkbox is onzichtbaar, `label.sw:has(input:checked)` kleurt de knop).
 - Mobiel: `#controls` blijft het filterpaneel (ook `.gseg` en `.freset` alleen in het open paneel); `#viewOpts` staat onder de grafiek en is verborgen in het tabblad Tabellen en liggend.
 
 ## Indeling en hulpelementen (vanaf v59)

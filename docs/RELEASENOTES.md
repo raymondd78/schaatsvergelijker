@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v65** (20 november 2026)
+**Huidige versie: v66** (20 november 2026)
 
 ---
+
+## v66 – ANS in de afstandsbalk (20-11-2026)
+- Op mobiel staat **ANS** als knop aan het eind van de afstandsbalk. Die balk staat ook in het tabblad **Tabellen**, dus daar kun je ANS nu ook aan- en uitzetten. De knop is blauw als ANS aan staat; ANS staat daarom niet meer in de samenvatting naast Filters.
+- Onder de grafiek staan nog drie knoppen op één regel: **PR-lijn**, **Alle tijden** en **Snelste boven**. Blauw = aan.
+- De afstandsknoppen zijn iets kleiner (tekst 11 px) om ruimte te maken. Op de pc verandert er niets.
 
 ## v65 – Lege afstanden meteen grijs (20-11-2026)
 - Afstanden waarop geen van de gekozen schaatsers een tijd heeft, zijn nu meteen grijs. Eerst moest je er een keer op tikken.

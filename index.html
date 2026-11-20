@@ -935,7 +935,7 @@
           padding: 0;
           border: 0;
           border-radius: 0;
-          font-size: 12px;
+          font-size: 11px;
           font-variant-numeric: tabular-nums;
         }
         .tabs button + button {
@@ -1016,27 +1016,75 @@
           color: var(--ink);
           margin-right: auto;
         }
-        /* weergave-opties als raster van 2 x 2 gelijke vakjes: label links, schakelaar rechts (vanaf v64) */
-        .viewopts {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 6px;
-          margin-top: 8px;
-        }
-        .viewopts > .flbl {
-          display: none;
-        }
-        .viewopts label.sw {
+        /* rij met de afstanden en de knop ANS (vanaf v66), ook zichtbaar in het tabblad Tabellen */
+        .distrow {
           display: flex;
-          flex-direction: row-reverse;
-          justify-content: space-between;
-          gap: 8px;
-          min-height: 40px;
+          gap: 6px;
+          align-items: stretch;
+          margin-bottom: 8px;
+        }
+        .distrow .tabs {
+          flex: 1;
+          min-width: 0;
+          margin: 0;
+        }
+        .distrow .ansbtn {
+          display: block;
+          flex: none;
+          min-height: 36px;
           padding: 0 10px;
           border: 1px solid var(--line);
           border-radius: 8px;
-          font-size: 13px;
+          background: var(--card);
           color: var(--ink);
+          font-size: 12px;
+        }
+        .distrow .ansbtn.on {
+          background: var(--accent-soft);
+          color: var(--accent);
+          border-color: var(--accent);
+          font-weight: 600;
+        }
+        /* weergave-opties: drie gelijke knoppen op één regel; aan = blauw (vanaf v66; ANS staat in de
+           afstandsbalk). De checkbox zelf is onzichtbaar, het label is de knop. */
+        .viewopts {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 6px;
+          margin-top: 8px;
+        }
+        .viewopts > .flbl,
+        .viewopts #ansLbl {
+          display: none;
+        }
+        .viewopts label.sw {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          min-height: 38px;
+          padding: 0 6px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          font-size: 12px;
+          white-space: nowrap;
+          color: var(--ink);
+        }
+        .viewopts .sw input {
+          position: absolute;
+          opacity: 0;
+          width: 1px;
+          height: 1px;
+          pointer-events: none;
+        }
+        .viewopts label.sw:has(input:checked) {
+          background: var(--accent-soft);
+          color: var(--accent);
+          border-color: var(--accent);
+          font-weight: 600;
+        }
+        .viewopts label.sw:has(input:focus-visible) {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
         }
         .controls.open {
           position: fixed;
@@ -1248,6 +1296,7 @@
         .mtabs,
         footer,
         .tabs,
+        .distrow,
         .mbar,
         .controls,
         .viewopts,
@@ -1277,7 +1326,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v65 van 20-11-2026">v65</span>
+      <span class="ver" title="Versie v66 van 20-11-2026">v66</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1449,7 +1498,19 @@
       <section>
         <div class="card">
           <!-- Tabbladen per afstand (worden door het script gevuld) -->
-          <div class="tabs" id="distTabs"></div>
+          <!-- Rij met de afstanden en (alleen mobiel, vanaf v66) de knop ANS -->
+          <div class="distrow">
+            <div class="tabs" id="distTabs"></div>
+            <button
+              type="button"
+              class="ansbtn mobile-only"
+              id="mAnsBtn"
+              aria-pressed="false"
+              title="ANS: alleen Nederlandse banen, omgerekend naar een neutrale baan"
+            >
+              ANS
+            </button>
+          </div>
           <!-- Mobiel: samenvatting van de filters en de knop Filters (verborgen op desktop) -->
           <div class="mbar mobile-only">
             <span id="mSummary"></span>
@@ -1511,6 +1572,7 @@
             <label class="sw"><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
             <label
               class="sw"
+              id="ansLbl"
               title="Alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan"
               ><input type="checkbox" id="ansOn" /> ANS (NL-banen)</label
             >
@@ -1604,7 +1666,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v65 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v66 (20-11-2026)
     </footer>
 
     <script>
@@ -3096,6 +3158,11 @@
       });
       /* Schakelaar ANS onder de grafiek (vanaf v57) */
       $('ansOn').checked = ui.ans;
+      /* Knop ANS in de afstandsbalk (mobiel, vanaf v66): zet dezelfde schakelaar om */
+      $('mAnsBtn').addEventListener('click', () => {
+        $('ansOn').checked = !$('ansOn').checked;
+        $('ansOn').dispatchEvent(new Event('change'));
+      });
       $('ansOn').addEventListener('change', () => {
         ui.ans = $('ansOn').checked;
         save(LS_UI, ui);
@@ -3993,10 +4060,9 @@
           parts.push(`max. ${fmtTime(ui.maxT[state.distance])}`);
           n++;
         }
-        if (ui.ans) {
-          parts.push('ANS');
-          n++;
-        }
+        // ANS staat vanaf v66 als knop in de afstandsbalk, dus niet meer in de samenvatting
+        $('mAnsBtn').classList.toggle('on', ui.ans);
+        $('mAnsBtn').setAttribute('aria-pressed', ui.ans ? 'true' : 'false');
         if (!ui.showM || !ui.showF) {
           parts.push(!ui.showF ? 'alleen heren' : !ui.showM ? 'alleen dames' : '');
           n++;
