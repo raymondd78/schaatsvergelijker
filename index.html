@@ -666,18 +666,21 @@
         box-shadow: 0 0 0 2px var(--c) inset;
       }
       /* ===== Afstand-tabbladen en de rij met opties boven de grafiek ===== */
-      /* Afstandsbalk (vanaf v72 op pc en mobiel gelijk): één segmentbalk met 100 t/m 1500 m, de uitklapknop
-         3k+ (3000, 5000, 10000 m) en als laatste vakje ANS. De vakjes hebben een vaste breedte (flex 1 1 0,
-         ANS een vaste inhoud), zodat er niets verschuift als je een lange afstand kiest of ANS aanzet. */
+      /* Afstandsbalk (vanaf v72): één segmentbalk met de afstanden en als laatste vakje ANS.
+         Pc (vanaf v73): knoppen van normaal formaat met een vaste breedte, alle negen afstanden los; de balk
+         loopt niet over de hele breedte. Mobiel: over de hele breedte, met 3000/5000/10000 in de uitklapknop
+         3k+. ANS heeft een vaste inhoud, zodat er niets verschuift als je een lange afstand kiest of ANS aanzet. */
       .tabs {
-        display: flex;
+        display: inline-flex;
+        vertical-align: top;
         margin-bottom: 12px;
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--card);
       }
       .tabs button {
-        flex: 1 1 0;
+        flex: 0 0 auto;
+        width: 76px;
         min-width: 0;
         min-height: 32px;
         padding: 0;
@@ -708,7 +711,7 @@
         position: relative;
         flex: 1 1 0;
         min-width: 0;
-        display: flex;
+        display: none; /* alleen op mobiel */
       }
       .tabs .dmore > button {
         border-radius: 0;
@@ -750,6 +753,7 @@
       /* ANS als laatste vakje, na een dikkere scheidingslijn; het vinkje houdt altijd zijn plek */
       .tabs .ansseg {
         flex: 0 0 auto;
+        width: auto;
         padding: 0 12px;
         border-left: 2px solid var(--faint);
       }
@@ -1125,12 +1129,25 @@
         }
         /* afstandsbalk op mobiel: hogere vakjes en korte labels (100, 3k+, 5k, …) (vanaf v64; v72 alleen maten) */
         .tabs {
+          display: flex;
           margin: 0 0 8px;
         }
         .tabs button {
+          flex: 1 1 0;
+          width: auto;
           min-height: 36px;
           padding: 0;
           font-size: 11px;
+        }
+        /* lange afstanden zitten op mobiel in de uitklapknop 3k+ (vanaf v73) */
+        .tabs > .dlong {
+          display: none;
+        }
+        .tabs .dmore {
+          display: flex;
+        }
+        .tabs .ansseg {
+          flex: 0 0 auto;
         }
         .tabs .ansseg {
           padding: 0 7px;
@@ -1492,7 +1509,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v72 van 20-11-2026">v72</span>
+      <span class="ver" title="Versie v73 van 20-11-2026">v73</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1903,7 +1920,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v72 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v73 (20-11-2026)
     </footer>
 
     <script>
@@ -3818,17 +3835,16 @@
       });
 
       /* ---------- Afstandsbalk en vinkjes boven de grafiek ----------
-         Vanaf v72: 100 t/m 1500 m als knoppen, de lange afstanden in de uitklapknop 3k+ en als laatste vakje
-         de knop ANS. De uitklapknop toont de gekozen lange afstand ("5000 m", mobiel "5k"). */
+         Vanaf v72: knoppen per afstand en als laatste vakje de knop ANS. Op de pc (vanaf v73) staan alle
+         afstanden als knop; op mobiel zitten 3000/5000/10000 (.dlong) in de uitklapknop 3k+, die de gekozen
+         lange afstand toont ("5k"). De CSS bepaalt welke van de twee zichtbaar is. */
       const LONG_DISTANCES = [3000, 5000, 10000];
       $('distTabs').innerHTML =
-        DISTANCES.filter((d) => !LONG_DISTANCES.includes(d))
-          .map(
-            (d) =>
-              `<button type="button" data-d="${d}" aria-label="${d} m">` +
-              `<span class="dl">${d} m</span><span class="ds">${d}</span></button>`,
-          )
-          .join('') +
+        DISTANCES.map(
+          (d) =>
+            `<button type="button" data-d="${d}" aria-label="${d} m"${LONG_DISTANCES.includes(d) ? ' class="dlong"' : ''}>` +
+            `<span class="dl">${d} m</span><span class="ds">${d}</span></button>`,
+        ).join('') +
         `<div class="dmore"><button type="button" id="distMoreBtn" aria-haspopup="true" aria-expanded="false">` +
         `<span class="dl" id="distMoreL">3k+</span><span class="ds" id="distMoreS">3k+</span>` +
         `<span class="car" aria-hidden="true">▾</span></button>` +

@@ -2,9 +2,15 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v72** (20 november 2026)
+**Huidige versie: v73** (20 november 2026)
 
 ---
+
+## v73 – Afstandsbalk op de pc compact (20-11-2026)
+- Op de pc loopt de afstandsbalk niet meer over de hele breedte van de grafiek. De knoppen hebben een normaal, vast formaat en alle negen afstanden staan er los in, ook **3000**, **5000** en **10000 m**. **ANS** blijft het laatste vakje.
+- Op mobiel blijft alles zoals in v72: de balk over de hele breedte, met de lange afstanden in **3k+**.
+- Cache van de service worker verhoogd naar v73.
+
 
 ## v72 – Lange afstanden in 3k+, ANS in de balk (20-11-2026)
 - De afstandsbalk is op de pc en op mobiel nu gelijk: één balk met **100 t/m 1500 m**, de uitklapknop **3k+** en als laatste vakje **ANS**.
