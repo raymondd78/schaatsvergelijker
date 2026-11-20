@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v60** (19 november 2026)
+**Huidige versie: v61** (20 november 2026)
 
 ---
+
+## v61 – Liggend: grafiek over het hele scherm (20-11-2026)
+- Op een telefoon in liggende stand zijn de blauwe kopbalk en de filters weg. Alleen een smalle rij afstandstabbladen blijft staan; de rest van het scherm is voor de grafiek. Filters aanpassen doe je rechtop.
 
 ## v60 – PR-verloop altijd nieuwste boven (19-11-2026)
 - Het sorteren op datum (klik op "Datum", en de knop op mobiel) is weg: het PR-verloop staat altijd met het nieuwste PR bovenaan. Per schaatser kies je met de keuzelijst.

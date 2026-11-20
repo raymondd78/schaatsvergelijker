@@ -1171,50 +1171,52 @@
           letter-spacing: 0;
         }
       }
-      /* Telefoon liggend: alleen de grafiek, zo groot mogelijk */
+      /* Telefoon liggend: alleen de grafiek over het hele scherm (vanaf v61 zonder kopbalk en filters);
+         alleen de afstandstabbladen blijven als smalle rij staan */
       @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (pointer: coarse) {
-        header {
-          padding: 6px 14px;
-        }
-        header > span:not(.ver) {
-          display: none;
+        body {
+          padding-bottom: 0;
         }
         main {
           display: block;
-          padding: 6px;
+          padding: 4px;
         }
+        header,
         aside,
         #ageCard,
         #prCard,
         .mtabs,
         footer,
+        .mbar,
+        .controls,
         .viewopts,
-        #mChips {
+        #mChips,
+        #mTblSeg,
+        #mBackdrop {
           display: none !important;
         }
         main > section {
           display: block !important;
         }
         .card {
-          padding: 6px 10px;
+          padding: 4px 6px;
+          margin: 0;
         }
         .tabs {
           flex-wrap: nowrap;
           overflow-x: auto;
-          margin-bottom: 4px;
+          margin: 0 0 2px;
+          padding: 0 0 2px;
         }
         .tabs button {
           flex: none;
-          padding: 2px 12px;
-        }
-        .controls > label {
-          display: none;
-        }
-        .controls {
-          margin-bottom: 0;
+          min-height: 26px;
+          padding: 0 12px;
+          font-size: 12px;
         }
         .chartwrap {
-          height: calc(100vh - 110px);
+          height: calc(100vh - 50px);
+          height: calc(100dvh - 50px);
         }
       }
     </style>
@@ -1224,7 +1226,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v60 van 19-11-2026">v60</span>
+      <span class="ver" title="Versie v61 van 20-11-2026">v61</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1523,7 +1525,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v60 (19-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v61 (20-11-2026)
     </footer>
 
     <script>
