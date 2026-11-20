@@ -28,7 +28,8 @@ Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?sk
 |---|---|
 | `state` | `selected` (schaatsers), `distance`, `xMode` (vast `'age'`; de datumweergave is in v12 verwijderd, de code-paden voor `'date'` zijn nog aanwezig maar onbereikbaar), `data` (cache per `id_afstand`), `stale` (per `id_afstand` het tijdstip van oude cache die gebruikt wordt omdat de server niet reageerde, vanaf v38) |
 | `TOP_GROUPS` / `TOP_SKATERS` / `chosenTopSkaters()` | Ingebouwde lijst topschaatsers voor het blok "Topschaatsers"; groepen als bitmasker op `TOP_GROUPS` |
-| `addSkaterList()` | Voegt een lijst schaatsers toe (gedeeld door "Topschaatsers" en "Schaatsersbestand"); bestaande krijgen geboortedatum en groep bijgewerkt |
+| `state.mine` / `renderMine()` / `keepInMine()` / `importMine()` | Blok "Mijn schaatsers" (vanaf v67): eigen schaatsers in groepen (`state.mineView` = gekozen groep: `*`, `g:naam` of `-`). `renderSelected()` roept `renderMine()` aan; `persistSel()` neemt een ingevulde geboortedatum over (`syncMineBirth()`). Export/import: `MINE_FORMAT`, zie GROEPEN.md |
+| `addSkaterList()` | Voegt een lijst schaatsers toe (gedeeld door "Mijn schaatsers", "Topschaatsers" en "Schaatsersbestand"); bestaande krijgen geboortedatum en groep bijgewerkt |
 | `parseSkaterFile()` / `loadSkaterFile()` | Leest een schaatsersbestand (JSON, formaat `schaatsvergelijker/1`) via `FileReader`; alleen in het geheugen. Vanaf v47 is de bestandsnaam (zonder `.json`) de groep; meerdere bestanden in `fileSets`, samengevoegd in `fileSkaters` (iemand in meer bestanden krijgt alle groepen). Het veld `group` in een bestand wordt genegeerd |
 | `saveSel` (knop) | Exporteert `state.selected` als JSON-download (Blob + `<a download>`), zonder groep (vanaf v47) |
 | `addSkater()` | Voegt een schaatser toe met een vrije kleur (20 kleuren), eventueel met `birth` en `group` |
@@ -75,6 +76,7 @@ Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor
 |---|---|
 | `ssr.selected.v1` | Array met geselecteerde schaatsers: `id`, namen, `country`, `gender`, `category`, `color`, `birth` (`YYYY-MM-15` of `null`), `draftY`/`draftM` (half ingevuld), `catSeason` (seizoen waarin `category` gold), `group` |
 | `ssr.ui.v1` | `{ageFrom, ageTo, showM, showF, ans, maxT, theme, rink, addTab, ageSort}` (`maxT` = `{afstand: seconden}`): leeftijdsperiode (`null` = geen grens), filter heren/dames en ANS-vinkje |
+| `ssr.mine.v1` | "Mijn schaatsers" (vanaf v67): `{groups: [naam], skaters: [{id, givenname, familyname, gender, country, category, catSeason, birth, groups: [naam]}]}`; gecontroleerd met `cleanMine()` (max. `MAX_MINE` 500 schaatsers, `MAX_GROUPS` 30 groepen van max. 60 tekens) |
 | `ssr.manual.v1` | Zelf ingevoerde tijden (vanaf v51): `[{mid, id, dist, time, date, loc}]`; `loc` = NL-baan of leeg (buitenland/anders). Niet in de JSON-export |
 | `ssr.intro.v1` | `1` zodra het venster "Over deze tool" een keer is gesloten (vanaf v59); daarna gaat het niet meer vanzelf open |
 | `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
@@ -115,7 +117,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 
 - Kopbalk: korte bronvermelding, knoppen `#infoBtn` (ⓘ) en `#themeBtn` (icoon ◐/☀/☾, `THEME_ICON`) in `.hbtns`.
 - `#introModal`: venster met de uitleg; `openIntro()`; sluit met ×, Esc of klik naast het venster.
-- Linkerkolom: blok **Toevoegen** met tabjes `#addTabs` (`showAddTab()`, `ui.addTab`) en panelen `.pane` (zoeken, `#topCard`, `#fileCard`); daaronder **Geselecteerd**.
+- Linkerkolom: blok **Toevoegen** met tabjes `#addTabs` (`showAddTab()`, `ui.addTab`) en panelen `.pane` (zoeken, `#mineCard`, `#topCard`, `#fileCard`); daaronder **Geselecteerd**.
 - `showToast(tekst, knoptekst, actie)` / `hideToast()`: melding onderin (8 s). "Alles wissen" toont "Ongedaan maken" (`setSelection()`).
 - `markEmptyDistances()` (in `render()`): afstandstabblad krijgt klasse `nodata` als voor alle zichtbare schaatsers al bekend is dat er geen tijden zijn. Vanaf v65 ook voor nog niet opgehaalde afstanden: `loadPrDistances()` (aangeroepen in `refresh()`, na de tijden van de open afstand) haalt per schaatser `personal_records` op (alle afstanden, één verzoek; cache `ssr.cache.v1.pr_<id>`, 6 uur) in `prDist`. `prNone(id, afstand)` is waar als die lijst de afstand niet bevat; voor 100/300/700 m (niet gedocumenteerd bij dit endpoint) alleen als de lijst minstens één van die drie bevat. Opgehaalde tijden (`rowsFor()`, dus met ANS en max. tijd) en zelf ingevoerde tijden gaan voor.
 - `#chartLoad`: draaiend icoon met "Tijden ophalen…" boven de grafiek zolang er nog tijden worden opgehaald.

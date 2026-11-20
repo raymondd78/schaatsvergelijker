@@ -27,6 +27,18 @@ Kies een groep, "Alle topschaatsers" of één naam (vrouwen en mannen apart) en 
 
 Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `localStorage` van **jouw** browser bewaard, zodat hij er na herladen nog is. Met "Alles wissen" verdwijnt die.
 
+## Mijn schaatsers (vanaf v67)
+
+Het tabje **Mijn schaatsers** (tussen Zoeken en Topschaatsers) is bedoeld voor een coach die steeds dezelfde schaatsers vergelijkt. De schaatsers staan in de `localStorage` van **die** browser (sleutel `ssr.mine.v1`), niet in de pagina en niet op een server. Op een andere computer of browser zijn ze er dus niet; daarvoor dient Exporteren/Importeren.
+
+- **Groepen:** "+ Nieuwe groep", "Hernoemen" en "Verwijderen" (de laatste twee voor de gekozen groep). Een schaatser kan in meer groepen staan, of in geen enkele ("Zonder groep"). Verwijderen van een groep laat de schaatsers staan. Maximaal 30 groepen en 500 schaatsers.
+- **Bewaren:** "+ Mijn schaatsers" op een kaartje bij Geselecteerd bewaart die schaatser (in de gekozen groep). "Selectie bewaren" bewaart alle geselecteerde schaatsers. Een geboortemaand die later bij Geselecteerd wordt ingevuld, gaat mee naar Mijn schaatsers.
+- **Toevoegen:** "Toevoegen" zet de hele gekozen groep in de selectie (de groepsnaam komt als label op het kaartje), "+" één schaatser.
+- **Exporteren:** downloadt alles (`mijn-schaatsers-JJJJ-MM-DD.json`) of alleen de gekozen groep (`<groepsnaam>.json`). Zo'n bestand kan ook in het tabje Bestand worden geopend.
+- **Importeren:** een eigen export neemt de groepen over; een gewoon schaatsersbestand wordt één groep met de naam van het bestand. Alles wordt samengevoegd met wat er al staat (geboortedatum uit het bestand gaat voor). Via "Ongedaan maken" in de melding gaat het terug.
+
+Formaat van een export: hetzelfde als hieronder, met `"format": "schaatsvergelijker-mijn/1"`, een lijst `groups` (namen) en per schaatser een lijst `groups`. Bij het importeren wordt ook een tekstveld `group` (groepen gescheiden door komma's) gelezen.
+
 ## Formaat
 
 ```json

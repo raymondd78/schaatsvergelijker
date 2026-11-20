@@ -2,9 +2,18 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v66** (20 november 2026)
+**Huidige versie: v67** (20 november 2026)
 
 ---
+
+## v67 – Mijn schaatsers (20-11-2026)
+- Nieuw tabje **Mijn schaatsers** in het blok Toevoegen, tussen Zoeken en Topschaatsers. Hiermee bewaart een coach zijn eigen schaatsers, zodat hij ze later met één klik weer toevoegt.
+- **Groepen:** maak groepen aan (**+ Nieuwe groep**), hernoem of verwijder ze. Een schaatser kan in meer groepen staan; met de knop **groepen** bij een schaatser zet je groepen aan of uit. Bij het verwijderen van een groep blijven de schaatsers bewaard.
+- **Bewaren:** met **+ Mijn schaatsers** op het kaartje bij Geselecteerd (in de gekozen groep), of de hele selectie in één keer met **Selectie bewaren**. Een later ingevulde geboortemaand wordt ook bij Mijn schaatsers bewaard.
+- **Toevoegen:** de hele groep met **Toevoegen**, of één schaatser met **+**. Een ✓ betekent dat hij al in de selectie staat.
+- **Exporteren/importeren (JSON):** exporteer alles of alleen de gekozen groep (bestandsnaam = groepsnaam). Importeren voegt samen met wat er al staat; een gewoon schaatsersbestand wordt een groep met de naam van het bestand. Ook slepen op het blok werkt. Verwijderen, groep verwijderen en importeren zijn ongedaan te maken via de melding onderin.
+- Mijn schaatsers staan alleen in de `localStorage` van de eigen browser, niet in de pagina en niet op een server. Maximaal 500 schaatsers en 30 groepen.
+- De vier tabjes zijn iets kleiner (12 px) zodat ze naast elkaar passen.
 
 ## v66 – ANS in de afstandsbalk (20-11-2026)
 - Op mobiel staat **ANS** als knop aan het eind van de afstandsbalk. Die balk staat ook in het tabblad **Tabellen**, dus daar kun je ANS nu ook aan- en uitzetten. De knop is blauw als ANS aan staat; ANS staat daarom niet meer in de samenvatting naast Filters.

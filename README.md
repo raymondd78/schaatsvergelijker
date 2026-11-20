@@ -19,14 +19,14 @@ Statische webapp (één HTML-bestand) om de tijden en de PR-ontwikkeling van lan
 4. Kies een afstand. De x-as is altijd de **leeftijd**; schaatsers zonder bekende of geschatte leeftijd worden niet getoond.
 5. Beperk eventueel de **leeftijdsperiode** ("Leeftijd van … t/m …"), bijvoorbeeld 8 t/m 13 jaar om een 12-jarige te vergelijken met een senior toen die even oud was.
 
-**Privacy:** de webpagina zelf bevat geen persoonsgegevens, behalve de lijst publiek bekende topschaatsers (naam, geboortemaand, groep). Alle andere schaatsers staan in je eigen JSON-bestanden. De huidige selectie wordt alleen in de `localStorage` van je eigen browser bewaard (wissen met "Alles wissen"). Opgehaalde tijden worden 6 uur gecachet.
+**Privacy:** de webpagina zelf bevat geen persoonsgegevens, behalve de lijst publiek bekende topschaatsers (naam, geboortemaand, groep). Alle andere schaatsers staan in je eigen JSON-bestanden. De huidige selectie en **Mijn schaatsers** worden alleen in de `localStorage` van je eigen browser bewaard (wissen met "Alles wissen" en "Verwijderen"). Opgehaalde tijden worden 6 uur gecachet.
 
 ## Onderdelen van het scherm
 
 | Onderdeel | Inhoud |
 |---|---|
 | Over deze tool | Venster via de knop ⓘ in de kopbalk (hoe werkt het, waarom de geboortemaand belangrijk is); gaat bij het eerste bezoek vanzelf open. Het thema (◐ auto, ☀ licht, ☾ donker) wissel je met de knop ernaast |
-| Toevoegen | Eén blok met tabjes **Zoeken**, **Topschaatsers** en **Bestand**; het gekozen tabje wordt onthouden |
+| Toevoegen | Eén blok met tabjes **Zoeken**, **Mijn schaatsers** (eigen schaatsers in groepen, met JSON-import/-export; vanaf v67), **Topschaatsers** en **Bestand**; het gekozen tabje wordt onthouden |
 | Zoeken | Op (begin van) achter- en/of voornaam, alle landen; max. 20 resultaten (XML-variant van de lookup-API) |
 | Geselecteerd | Kleur per schaatser, ster om te highlighten, categorie, profiellink, bewerkbare groep, geboortedatum (maand + jaar) |
 | Zelf ingevoerde tijd | Knop **+ tijd** op het kaartje: een zojuist gereden tijd (afstand, tijd, datum, baan) die nog niet op SpeedskatingResults staat. Op het kaartje onder **Toegevoegd** (baan als KNSB-afkorting, bijv. HVN), open stip in de grafiek, ✎ in de tabellen; verdwijnt vanzelf zodra de tijd officieel binnen is. Alleen in de browser bewaard |

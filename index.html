@@ -9,7 +9,8 @@
 
     Opbouw van dit bestand:
       1. style     opmaak van kopbalk, blokken (kaarten), knoppen, grafiek en tabellen
-      2. body      linkerkolom (uitleg, zoeken, topschaatsers, schaatsersbestand, geselecteerd)
+      2. body      linkerkolom (uitleg, zoeken, mijn schaatsers, topschaatsers, schaatsersbestand,
+                   geselecteerd)
                    en rechterkolom (afstanden, filters, grafiek, tabellen)
       3. script    instellingen, hulpfuncties, API, schermonderdelen, grafiek en tabellen
 
@@ -221,8 +222,77 @@
         display: flex;
         margin-bottom: 10px;
       }
-      .addtabs button {
-        flex: 1;
+      /* vier tabjes (vanaf v67): kleiner en over de volle breedte, zodat ze naast elkaar passen
+         (.gseg.addtabs: gaat voor de algemene opmaak van .gseg verderop) */
+      .gseg.addtabs {
+        width: 100%;
+      }
+      .gseg.addtabs button {
+        flex: 1 1 auto;
+        padding: 4px 4px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .row[hidden] {
+        display: none;
+      }
+      /* ===== Blok "Mijn schaatsers" (vanaf v67) ===== */
+      #mineList {
+        margin-top: 8px;
+        max-height: 320px;
+        overflow: auto;
+      }
+      .mine .chip {
+        display: inline-block;
+        margin-left: 4px;
+        padding: 0 7px;
+        border-radius: 9px;
+        background: var(--seg);
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .mine .prof {
+        color: var(--muted);
+        text-decoration: none;
+        margin-left: 2px;
+      }
+      .mine .mbtns {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex: 0 0 auto;
+      }
+      /* groepen van één schaatser aan- en uitzetten */
+      .mine .mgroups {
+        flex-basis: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        font-size: 12px;
+      }
+      .mine .mgroups button {
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        border-radius: 9px;
+        padding: 1px 8px;
+        font-size: 12px;
+      }
+      .mine .mgroups button.on {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+      .mineact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .mineact button {
+        text-transform: none;
+        letter-spacing: 0;
       }
       /* afstand zonder tijden bij de selectie (vanaf v59) */
       .tabs button.nodata:not(.on) {
@@ -509,7 +579,9 @@
         color: var(--ink);
       }
       .sel .addrow {
-        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        gap: 14px;
       }
       .sel .ownadd {
         background: transparent;
@@ -1326,7 +1398,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v66 van 20-11-2026">v66</span>
+      <span class="ver" title="Versie v67 van 20-11-2026">v67</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1375,6 +1447,10 @@
             schaatsersbestand (JSON).
           </li>
           <li>
+            <b>Mijn schaatsers:</b> bewaar je eigen schaatsers in groepen, zodat je ze later met één klik weer
+            toevoegt. Ze blijven in deze browser; met Exporteren/Importeren neem je ze mee.
+          </li>
+          <li>
             <b>Kies een afstand</b> boven de grafiek. De trap-lijn is het PR-verloop; elke stap is een nieuw
             PR.
           </li>
@@ -1408,6 +1484,7 @@
           <h2>Toevoegen</h2>
           <div class="gseg addtabs" id="addTabs" role="tablist" aria-label="Manier van toevoegen">
             <button type="button" role="tab" data-pane="search">Zoeken</button
+            ><button type="button" role="tab" data-pane="mine">Mijn schaatsers</button
             ><button type="button" role="tab" data-pane="top">Topschaatsers</button
             ><button type="button" role="tab" data-pane="file">Bestand</button>
           </div>
@@ -1426,6 +1503,50 @@
             </form>
             <div class="status" id="searchStatus"></div>
             <div id="results"></div>
+          </div>
+          <!-- Eigen schaatsers van de coach, in groepen (vanaf v67). Staan alleen in de localStorage van
+               deze browser; met Exporteren/Importeren gaan ze als JSON-bestand mee naar een andere browser. -->
+          <div class="pane" id="mineCard" data-pane="mine" hidden>
+            <div class="row" style="align-items: center">
+              <select id="mineSel" aria-label="Groep"></select>
+              <button type="button" id="mineAdd" style="flex: 0 0 auto">Toevoegen</button>
+            </div>
+            <div class="mineact">
+              <button type="button" class="small ghost" id="mineNew">+ Nieuwe groep</button>
+              <button type="button" class="small ghost" id="mineRen">Hernoemen</button>
+              <button
+                type="button"
+                class="small ghost"
+                id="mineDel"
+                title="Gekozen groep verwijderen (de schaatsers blijven bewaard)"
+              >
+                Verwijderen
+              </button>
+            </div>
+            <div class="row" id="mineForm" style="align-items: center; margin-top: 8px" hidden>
+              <input
+                id="mineName"
+                type="text"
+                maxlength="60"
+                autocomplete="off"
+                placeholder="Naam van de groep"
+              />
+              <button type="button" class="small" id="mineOk" style="flex: 0 0 auto">OK</button>
+              <button type="button" class="small ghost" id="mineCancel" style="flex: 0 0 auto">
+                Annuleren
+              </button>
+            </div>
+            <div id="mineList"></div>
+            <div class="mineact">
+              <button type="button" class="small" id="mineKeep">Selectie bewaren</button>
+              <button type="button" class="small ghost" id="mineImp">Importeren…</button>
+              <button type="button" class="small ghost" id="mineExp">Exporteren</button>
+              <input type="file" id="mineFile" accept=".json,application/json" hidden />
+            </div>
+            <div class="hint" id="mineInfo">
+              Je eigen schaatsers blijven alleen in deze browser bewaard. Met Exporteren maak je een
+              JSON-bestand (van alles of van de gekozen groep) als reservekopie of voor een andere computer.
+            </div>
           </div>
           <!-- Ingebouwde lijst met publiek bekende topschaatsers (zie TOP_SKATERS in het script) -->
           <div class="pane" id="topCard" data-pane="top" hidden>
@@ -1666,7 +1787,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v66 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v67 (20-11-2026)
     </footer>
 
     <script>
@@ -1837,6 +1958,7 @@
 
       // Sleutels in localStorage en hoe lang opgehaalde tijden bewaard blijven (6 uur)
       const LS_SEL = 'ssr.selected.v1',
+        LS_MINE = 'ssr.mine.v1', // "Mijn schaatsers" (vanaf v67)
         LS_CACHE = 'ssr.cache.v1.',
         CACHE_MS = 6 * 3600 * 1000;
 
@@ -1850,6 +1972,8 @@
       const MAX_FILE_BYTES = 1024 * 1024; // maximale grootte van een schaatsersbestand (1 MB)
       const MAX_RESPONSE_CHARS = 5 * 1024 * 1024; // maximale grootte van een API-antwoord
       const FETCH_TIMEOUT_MS = 15000; // na 15 seconden zonder antwoord wordt een verzoek afgebroken
+      const MAX_MINE = 500; // maximaal aantal schaatsers in "Mijn schaatsers" (vanaf v67)
+      const MAX_GROUPS = 30; // maximaal aantal groepen in "Mijn schaatsers"
 
       /* tekst inkorten tot max tekens; geen tekst -> '' */
       function cleanStr(v, max) {
@@ -1908,6 +2032,45 @@
           draftM: cleanInt(x.draftM, 1, 12),
         };
       }
+      /* Groepsnaam in "Mijn schaatsers": tekst van max. 60 tekens zonder stuurtekens; anders '' */
+      function cleanGroupName(v) {
+        return cleanStr(v, 60).replace(/[\u0000-\u001f\u007f]/g, '');
+      }
+      /* Opgeslagen "Mijn schaatsers" (vanaf v67): { groups: [naam], skaters: [{…, groups: [naam]}] }.
+         Alleen geldige schaatsers, geen dubbele, alleen groepen die in de lijst groups staan. */
+      function cleanMine(x) {
+        const o = x && typeof x === 'object' ? x : {};
+        const groups = [];
+        if (Array.isArray(o.groups))
+          for (const g of o.groups) {
+            const n = cleanGroupName(g);
+            if (n && !groups.includes(n) && groups.length < MAX_GROUPS) groups.push(n);
+          }
+        const skaters = [],
+          seen = new Set();
+        if (Array.isArray(o.skaters))
+          for (const x of o.skaters) {
+            if (!x || typeof x !== 'object') continue;
+            const id = cleanId(x.id);
+            if (id == null || seen.has(id)) continue;
+            seen.add(id);
+            skaters.push({
+              id,
+              givenname: cleanStr(x.givenname, 60),
+              familyname: cleanStr(x.familyname, 80),
+              gender: x.gender === 'f' || x.gender === 'm' ? x.gender : '',
+              country: typeof x.country === 'string' && /^[A-Z]{3}$/.test(x.country) ? x.country : '',
+              category: cleanCategory(x.category),
+              catSeason: cleanInt(x.catSeason, 1900, 2100),
+              birth: normBirth(x.birth),
+              groups: Array.isArray(x.groups)
+                ? [...new Set(x.groups.map(cleanGroupName))].filter((g) => groups.includes(g))
+                : [],
+            });
+            if (skaters.length >= MAX_MINE) break;
+          }
+        return { groups, skaters };
+      }
       /* De opgeslagen selectie: alleen geldige schaatsers, geen dubbele, maximaal MAX_SKATERS,
          en wie geen geldige kleur heeft krijgt de eerste vrije kleur. */
       function cleanSelection(list) {
@@ -1948,7 +2111,7 @@
           maxT,
           theme: ['auto', 'light', 'dark'].includes(o.theme) ? o.theme : 'auto',
           rink: NL_RINKS.includes(o.rink) || o.rink === '-' ? o.rink : '', // laatst gekozen baan bij + tijd
-          addTab: ['search', 'top', 'file'].includes(o.addTab) ? o.addTab : 'search', // tabje in "Toevoegen"
+          addTab: ['search', 'mine', 'top', 'file'].includes(o.addTab) ? o.addTab : 'search', // tabje in "Toevoegen"
           ageSort: cleanInt(o.ageSort, 5, 80), // tabel per leeftijd: gesorteerd op deze leeftijd (null = niet)
         };
       }
@@ -2017,6 +2180,8 @@
       /* Toestand van de pagina: wie geselecteerd is, welke afstand, en de opgehaalde tijden */
       const state = {
         selected: cleanSelection(load(LS_SEL, [])), // gecontroleerd, zie cleanSelection()
+        mine: cleanMine(load(LS_MINE, {})), // "Mijn schaatsers", gecontroleerd, zie cleanMine()
+        mineView: '*', // gekozen groep in "Mijn schaatsers": '*' alle, 'g:naam' een groep, '-' zonder groep
         distance: 500,
         xMode: 'age', // x-as is altijd leeftijd (datumweergave is verwijderd)
         data: {}, // key `${id}_${dist}` -> array of results | 'loading' | 'error'
@@ -2040,6 +2205,23 @@
       }
       function persistSel() {
         save(LS_SEL, state.selected);
+        syncMineBirth();
+      }
+      function persistMine() {
+        save(LS_MINE, state.mine);
+      }
+      /* Geboortedatum die bij Geselecteerd is ingevuld ook bij "Mijn schaatsers" bewaren (alleen een
+         ingevulde datum; wissen bij Geselecteerd wist hem niet in "Mijn schaatsers") */
+      function syncMineBirth() {
+        let changed = false;
+        for (const s of state.selected) {
+          const m = s.birth && state.mine.skaters.find((x) => x.id === s.id);
+          if (m && m.birth !== s.birth) {
+            m.birth = s.birth;
+            changed = true;
+          }
+        }
+        if (changed) persistMine();
       }
       // oudere opslag: seizoen van de categorie vastleggen, zodat de schatting volgend seizoen niet verschuift
       state.selected.forEach((s) => {
@@ -2520,12 +2702,15 @@
         return `${m[1]}-${m[2].padStart(2, '0')}-${(m[3] || '15').padStart(2, '0')}`;
       }
       /* Lees de tekst van een schaatsersbestand (JSON) en zet elke schaatser om naar een vast formaat */
-      function parseSkaterFile(text) {
+      /* opt.max: maximaal aantal schaatsers (standaard MAX_SKATERS); opt.keepGroups: groepen uit het bestand
+         overnemen (velden groups of group, voor "Mijn schaatsers"); anders is groups altijd leeg */
+      function parseSkaterFile(text, opt = {}) {
+        const max = opt.max || MAX_SKATERS;
         if (text.length > MAX_FILE_BYTES) throw new Error('bestand is groter dan 1 MB');
         const j = JSON.parse(text);
         const list = Array.isArray(j) ? j : j && j.skaters;
         if (!Array.isArray(list)) throw new Error('geen lijst "skaters" gevonden');
-        if (list.length > MAX_SKATERS) throw new Error(`meer dan ${MAX_SKATERS} schaatsers in het bestand`);
+        if (list.length > max) throw new Error(`meer dan ${max} schaatsers in het bestand`);
         const seen = new Set();
         return list
           .map((x) => {
@@ -2551,10 +2736,19 @@
               category: cleanCategory(x.category),
               catSeason: cleanInt(x.catSeason, 1900, 2100),
               birth: normBirth(x.birth),
-              groups: [],
+              groups: opt.keepGroups ? fileGroups(x) : [],
             };
           })
           .filter(Boolean);
+      }
+      /* Groepen van één schaatser in een geïmporteerd bestand: lijst groups, of (oud) tekst group met komma's */
+      function fileGroups(x) {
+        const raw = Array.isArray(x.groups)
+          ? x.groups
+          : typeof x.group === 'string'
+            ? x.group.split(',')
+            : [];
+        return [...new Set(raw.map(cleanGroupName).filter(Boolean))].slice(0, 10);
       }
       /* Geopende schaatsersbestanden: [{ name, skaters }]. De bestandsnaam (zonder .json) is de groepsnaam.
          Meerdere bestanden kunnen tegelijk open zijn; alles staat alleen in het geheugen. */
@@ -2677,6 +2871,390 @@
           (state.selected.length >= MAX_SKATERS ? ` De selectie is vol (max. ${MAX_SKATERS}).` : '.');
       }
       $('groupAdd').addEventListener('click', () => addSkaterList(chosenFileSkaters(), $('groupInfo')));
+
+      /* ---------- Blok "Mijn schaatsers" (vanaf v67) ----------
+         Een coach bewaart zijn eigen schaatsers, verdeeld over groepen, in de localStorage van de eigen
+         browser (niet op een server en niet in de pagina zelf). Met Exporteren/Importeren gaan ze als
+         JSON-bestand naar een andere browser of computer. Een schaatser kan in meer groepen staan, of in
+         geen enkele. Formaat van het bestand: zie docs/GROEPEN.md. */
+      const MINE_FORMAT = 'schaatsvergelijker-mijn/1';
+      const byName = (a, b) =>
+        a.familyname.localeCompare(b.familyname, 'nl') || a.givenname.localeCompare(b.givenname, 'nl');
+      function mineById(id) {
+        return state.mine.skaters.find((x) => x.id === id);
+      }
+      /* Naam van de gekozen groep, of null bij "Alle" of "Zonder groep" */
+      function mineGroup() {
+        return state.mineView.startsWith('g:') ? state.mineView.slice(2) : null;
+      }
+      /* De schaatsers die bij de gekozen groep horen, gesorteerd op achternaam */
+      function mineChosen() {
+        const v = state.mineView,
+          g = mineGroup();
+        return state.mine.skaters
+          .filter((s) => (v === '*' ? true : v === '-' ? !s.groups.length : s.groups.includes(g)))
+          .sort(byName);
+      }
+      /* Kopie om een actie ongedaan te kunnen maken */
+      function mineBackup() {
+        return JSON.parse(JSON.stringify(state.mine));
+      }
+      function setMine(m) {
+        state.mine = cleanMine(m);
+        persistMine();
+        renderSelected(); // tekent ook Mijn schaatsers opnieuw
+      }
+      function mineInfo(text) {
+        $('mineInfo').textContent = text;
+      }
+      /* Knop op het kaartje bij Geselecteerd */
+      function mineCardBtn(s) {
+        return mineById(s.id)
+          ? `<button type="button" class="ownadd" data-act="mine" title="Staat in Mijn schaatsers; klik om dat blok te openen">✓ Mijn schaatsers</button>`
+          : `<button type="button" class="ownadd" data-act="mine" title="Bewaren in Mijn schaatsers${mineGroup() ? ` (groep ${esc(mineGroup())})` : ''}">+ Mijn schaatsers</button>`;
+      }
+      /* Schaatsers (uit de selectie) bewaren in Mijn schaatsers, eventueel in groep g.
+         Bestaat iemand al, dan worden naam, categorie en een ingevulde geboortedatum bijgewerkt. */
+      function keepInMine(list, g) {
+        let added = 0,
+          updated = 0,
+          full = 0;
+        for (const s of list) {
+          const cur = mineById(s.id);
+          if (cur) {
+            Object.assign(cur, {
+              givenname: s.givenname || cur.givenname,
+              familyname: s.familyname || cur.familyname,
+              gender: s.gender || cur.gender,
+              country: s.country || cur.country,
+              category: s.category || cur.category,
+              catSeason: s.category ? s.catSeason : cur.catSeason,
+              birth: s.birth || cur.birth,
+            });
+            if (g && !cur.groups.includes(g)) cur.groups.push(g);
+            updated++;
+          } else if (state.mine.skaters.length < MAX_MINE) {
+            state.mine.skaters.push({
+              id: s.id,
+              givenname: s.givenname,
+              familyname: s.familyname,
+              gender: s.gender || '',
+              country: s.country || '',
+              category: s.category || null,
+              catSeason: s.catSeason ?? null,
+              birth: s.birth || null,
+              groups: g ? [g] : [],
+            });
+            added++;
+          } else full++;
+        }
+        persistMine();
+        return { added, updated, full };
+      }
+      /* Keuzelijst met groepen en de lijst met schaatsers opnieuw opbouwen */
+      function renderMine() {
+        const m = state.mine,
+          sel = $('mineSel');
+        const count = (g) => m.skaters.filter((s) => s.groups.includes(g)).length;
+        const none = m.skaters.filter((s) => !s.groups.length).length;
+        const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
+        sel.innerHTML =
+          opt('*', `Alle mijn schaatsers (${m.skaters.length})`) +
+          (m.groups.length
+            ? '<optgroup label="Groepen">' +
+              m.groups.map((g) => opt('g:' + g, `${g} (${count(g)})`)).join('') +
+              '</optgroup>'
+            : '') +
+          (none && m.groups.length ? opt('-', `Zonder groep (${none})`) : '');
+        sel.value = state.mineView;
+        if (sel.value !== state.mineView) sel.value = state.mineView = '*'; // groep bestaat niet meer
+        const g = mineGroup(),
+          list = mineChosen();
+        $('mineRen').disabled = $('mineDel').disabled = !g;
+        $('mineAdd').disabled = !list.length;
+        $('mineExp').disabled = !list.length;
+        $('mineKeep').textContent = g ? `Selectie bewaren in "${g}"` : 'Selectie bewaren';
+        $('mineKeep').title = g
+          ? `Alle geselecteerde schaatsers bewaren in de groep ${g}`
+          : 'Alle geselecteerde schaatsers bewaren in Mijn schaatsers (zonder groep)';
+        if (!m.skaters.length) {
+          $('mineList').innerHTML =
+            '<div class="empty" style="padding:10px">Nog geen eigen schaatsers. Zoek een schaatser, voeg hem toe en klik op het kaartje op "+ Mijn schaatsers", of bewaar je hele selectie met de knop hieronder.</div>';
+          return;
+        }
+        if (!list.length) {
+          $('mineList').innerHTML =
+            `<div class="empty" style="padding:10px">Nog niemand in deze groep. Kies de groep en klik op "Selectie bewaren in …", of zet bij een schaatser onder "groepen" deze groep aan.</div>`;
+          return;
+        }
+        const inSel = new Set(state.selected.map((s) => s.id));
+        $('mineList').innerHTML = list
+          .map((s) => {
+            const on = inSel.has(s.id);
+            const born = s.birth
+              ? `geb. ${MONTHS[+s.birth.slice(5, 7) - 1]} ${s.birth.slice(0, 4)}`
+              : 'geboortedatum onbekend';
+            const chips = s.groups.map((x) => `<span class="chip" title="Groep">${esc(x)}</span>`).join('');
+            const edit = mineEdit.has(s.id);
+            return `
+    <div class="res mine" data-id="${Number(s.id)}">
+      <div><div>${esc(s.givenname)} ${esc(s.familyname)} <a class="prof" href="https://speedskatingresults.com/index.php?p=17&s=${Number(s.id)}" target="_blank" rel="noopener" title="Profiel op SpeedskatingResults" aria-label="Profiel op SpeedskatingResults">↗</a></div>
+      <div class="meta">${esc([catLabel(s), born].filter(Boolean).join(' · '))}${chips}</div></div>
+      <span class="mbtns">
+        <button class="small ${on ? 'ghost' : ''}" data-act="madd" ${on ? 'disabled title="Staat al in de selectie"' : 'title="Toevoegen aan de selectie"'}>${on ? '✓' : '+'}</button>
+        ${m.groups.length ? `<button class="small ghost" data-act="mgrp" aria-expanded="${edit}" title="Groepen van deze schaatser kiezen">groepen</button>` : ''}
+        <button class="x" data-act="mrm" title="${g ? `Uit de groep ${esc(g)} halen` : 'Verwijderen uit Mijn schaatsers'}">×</button>
+      </span>
+      ${
+        edit && m.groups.length
+          ? `<div class="mgroups">${m.groups.map((x, i) => `<button type="button" class="${s.groups.includes(x) ? 'on' : ''}" data-act="mtog" data-gi="${i}" aria-pressed="${s.groups.includes(x)}">${esc(x)}</button>`).join('')}</div>`
+          : ''
+      }
+    </div>`;
+          })
+          .join('');
+      }
+      const mineEdit = new Set(); // ID's waarbij de groepsknoppen open staan (alleen in het geheugen)
+      $('mineSel').addEventListener('change', () => {
+        state.mineView = $('mineSel').value;
+        mineEdit.clear();
+        renderSelected(); // ook de knop "+ Mijn schaatsers" noemt de gekozen groep
+      });
+      // hele groep (of alles) aan de selectie toevoegen
+      $('mineAdd').addEventListener('click', () => {
+        const g = mineGroup();
+        addSkaterList(
+          mineChosen().map((s) => ({ ...s, groups: g ? [g] : s.groups })),
+          $('mineInfo'),
+        );
+      });
+      $('mineList').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-act]');
+        if (!b) return;
+        const s = mineById(+b.closest('.mine').dataset.id);
+        if (!s) return;
+        const act = b.dataset.act,
+          g = mineGroup();
+        if (act === 'madd') {
+          addSkaterList([{ ...s, groups: g ? [g] : s.groups }], $('mineInfo'));
+        } else if (act === 'mgrp') {
+          if (mineEdit.has(s.id)) mineEdit.delete(s.id);
+          else mineEdit.add(s.id);
+          renderMine();
+        } else if (act === 'mtog') {
+          const x = state.mine.groups[+b.dataset.gi];
+          s.groups = s.groups.includes(x) ? s.groups.filter((y) => y !== x) : [...s.groups, x];
+          persistMine();
+          renderMine();
+        } else if (act === 'mrm') {
+          const backup = mineBackup();
+          const name = `${s.givenname} ${s.familyname}`.trim();
+          if (g) s.groups = s.groups.filter((y) => y !== g);
+          else state.mine.skaters = state.mine.skaters.filter((y) => y.id !== s.id);
+          persistMine();
+          renderSelected();
+          showToast(
+            g ? `${name} uit ${g} gehaald` : `${name} verwijderd uit Mijn schaatsers`,
+            'Ongedaan maken',
+            () => setMine(backup),
+          );
+        }
+      });
+      // hele selectie bewaren (in de gekozen groep)
+      $('mineKeep').addEventListener('click', () => {
+        if (!state.selected.length) {
+          mineInfo('Er is niets geselecteerd om te bewaren.');
+          return;
+        }
+        const g = mineGroup();
+        const r = keepInMine(state.selected, g);
+        renderSelected();
+        mineInfo(
+          `${r.added} nieuw bewaard` +
+            (r.updated ? `, ${r.updated} bijgewerkt` : '') +
+            (g ? ` in ${g}` : '') +
+            (r.full ? `. ${r.full} niet bewaard: maximaal ${MAX_MINE} schaatsers.` : '.'),
+        );
+      });
+      /* Groep aanmaken of hernoemen: één invoerregel onder de knoppen */
+      let mineFormMode = null; // 'new' of 'rename'
+      function openMineForm(mode) {
+        mineFormMode = mode;
+        $('mineForm').hidden = false;
+        $('mineName').value = mode === 'rename' ? mineGroup() : '';
+        $('mineOk').textContent = mode === 'rename' ? 'Hernoemen' : 'Aanmaken';
+        $('mineName').focus();
+        $('mineName').select();
+      }
+      function closeMineForm() {
+        mineFormMode = null;
+        $('mineForm').hidden = true;
+      }
+      function submitMineForm() {
+        const name = cleanGroupName($('mineName').value),
+          old = mineGroup(),
+          m = state.mine;
+        if (!name) return mineInfo('Vul een naam voor de groep in.');
+        if (mineFormMode === 'rename') {
+          if (name === old) return closeMineForm();
+          if (m.groups.includes(name)) return mineInfo(`Er is al een groep ${name}.`);
+          m.groups = m.groups.map((x) => (x === old ? name : x));
+          m.skaters.forEach((s) => (s.groups = s.groups.map((x) => (x === old ? name : x))));
+          // ook de groepsnaam op de kaartjes bij Geselecteerd
+          state.selected.forEach((s) => {
+            if (s.group)
+              s.group = s.group
+                .split(/,\s*/)
+                .map((x) => (x === old ? name : x))
+                .join(', ');
+          });
+          save(LS_SEL, state.selected);
+          mineInfo(`Groep ${old} heet nu ${name}.`);
+        } else {
+          if (m.groups.includes(name)) return mineInfo(`Er is al een groep ${name}.`);
+          if (m.groups.length >= MAX_GROUPS) return mineInfo(`Maximaal ${MAX_GROUPS} groepen.`);
+          m.groups.push(name);
+          mineInfo(
+            `Groep ${name} aangemaakt. Bewaar je selectie erin of zet de groep aan bij een schaatser.`,
+          );
+        }
+        state.mineView = 'g:' + name;
+        persistMine();
+        closeMineForm();
+        renderSelected();
+      }
+      $('mineNew').addEventListener('click', () => openMineForm('new'));
+      $('mineRen').addEventListener('click', () => mineGroup() && openMineForm('rename'));
+      $('mineOk').addEventListener('click', submitMineForm);
+      $('mineCancel').addEventListener('click', closeMineForm);
+      $('mineName').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitMineForm();
+        } else if (e.key === 'Escape') closeMineForm();
+      });
+      // groep verwijderen: de schaatsers blijven bewaard (eventueel zonder groep)
+      $('mineDel').addEventListener('click', () => {
+        const g = mineGroup();
+        if (!g) return;
+        const backup = mineBackup();
+        state.mine.groups = state.mine.groups.filter((x) => x !== g);
+        state.mine.skaters.forEach((s) => (s.groups = s.groups.filter((x) => x !== g)));
+        state.mineView = '*';
+        persistMine();
+        closeMineForm();
+        renderSelected();
+        showToast(`Groep ${g} verwijderd (de schaatsers blijven bewaard)`, 'Ongedaan maken', () => {
+          state.mineView = 'g:' + g;
+          setMine(backup);
+        });
+      });
+      /* Exporteren: alles of alleen de gekozen groep als JSON-bestand. Het bestand kan ook in het tabje
+         Bestand worden geopend (lijst skaters, zelfde velden als "Opslaan als JSON"). */
+      $('mineExp').addEventListener('click', () => {
+        const list = mineChosen(),
+          g = mineGroup();
+        if (!list.length) return mineInfo('Geen schaatsers om te exporteren.');
+        const created = new Date().toISOString().slice(0, 10);
+        const doc = {
+          format: MINE_FORMAT,
+          description: g
+            ? `Groep ${g} uit Mijn schaatsers (Schaatsvergelijker)`
+            : 'Mijn schaatsers (Schaatsvergelijker)',
+          created,
+          groups: g ? [g] : state.mineView === '-' ? [] : state.mine.groups,
+          skaters: list.map((s) => ({
+            id: s.id,
+            name: `${s.givenname} ${s.familyname}`.trim(),
+            givenname: s.givenname,
+            familyname: s.familyname,
+            gender: s.gender || null,
+            country: s.country || null,
+            birth: s.birth ? s.birth.slice(0, 7) : null,
+            category: s.category ?? null,
+            catSeason: s.catSeason ?? null,
+            groups: g ? [g] : s.groups,
+          })),
+        };
+        // bestandsnaam: de groepsnaam (zo heet de groep ook als je hem in het tabje Bestand opent)
+        const fileName = g ? g.replace(/[\\/:*?"<>|]/g, '-') : `mijn-schaatsers-${created}`;
+        downloadJson(doc, fileName + '.json');
+        mineInfo(`${list.length} schaatsers geëxporteerd naar ${fileName}.json.`);
+      });
+      /* Importeren: een eigen export (met groepen) of een gewoon schaatsersbestand (de bestandsnaam wordt
+         dan de groep). Wordt samengevoegd met wat er al staat; "Ongedaan maken" zet alles terug. */
+      function importMine(file) {
+        if (file.size > MAX_FILE_BYTES) return mineInfo('Kon bestand niet lezen: bestand is groter dan 1 MB');
+        const rd = new FileReader();
+        rd.onload = () => {
+          try {
+            const list = parseSkaterFile(rd.result, { max: MAX_MINE, keepGroups: true });
+            const j = JSON.parse(rd.result);
+            const own = j && j.format === MINE_FORMAT;
+            const fname = cleanGroupName(String(file.name).replace(/\.json$/i, '')) || 'Geïmporteerd';
+            const backup = mineBackup(),
+              m = state.mine;
+            let skipped = 0;
+            // groep alleen aanmaken als er nog ruimte is; geeft aan of de groep (nu) bestaat
+            const ensure = (g) => {
+              if (!m.groups.includes(g) && m.groups.length < MAX_GROUPS) m.groups.push(g);
+              return m.groups.includes(g);
+            };
+            if (own && Array.isArray(j.groups)) j.groups.map(cleanGroupName).filter(Boolean).forEach(ensure);
+            let added = 0,
+              updated = 0;
+            for (const f of list) {
+              const groups = (own ? f.groups : [fname]).filter(ensure);
+              const cur = mineById(f.id);
+              if (cur) {
+                if (f.birth) cur.birth = f.birth;
+                if (f.category) Object.assign(cur, { category: f.category, catSeason: f.catSeason });
+                cur.givenname = cur.givenname || f.givenname;
+                cur.familyname = cur.familyname || f.familyname;
+                cur.groups = [...new Set([...cur.groups, ...groups])];
+                updated++;
+              } else if (m.skaters.length < MAX_MINE) {
+                m.skaters.push({ ...f, groups });
+                added++;
+              } else skipped++;
+            }
+            state.mineView = !own ? 'g:' + fname : '*';
+            setMine(m);
+            mineInfo(
+              `${file.name}: ${added} nieuw, ${updated} bijgewerkt` +
+                (skipped ? `, ${skipped} overgeslagen (maximaal ${MAX_MINE})` : '') +
+                '.',
+            );
+            showToast(`Geïmporteerd: ${added} nieuw, ${updated} bijgewerkt`, 'Ongedaan maken', () =>
+              setMine(backup),
+            );
+          } catch (err) {
+            mineInfo('Kon bestand niet lezen: ' + err.message);
+          }
+        };
+        rd.readAsText(file);
+      }
+      $('mineImp').addEventListener('click', () => $('mineFile').click());
+      $('mineFile').addEventListener('change', (e) => {
+        if (e.target.files[0]) importMine(e.target.files[0]);
+        e.target.value = '';
+      });
+      ['dragover', 'dragenter'].forEach((t) =>
+        $('mineCard').addEventListener(t, (e) => {
+          e.preventDefault();
+          $('mineCard').style.outline = '2px dashed var(--accent)';
+        }),
+      );
+      ['dragleave', 'drop'].forEach((t) =>
+        $('mineCard').addEventListener(t, (e) => {
+          e.preventDefault();
+          $('mineCard').style.outline = '';
+        }),
+      );
+      $('mineCard').addEventListener('drop', (e) => {
+        const f = e.dataTransfer.files[0];
+        if (f) importMine(f);
+      });
 
       /* ---------- ingebouwde lijst topschaatsers (publiek bekende sporters) ---------- */
       const TOP_GROUPS = [
@@ -2828,15 +3406,19 @@
             catSeason: s.catSeason ?? null,
           })),
         };
+        downloadJson(doc, `schaatsers-${doc.created}.json`);
+      });
+      /* Object als JSON-bestand downloaden (zonder server: via een tijdelijke link) */
+      function downloadJson(doc, fileName) {
         const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `schaatsers-${doc.created}.json`;
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         a.remove();
         setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      });
+      }
       /* Melding onderin met eventueel een knop (vanaf v59); verdwijnt na 8 seconden */
       let toastTimer = null;
       function showToast(text, btnText, onBtn) {
@@ -2879,6 +3461,7 @@
       /* Bouw de kaartjes van alle geselecteerde schaatsers opnieuw op */
       function renderSelected() {
         const el = $('selected');
+        renderMine(); // vinkjes "staat in de selectie" bij Mijn schaatsers bijwerken
         if (!state.selected.length) {
           el.innerHTML = '<div class="empty" style="padding:10px">Nog niemand geselecteerd.</div>';
           return;
@@ -2916,7 +3499,7 @@
         ${!s.birth && b ? `<span></span><span class="warn">≈ geschat: ${b.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })} (${est})</span>` : ''}
         ${own.rows}
       </div>
-      ${own.add}
+      <div class="addrow">${mineCardBtn(s)}${own.add}</div>
     </div>`;
           })
           .join('');
@@ -2959,7 +3542,7 @@
         if (!f)
           return {
             rows,
-            add: `<div class="addrow"><button type="button" class="ownadd" data-act="tadd" title="Zojuist gereden tijd invoeren die nog niet op SpeedskatingResults staat">+ tijd</button></div>`,
+            add: `<button type="button" class="ownadd" data-act="tadd" title="Zojuist gereden tijd invoeren die nog niet op SpeedskatingResults staat">+ tijd</button>`,
           };
         const rinks =
           `<option value="" ${f.loc === '' ? 'selected' : ''}>baan…</option>` +
@@ -3043,6 +3626,23 @@
             persistManual();
             renderSelected();
             render();
+          }
+          return;
+        }
+        // "+ Mijn schaatsers": bewaren in de gekozen groep; "✓ Mijn schaatsers": dat blok openen
+        const mb = e.target.closest('[data-act=mine]');
+        if (mb) {
+          const s = state.selected.find((x) => x.id === +mb.closest('.sel').dataset.id);
+          if (mineById(s.id)) {
+            ui.addTab = 'mine';
+            save(LS_UI, ui);
+            showAddTab('mine');
+            $('mineCard').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          } else {
+            const g = mineGroup();
+            keepInMine([s], g);
+            renderSelected();
+            showToast(`${s.givenname} ${s.familyname} bewaard in Mijn schaatsers${g ? ` (${g})` : ''}`);
           }
           return;
         }
@@ -4127,7 +4727,7 @@
       });
       if (!load(LS_INTRO, 0)) openIntro(true);
 
-      /* Tabjes in het blok "Toevoegen": Zoeken, Topschaatsers of Bestand (keuze wordt onthouden) */
+      /* Tabjes in het blok "Toevoegen": Zoeken, Mijn schaatsers, Topschaatsers of Bestand (keuze wordt onthouden) */
       function showAddTab(tab) {
         document.querySelectorAll('#addTabs button').forEach((b) => {
           const on = b.dataset.pane === tab;
