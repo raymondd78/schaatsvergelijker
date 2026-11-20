@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v81** (20 november 2026)
+**Huidige versie: v82** (20 november 2026)
 
 ---
+
+## v82 – Uit lijst voegt meteen toe (20-11-2026)
+- In het tabje **Uit lijst** wordt een schaatser of groep meteen toegevoegd zodra je hem kiest. De knop **Toevoegen** is weg.
+- Daarna springt de lijst terug naar "Kies een schaatser of groep…", zodat je direct de volgende kunt kiezen.
+- Cache van de service worker verhoogd naar v82.
 
 ## v81 – Kortere uitleg (20-11-2026)
 - **Over deze tool** is korter: de voorbeeldzin is weg en de punten Mijn schaatsers, Verfijn, Als app installeren en de uitleg over de geboortemaand zijn ingekort. Het venster past nu op mobiel (getest op 360, 375 en 412 px breed) zonder scrollen.

@@ -33,7 +33,7 @@ Let op: de huidige selectie, met ingevulde geboortemaanden, wordt wel in de `loc
 
 - **Groepen:** "+ Nieuwe groep", "Hernoemen" en "Verwijderen" (de laatste twee voor de gekozen groep). Een schaatser kan in meer groepen staan, of in geen enkele ("Zonder groep"). Verwijderen van een groep laat de schaatsers staan. Maximaal 30 groepen en 500 schaatsers.
 - **Bewaren:** "+ Mijn schaatsers" op een kaartje bij Geselecteerd bewaart die schaatser (in de gekozen groep). Een geboortemaand die later bij Geselecteerd wordt ingevuld, gaat mee naar Mijn schaatsers.
-- **Toevoegen** (tabje Uit lijst): kies "Alle mijn schaatsers", een groep (de groepsnaam komt als label op het kaartje) of één naam en klik op Toevoegen.
+- **Toevoegen** (tabje Uit lijst): kies "Alle mijn schaatsers", een groep (de groepsnaam komt als label op het kaartje) of één naam; je keuze wordt meteen toegevoegd (vanaf v82, daarvoor met de knop Toevoegen).
 - **Exporteren:** downloadt alles (`mijn-schaatsers-JJJJ-MM-DD.json`) of alleen de gekozen groep (`<groepsnaam>.json`). Zo'n bestand kan ook in het tabje Bestand worden geopend (de groepen tellen daar niet).
 - **Importeren:** een eigen export neemt de groepen over; een gewoon schaatsersbestand wordt één groep met de naam van het bestand. Alles wordt samengevoegd met wat er al staat (geboortedatum uit het bestand gaat voor). Via "Ongedaan maken" in de melding gaat het terug.
 

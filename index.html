@@ -1550,7 +1550,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v81 van 20-11-2026">v81</span>
+      <span class="ver" title="Versie v82 van 20-11-2026">v82</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1676,12 +1676,12 @@
                lijst publiek bekende topschaatsers (zie TOP_SKATERS in het script) -->
           <div class="pane" id="listCard" data-pane="list" hidden>
             <div class="row" style="align-items: center">
+              <!-- vanaf v82 zonder knop Toevoegen: een keuze wordt meteen toegevoegd -->
               <select id="listSel" aria-label="Kies uit de lijst"></select>
-              <button type="button" id="listAdd" style="flex: 0 0 auto">Toevoegen</button>
             </div>
             <div class="hint" id="listInfo">
               Bovenaan je eigen schaatsers (Mijn schaatsers), daaronder 25 bekende topschaatsers. Kies één
-              schaatser of een hele groep.
+              schaatser of een hele groep; die wordt meteen toegevoegd.
             </div>
             <button type="button" class="freset" id="listManage" style="margin-top: 4px; padding-left: 0">
               Mijn schaatsers beheren…
@@ -1960,7 +1960,7 @@
     <footer>
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
-      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v81 (20-11-2026)
+      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v82 (20-11-2026)
     </footer>
 
     <script>
@@ -3485,29 +3485,14 @@
         if (v.startsWith('s:')) return topList.filter((s) => s.id === +v.slice(2));
         return [];
       }
+      /* Vanaf v82: een keuze in "Uit lijst" wordt meteen toegevoegd (geen knop Toevoegen meer). Daarna
+         springt de lijst terug naar "Kies een schaatser of groep…", zodat je direct de volgende kunt kiezen. */
       $('listSel').addEventListener('change', () => {
-        const v = $('listSel').value,
-          list = chosenListSkaters();
-        const one = list[0];
-        if ((v.startsWith('s:') || v.startsWith('ms:')) && one)
-          $('listInfo').textContent =
-            `${one.givenname} ${one.familyname}, ` +
-            (one.birth
-              ? `geboren ${MONTHS_FULL[+one.birth.slice(5, 7) - 1]} ${one.birth.slice(0, 4)}`
-              : 'geboortedatum onbekend') +
-            (one.groups.length ? `. ${one.groups.join(', ')}.` : '.');
-        else if (list.length)
-          $('listInfo').textContent = list.map((s) => `${s.givenname} ${s.familyname}`).join(', ') + '.';
-      });
-      $('listAdd').addEventListener('click', () => {
         const list = chosenListSkaters();
-        if (!list.length) {
-          $('listInfo').textContent = 'Kies eerst een schaatser of groep.';
-          return;
-        }
+        if (!list.length) return;
         addSkaterList(list, $('listInfo'));
+        $('listSel').value = '';
       });
-      $('listSel').addEventListener('dblclick', () => $('listAdd').click());
       $('listManage').addEventListener('click', () => openMine());
 
       $('saveSel').addEventListener('click', () => {
