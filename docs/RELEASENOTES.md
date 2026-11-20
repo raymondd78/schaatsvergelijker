@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v77** (20 november 2026)
+**Huidige versie: v78** (20 november 2026)
 
 ---
+
+## v78 – Minder verzoeken naar SpeedskatingResults (20-11-2026)
+- Andere afstanden worden pas opgehaald als je op het tabblad klikt. De app vraagt niet meer vooraf per schaatser de PR-lijst op.
+- Daardoor is een afstand zonder tijden pas grijs nadat je hem een keer hebt geopend (zoals vóór v65).
+- De waarschuwing *DataCloneError … AbortSignal object could not be cloned* in de console is weg. De time-out van 15 seconden werkt nog hetzelfde.
 
 ## v77 – Eén stijl voor alle knoppenbalken (20-11-2026)
 - De afstandsbalk, **Heren / Dames / Beide** en de weergave-opties onder de grafiek zien er nu hetzelfde uit: knoppen naast elkaar in één balk met een grijze rand. Gekozen of aan = blauw met witte tekst.

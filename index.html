@@ -1550,7 +1550,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v77 van 20-11-2026">v77</span>
+      <span class="ver" title="Versie v78 van 20-11-2026">v78</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1970,7 +1970,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v77 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v78 (20-11-2026)
     </footer>
 
     <script>
@@ -2319,20 +2319,29 @@
           link: safeResultUrl(x.link),
         };
       }
-      /* fetch met time-out en maximale grootte van het antwoord; geeft de tekst terug */
+      /* fetch met time-out en maximale grootte van het antwoord; geeft de tekst terug.
+         Vanaf v78 zonder AbortSignal: sommige browserextensies onderscheppen fetch en sturen de opties door
+         met postMessage, wat met een AbortSignal een DataCloneError gaf. De time-out stopt nu het wachten;
+         een hangend verzoek loopt op de achtergrond vanzelf af. */
       async function fetchText(url) {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+        let timer;
+        const timeout = new Promise((_, rej) => {
+          timer = setTimeout(
+            () => rej(new Error('geen antwoord binnen ' + FETCH_TIMEOUT_MS / 1000 + ' s')),
+            FETCH_TIMEOUT_MS,
+          );
+        });
         try {
-          const r = await fetch(url, { signal: ctrl.signal });
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          const text = await r.text();
-          if (text.length > MAX_RESPONSE_CHARS) throw new Error('antwoord te groot');
-          return text;
-        } catch (e) {
-          if (e.name === 'AbortError')
-            throw new Error('geen antwoord binnen ' + FETCH_TIMEOUT_MS / 1000 + ' s');
-          throw e;
+          return await Promise.race([
+            (async () => {
+              const r = await fetch(url);
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              const text = await r.text();
+              if (text.length > MAX_RESPONSE_CHARS) throw new Error('antwoord te groot');
+              return text;
+            })(),
+            timeout,
+          ]);
         } finally {
           clearTimeout(timer);
         }
@@ -2391,6 +2400,13 @@
           localStorage.setItem(k, JSON.stringify(v));
         } catch (e) {}
       }
+      /* Opgeslagen PR-lijsten van v65–v77 (ssr.cache.v1.pr_<id>) worden niet meer gebruikt: opruimen (v78) */
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith(LS_CACHE + 'pr_')) localStorage.removeItem(k);
+        }
+      } catch (e) {}
       function persistSel() {
         save(LS_SEL, state.selected);
         syncMineBirth();
@@ -4099,10 +4115,7 @@
         const d = state.distance;
         const todo = state.selected.filter((s) => state.data[`${s.id}_${d}`] === undefined);
         render();
-        if (!todo.length) {
-          loadPrDistances();
-          return;
-        }
+        if (!todo.length) return;
         $('loadStatus').textContent = `Laden (${todo.length})…`;
         const jobs = todo.map(async (s) => {
           const key = `${s.id}_${d}`;
@@ -4115,7 +4128,6 @@
           }
           if (d === state.distance) renderSoon(); // grafiek tussentijds bijwerken
         });
-        loadPrDistances(); // na de tijden van de open afstand in de wachtrij, dus die gaan voor
         await Promise.all(jobs);
         if (d === state.distance) {
           clearTimeout(renderTimer);
@@ -4205,57 +4217,15 @@
         return rows;
       }
 
-      /* ---------- Op welke afstanden heeft een schaatser tijden? (vanaf v65) ----------
-         Eén verzoek per schaatser naar personal_records (alle afstanden tegelijk), zodat afstandstabbladen
-         zonder tijden meteen grijs zijn, zonder eerst alle afstanden op te halen. 6 uur bewaard, net als de
-         tijden. De API documenteert alleen 500 t/m 10000 m; 100, 300 en 700 m tellen pas als die lijst
-         minstens één van die drie bevat (anders weten we niet of de API ze meegeeft). */
-      const prDist = {}; // schaatser-ID -> Set met afstanden met een PR | 'loading' | 'error'
-      const PR_DOCUMENTED = [500, 1000, 1500, 3000, 5000, 10000];
-      async function getPrDistances(id) {
-        const key = LS_CACHE + 'pr_' + id;
-        const cached = load(key, null);
-        const clean = (list) => (Array.isArray(list) ? list.filter((d) => DISTANCES.includes(d)) : null);
-        if (cached && typeof cached.t === 'number' && Date.now() - cached.t < CACHE_MS && clean(cached.d))
-          return new Set(clean(cached.d));
-        const text = await limited(() => fetchText(`${API}json/personal_records.php?skater=${cleanId(id)}`));
-        const j = JSON.parse(text);
-        const recs = Array.isArray(j && j.records) ? j.records : [];
-        const dists = [...new Set(recs.map((r) => +(r && r.distance)).filter((d) => DISTANCES.includes(d)))];
-        save(key, { t: Date.now(), d: dists });
-        return new Set(dists);
-      }
-      /* Haal de PR-lijst op voor geselecteerde schaatsers die er nog geen hebben; daarna tabbladen bijwerken */
-      function loadPrDistances() {
-        for (const s of state.selected) {
-          if (prDist[s.id] !== undefined) continue;
-          prDist[s.id] = 'loading';
-          getPrDistances(s.id)
-            .then((set) => (prDist[s.id] = set))
-            .catch((err) => {
-              prDist[s.id] = 'error';
-              console.warn(err);
-            })
-            .finally(markEmptyDistances);
-        }
-      }
-      /* Weten we zeker dat schaatser id op afstand d geen enkele tijd heeft? */
-      function prNone(id, d) {
-        const set = prDist[id];
-        if (!(set instanceof Set) || set.has(d)) return false;
-        return PR_DOCUMENTED.includes(d) || [100, 300, 700].some((x) => set.has(x));
-      }
-
       /* Afstandstabbladen grijs als al bekend is dat geen enkele (zichtbare) schaatser daar tijden heeft
-         (vanaf v59). Alleen afstanden die al zijn opgehaald tellen mee; de rest blijft gewoon. */
-      /* Vanaf v65 ook voor afstanden die nog niet zijn opgehaald: dan telt de PR-lijst (prDist). Zijn de
-         tijden al opgehaald, dan telt rowsFor() (met ANS en max. tijd). Een zelf ingevoerde tijd telt als data. */
+         (vanaf v59). Alleen afstanden die al zijn opgehaald tellen mee (rowsFor(), met ANS en max. tijd);
+         de rest blijft gewoon. Een zelf ingevoerde tijd telt als data. De PR-lijst per schaatser (v65–v77)
+         is in v78 vervallen: andere afstanden worden pas opgehaald als je op het tabblad klikt. */
       function markEmptyDistances() {
         const sel = state.selected.filter(genderOK);
         const noTimes = (s, d) => {
           if (Array.isArray(state.data[`${s.id}_${d}`])) return !rowsFor(s, d).length;
-          if (state.manual.some((m) => m.id === s.id && m.dist === d)) return false;
-          return prNone(s.id, d);
+          return false; // nog niet opgehaald: onbekend, dus niet grijs
         };
         document.querySelectorAll('#distTabs button[data-d]').forEach((b) => {
           const d = +b.dataset.d;

@@ -63,7 +63,7 @@ Alles wat van buiten komt, gaat door een controlefunctie; de rest van de code ve
 | Selectie in localStorage | `cleanSelection()` / `cleanSkater()` | Nieuw object per schaatser; ID positief geheel getal, kleur uit `COLORS`, tekstlengtes begrensd, geen dubbele, max. `MAX_SKATERS` (100) |
 | Instellingen in localStorage | `cleanUi()` | Alleen bekende sleutels met geldige waarden; oude sleutels (zoals `scale`, `log`) vallen weg |
 | Cache met tijden | `cleanResult()` in `getResults()` | Elke rij gecontroleerd; klopt er iets niet, dan wordt opnieuw opgehaald |
-| API (zoeken en tijden) | `fetchText()`, `cleanResult()`, `cleanId()` | Time-out 15 s (`FETCH_TIMEOUT_MS`), max. 5 MB per antwoord, velden gecontroleerd |
+| API (zoeken en tijden) | `fetchText()`, `cleanResult()`, `cleanId()` | Time-out 15 s (`FETCH_TIMEOUT_MS`, vanaf v78 via `Promise.race` zonder `AbortSignal`), max. 5 MB per antwoord, velden gecontroleerd |
 | Wedstrijdlinks | `safeResultUrl()` | Alleen `https://(www.)speedskatingresults.com`; anders geen link |
 | Zelf ingevoerde tijden | `cleanManual()` | Afstand uit `DISTANCES`, tijd via `parseTime()`, datum `JJJJ-MM-DD`, baan uit `NL_RINKS` of leeg; max. 500 |
 | Schaatsersbestand | `parseSkaterFile()` | Max. 1 MB (`MAX_FILE_BYTES`) en 100 schaatsers; ongeldige/dubbele ID's overgeslagen |
@@ -80,7 +80,7 @@ Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor
 | `ssr.manual.v1` | Zelf ingevoerde tijden (vanaf v51): `[{mid, id, dist, time, date, loc}]`; `loc` = NL-baan of leeg (buitenland/anders). Niet in de JSON-export |
 | `ssr.intro.v1` | `1` zodra het venster "Over deze tool" een keer is gesloten (vanaf v59); daarna gaat het niet meer vanzelf open |
 | `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
-| `ssr.cache.v1.pr_<id>` | `{t: timestamp, d: [afstanden met een PR]}` uit `personal_records`; 6 uur geldig (vanaf v65) |
+| ~~`ssr.cache.v1.pr_<id>`~~ | PR-lijst uit `personal_records` (v65–v77). Vervallen in v78; bij het laden van de pagina worden achtergebleven sleutels verwijderd |
 
 Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 
@@ -120,7 +120,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - `#introModal`: venster met de uitleg; `openIntro()`; sluit met ×, Esc of klik naast het venster.
 - Linkerkolom: blok **Toevoegen** met tabjes `#addTabs` (`showAddTab()`, `ui.addTab`) en panelen `.pane` (zoeken, `#listCard` = Uit lijst, `#fileCard`); het beheer van Mijn schaatsers staat los in `#mineWrap`/`#mineCard` (pc: venster via `#mineBtn`; mobiel: tabblad `data-mtab="mine"`; `openMine()`/`closeMine()`, vanaf v68); daaronder **Geselecteerd**.
 - `showToast(tekst, knoptekst, actie)` / `hideToast()`: melding onderin (8 s). "Alles wissen" toont "Ongedaan maken" (`setSelection()`).
-- `markEmptyDistances()` (in `render()`): afstandstabblad krijgt klasse `nodata` als voor alle zichtbare schaatsers al bekend is dat er geen tijden zijn. Vanaf v65 ook voor nog niet opgehaalde afstanden: `loadPrDistances()` (aangeroepen in `refresh()`, na de tijden van de open afstand) haalt per schaatser `personal_records` op (alle afstanden, één verzoek; cache `ssr.cache.v1.pr_<id>`, 6 uur) in `prDist`. `prNone(id, afstand)` is waar als die lijst de afstand niet bevat; voor 100/300/700 m (niet gedocumenteerd bij dit endpoint) alleen als de lijst minstens één van die drie bevat. Opgehaalde tijden (`rowsFor()`, dus met ANS en max. tijd) en zelf ingevoerde tijden gaan voor.
+- `markEmptyDistances()` (in `render()`): afstandstabblad krijgt klasse `nodata` als voor alle zichtbare schaatsers al bekend is dat er geen tijden zijn. Alleen opgehaalde afstanden tellen mee (`rowsFor()`, dus met ANS, max. tijd en zelf ingevoerde tijden); nog niet opgehaalde afstanden blijven gewoon. In v65–v77 haalde `loadPrDistances()` daarvoor per schaatser `personal_records` op; dat is in v78 vervallen om de belasting van SpeedskatingResults te verlagen: `refresh()` haalt alleen de open afstand op, andere afstanden pas na een klik op het tabblad.
 - `#chartLoad`: draaiend icoon met "Tijden ophalen…" boven de grafiek zolang er nog tijden worden opgehaald.
 
 ## Thema: licht en donker (vanaf v47)
