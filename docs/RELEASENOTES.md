@@ -2,9 +2,17 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v71** (20 november 2026)
+**Huidige versie: v72** (20 november 2026)
 
 ---
+
+## v72 – Lange afstanden in 3k+, ANS in de balk (20-11-2026)
+- De afstandsbalk is op de pc en op mobiel nu gelijk: één balk met **100 t/m 1500 m**, de uitklapknop **3k+** en als laatste vakje **ANS**.
+- **3k+** opent een menu met 3000, 5000 en 10000 m. Kies je er een, dan wordt het vakje blauw en staat de afstand erin ("5000 m", op mobiel "5k"). De knop is grijs als je selectie op geen van de drie lange afstanden tijden heeft.
+- **ANS** staat na een iets dikkere scheidingslijn en wordt blauw met een vinkje (✓ ANS) als hij aan staat. De ANS-schakelaar onder de grafiek is weg; daar staan nog PR-lijn, Alle tijden en Snelste boven.
+- De vakjes hebben een vaste breedte: er verschuift niets als je een lange afstand kiest of ANS aanzet.
+- Cache van de service worker verhoogd naar v72.
+
 
 ## v71 – Geboortedatum achter de naam (20-11-2026)
 - Op het kaartje bij **Geselecteerd** staat een ingevulde geboortedatum nu klein en grijs achter de naam, met de leeftijd: "Roos Arends ↗ dec 2014 · 11 jr 11 mnd". Het label "Geboren" is daar weg.

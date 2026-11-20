@@ -15,7 +15,7 @@
   worker neemt het direct over (skipWaiting) en ruimt de oude cache op. Omdat de pagina netwerk-eerst
   wordt geladen, zie je een nieuwe versie bij de eerstvolgende keer openen.
 */
-const CACHE = 'schaatsvergelijker-v71';
+const CACHE = 'schaatsvergelijker-v72';
 const CHART_JS = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
 const APP_FILES = [
   './',

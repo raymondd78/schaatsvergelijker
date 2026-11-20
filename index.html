@@ -666,21 +666,102 @@
         box-shadow: 0 0 0 2px var(--c) inset;
       }
       /* ===== Afstand-tabbladen en de rij met opties boven de grafiek ===== */
+      /* Afstandsbalk (vanaf v72 op pc en mobiel gelijk): één segmentbalk met 100 t/m 1500 m, de uitklapknop
+         3k+ (3000, 5000, 10000 m) en als laatste vakje ANS. De vakjes hebben een vaste breedte (flex 1 1 0,
+         ANS een vaste inhoud), zodat er niets verschuift als je een lange afstand kiest of ANS aanzet. */
       .tabs {
         display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
         margin-bottom: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--card);
       }
       .tabs button {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 32px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
         background: var(--card);
         color: var(--ink);
-        border-color: var(--line);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-variant-numeric: tabular-nums;
+      }
+      .tabs > :not(:first-child) {
+        border-left: 1px solid var(--line);
+      }
+      .tabs > :first-child {
+        border-radius: 7px 0 0 7px;
+      }
+      .tabs > :last-child {
+        border-radius: 0 7px 7px 0;
       }
       .tabs button.on {
         background: var(--accent);
         color: #fff;
-        border-color: var(--accent);
+      }
+      /* uitklapknop 3k+ met het menu met de lange afstanden */
+      .tabs .dmore {
+        position: relative;
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+      }
+      .tabs .dmore > button {
+        border-radius: 0;
+      }
+      .tabs .car {
+        margin-left: 3px;
+        font-size: 10px;
+      }
+      .dmenu {
+        position: absolute;
+        right: -1px;
+        top: calc(100% + 4px);
+        z-index: 25;
+        min-width: 130px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 4px;
+        box-shadow: 0 4px 16px rgba(20, 33, 61, 0.18);
+      }
+      .dmenu[hidden] {
+        display: none;
+      }
+      .tabs .dmenu button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 34px;
+        padding: 0 10px;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+      .tabs .dmenu button.on {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      /* ANS als laatste vakje, na een dikkere scheidingslijn; het vinkje houdt altijd zijn plek */
+      .tabs .ansseg {
+        flex: 0 0 auto;
+        padding: 0 12px;
+        border-left: 2px solid var(--faint);
+      }
+      .tabs .chk {
+        visibility: hidden;
+        margin-right: 3px;
+      }
+      .tabs .on > .chk {
+        visibility: visible;
+      }
+      .tabs .dmenu .chk {
+        margin: 0 0 0 8px;
       }
       .controls {
         display: flex;
@@ -1042,27 +1123,20 @@
         body[data-mtab='tables'] #prCard {
           margin-top: 10px;
         }
-        /* afstanden als één doorlopende segmentbalk zonder tussenruimte (vanaf v64; was een schuifbalk) */
+        /* afstandsbalk op mobiel: hogere vakjes en korte labels (100, 3k+, 5k, …) (vanaf v64; v72 alleen maten) */
         .tabs {
-          flex-wrap: nowrap;
-          gap: 0;
           margin: 0 0 8px;
-          border: 1px solid var(--line);
-          border-radius: 8px;
-          overflow: hidden;
         }
         .tabs button {
-          flex: 1 1 0;
-          min-width: 0;
           min-height: 36px;
           padding: 0;
-          border: 0;
-          border-radius: 0;
           font-size: 11px;
-          font-variant-numeric: tabular-nums;
         }
-        .tabs button + button {
-          border-left: 1px solid var(--line);
+        .tabs .ansseg {
+          padding: 0 7px;
+        }
+        .tabs .car {
+          margin-left: 1px;
         }
         .tabs .dl {
           display: none;
@@ -1139,35 +1213,6 @@
           color: var(--ink);
           margin-right: auto;
         }
-        /* rij met de afstanden en de knop ANS (vanaf v66), ook zichtbaar in het tabblad Tabellen */
-        .distrow {
-          display: flex;
-          gap: 6px;
-          align-items: stretch;
-          margin-bottom: 8px;
-        }
-        .distrow .tabs {
-          flex: 1;
-          min-width: 0;
-          margin: 0;
-        }
-        .distrow .ansbtn {
-          display: block;
-          flex: none;
-          min-height: 36px;
-          padding: 0 10px;
-          border: 1px solid var(--line);
-          border-radius: 8px;
-          background: var(--card);
-          color: var(--ink);
-          font-size: 12px;
-        }
-        .distrow .ansbtn.on {
-          background: var(--accent-soft);
-          color: var(--accent);
-          border-color: var(--accent);
-          font-weight: 600;
-        }
         /* weergave-opties: drie gelijke knoppen op één regel; aan = blauw (vanaf v66; ANS staat in de
            afstandsbalk). De checkbox zelf is onzichtbaar, het label is de knop. */
         .viewopts {
@@ -1176,8 +1221,7 @@
           gap: 6px;
           margin-top: 8px;
         }
-        .viewopts > .flbl,
-        .viewopts #ansLbl {
+        .viewopts > .flbl {
           display: none;
         }
         .viewopts label.sw {
@@ -1419,7 +1463,6 @@
         .mtabs,
         footer,
         .tabs,
-        .distrow,
         .mbar,
         .controls,
         .viewopts,
@@ -1449,7 +1492,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v71 van 20-11-2026">v71</span>
+      <span class="ver" title="Versie v72 van 20-11-2026">v72</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1648,20 +1691,8 @@
       <!-- Rechterkolom: afstand kiezen, filters, grafiek en tabellen -->
       <section>
         <div class="card">
-          <!-- Tabbladen per afstand (worden door het script gevuld) -->
-          <!-- Rij met de afstanden en (alleen mobiel, vanaf v66) de knop ANS -->
-          <div class="distrow">
-            <div class="tabs" id="distTabs"></div>
-            <button
-              type="button"
-              class="ansbtn mobile-only"
-              id="mAnsBtn"
-              aria-pressed="false"
-              title="ANS: alleen Nederlandse banen, omgerekend naar een neutrale baan"
-            >
-              ANS
-            </button>
-          </div>
+          <!-- Afstandsbalk met de uitklapknop 3k+ en ANS (wordt door het script gevuld, vanaf v72) -->
+          <div class="tabs" id="distTabs"></div>
           <!-- Mobiel: samenvatting van de filters en de knop Filters (verborgen op desktop) -->
           <div class="mbar mobile-only">
             <span id="mSummary"></span>
@@ -1721,12 +1752,6 @@
             <label class="sw"><input type="checkbox" id="showPR" checked /> PR-lijn</label>
             <label class="sw"><input type="checkbox" id="showAll" /> Alle tijden</label>
             <label class="sw"><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
-            <label
-              class="sw"
-              id="ansLbl"
-              title="Alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan"
-              ><input type="checkbox" id="ansOn" /> ANS (NL-banen)</label
-            >
           </div>
           <!-- Mobiel: chips per schaatser om te highlighten (verborgen op desktop) -->
           <div id="mChips" class="mobile-only"></div>
@@ -1878,7 +1903,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v71 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v72 (20-11-2026)
     </footer>
 
     <script>
@@ -3792,20 +3817,90 @@
         if (again) again.focus();
       });
 
-      /* ---------- Afstand-tabbladen en vinkjes boven de grafiek ---------- */
-      $('distTabs').innerHTML = DISTANCES.map(
-        (d) =>
-          `<button data-d="${d}" class="${d === state.distance ? 'on' : ''}" aria-label="${d} m">` +
-          `<span class="dl">${d} m</span><span class="ds">${d >= 3000 ? d / 1000 + 'k' : d}</span></button>`,
-      ).join('');
+      /* ---------- Afstandsbalk en vinkjes boven de grafiek ----------
+         Vanaf v72: 100 t/m 1500 m als knoppen, de lange afstanden in de uitklapknop 3k+ en als laatste vakje
+         de knop ANS. De uitklapknop toont de gekozen lange afstand ("5000 m", mobiel "5k"). */
+      const LONG_DISTANCES = [3000, 5000, 10000];
+      $('distTabs').innerHTML =
+        DISTANCES.filter((d) => !LONG_DISTANCES.includes(d))
+          .map(
+            (d) =>
+              `<button type="button" data-d="${d}" aria-label="${d} m">` +
+              `<span class="dl">${d} m</span><span class="ds">${d}</span></button>`,
+          )
+          .join('') +
+        `<div class="dmore"><button type="button" id="distMoreBtn" aria-haspopup="true" aria-expanded="false">` +
+        `<span class="dl" id="distMoreL">3k+</span><span class="ds" id="distMoreS">3k+</span>` +
+        `<span class="car" aria-hidden="true">▾</span></button>` +
+        `<div class="dmenu" id="distMenu" role="menu" hidden>` +
+        LONG_DISTANCES.map(
+          (d) =>
+            `<button type="button" role="menuitemradio" data-d="${d}">${d} m<span class="chk" aria-hidden="true">✓</span></button>`,
+        ).join('') +
+        `</div></div>` +
+        `<button type="button" class="ansseg" id="ansBtn" aria-pressed="false" ` +
+        `title="ANS: alleen tijden op Nederlandse banen uit de KNSB ANS-tabel, omgerekend naar een neutrale baan">` +
+        `<span class="chk" aria-hidden="true">✓</span>ANS</button>`;
+      /* Gekozen afstand blauw maken; de uitklapknop is blauw en noemt de afstand als een lange afstand gekozen is */
+      function syncDistTabs() {
+        $('distTabs')
+          .querySelectorAll('button[data-d]')
+          .forEach((x) => {
+            const on = +x.dataset.d === state.distance;
+            x.classList.toggle('on', on);
+            if (x.getAttribute('role') === 'menuitemradio')
+              x.setAttribute('aria-checked', on ? 'true' : 'false');
+          });
+        const long = LONG_DISTANCES.includes(state.distance);
+        $('distMoreBtn').classList.toggle('on', long);
+        $('distMoreL').textContent = long ? `${state.distance} m` : '3k+';
+        $('distMoreS').textContent = long ? `${state.distance / 1000}k` : '3k+';
+        $('distMoreBtn').setAttribute(
+          'aria-label',
+          long ? `Lange afstand: ${state.distance} m` : 'Lange afstanden: 3000, 5000 of 10000 m',
+        );
+      }
+      /* Menu van de uitklapknop openen of sluiten */
+      function openDistMenu(open) {
+        $('distMenu').hidden = !open;
+        $('distMoreBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      /* Knop ANS in de balk blauw met vinkje als ANS aan staat */
+      function syncAns() {
+        $('ansBtn').classList.toggle('on', ui.ans);
+        $('ansBtn').setAttribute('aria-pressed', ui.ans ? 'true' : 'false');
+      }
       $('distTabs').addEventListener('click', (e) => {
+        if (e.target.closest('#distMoreBtn')) {
+          openDistMenu($('distMenu').hidden);
+          return;
+        }
+        if (e.target.closest('#ansBtn')) {
+          ui.ans = !ui.ans;
+          save(LS_UI, ui);
+          syncAns();
+          render();
+          return;
+        }
         const b = e.target.closest('button[data-d]');
         if (!b) return;
+        openDistMenu(false);
         state.distance = +b.dataset.d;
-        [...$('distTabs').children].forEach((x) => x.classList.toggle('on', +x.dataset.d === state.distance));
+        syncDistTabs();
         fillMaxT();
         refresh();
       });
+      // klik ergens anders of Escape: menu dicht
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dmore')) openDistMenu(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !$('distMenu').hidden) {
+          openDistMenu(false);
+          $('distMoreBtn').focus();
+        }
+      });
+      syncDistTabs();
       ['showAll', 'showPR', 'fastTop'].forEach((id) => $(id).addEventListener('change', render));
 
       /* ---------- leeftijdsperiode ---------- */
@@ -3837,18 +3932,8 @@
         save(LS_UI, ui);
         render();
       });
-      /* Schakelaar ANS onder de grafiek (vanaf v57) */
-      $('ansOn').checked = ui.ans;
-      /* Knop ANS in de afstandsbalk (mobiel, vanaf v66): zet dezelfde schakelaar om */
-      $('mAnsBtn').addEventListener('click', () => {
-        $('ansOn').checked = !$('ansOn').checked;
-        $('ansOn').dispatchEvent(new Event('change'));
-      });
-      $('ansOn').addEventListener('change', () => {
-        ui.ans = $('ansOn').checked;
-        save(LS_UI, ui);
-        render();
-      });
+      /* ANS staat vanaf v72 als laatste vakje in de afstandsbalk (pc en mobiel); zie syncAns() */
+      syncAns();
       /* Heren / Dames / Beide (vanaf v56; waren twee vinkjes). Twee keer "uit" kan zo niet meer. */
       if (!ui.showM && !ui.showF) ui.showM = ui.showF = true;
       function syncGenderSeg() {
@@ -4097,12 +4182,16 @@
           if (state.manual.some((m) => m.id === s.id && m.dist === d)) return false;
           return prNone(s.id, d);
         };
-        document.querySelectorAll('#distTabs button').forEach((b) => {
+        document.querySelectorAll('#distTabs button[data-d]').forEach((b) => {
           const d = +b.dataset.d;
           const empty = sel.length && sel.every((s) => noTimes(s, d));
           b.classList.toggle('nodata', !!empty);
           b.title = empty ? 'Geen tijden van je selectie op deze afstand' : '';
         });
+        // uitklapknop 3k+ grijs als geen van de drie lange afstanden tijden heeft (vanaf v72)
+        const longEmpty = sel.length && LONG_DISTANCES.every((d) => sel.every((s) => noTimes(s, d)));
+        $('distMoreBtn').classList.toggle('nodata', !!longEmpty);
+        $('distMoreBtn').title = longEmpty ? 'Geen tijden van je selectie op 3000, 5000 en 10000 m' : '';
       }
 
       /* ---------- Grafiek ---------- */
@@ -4743,8 +4832,7 @@
           n++;
         }
         // ANS staat vanaf v66 als knop in de afstandsbalk, dus niet meer in de samenvatting
-        $('mAnsBtn').classList.toggle('on', ui.ans);
-        $('mAnsBtn').setAttribute('aria-pressed', ui.ans ? 'true' : 'false');
+        syncAns();
         if (!ui.showM || !ui.showF) {
           parts.push(!ui.showF ? 'alleen heren' : !ui.showM ? 'alleen dames' : '');
           n++;

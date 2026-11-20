@@ -4,7 +4,7 @@ Niet elke ijsbaan is even snel. De KNSB gebruikt ANS-tabellen om tijden van vers
 
 ## In de app
 
-Het vinkje **"Alleen NL-banen, ANS-gecorrigeerd"** doet twee dingen:
+De knop **ANS** (laatste vakje van de afstandsbalk, vanaf v72) doet twee dingen:
 1. **Filteren.** Alleen tijden op banen uit de ANS-tabel blijven over. Buitenlandse banen, en Nederlandse banen die niet in de tabel staan (bijv. Dronten, Zoetermeer), vallen weg.
 2. **Omrekenen.** Elke tijd wordt omgerekend met **ANS-tijd = gereden tijd × (1 − correctie%/100)**.
 
