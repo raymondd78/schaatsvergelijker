@@ -14,7 +14,7 @@ In het JSON-bestand staan ze nog wel; ze ontbreken alleen in de ingebouwde lijst
 
 Nils van der Poel staat niet in SpeedskatingResults en is dus niet opgenomen. Een groep oud-schaatsers (Ritsma, Romme, Van Gennip e.a.) is in v15 geprobeerd en in v16 weer verwijderd: van hen staan te weinig tijden, zeker jeugdtijden, in de bron.
 
-Kies "Alle topschaatsers" of één naam en klik **Toevoegen**. Vanaf v80 is het één groep "Topschaatsers" met de 25 bekendste. Bijwerken: pas `TOP_SKATERS` aan (één regel per schaatser: `[id, voornaam, achternaam, geslacht, geboortemaand, land]`; land alleen als het niet NED is).
+Kies "Alle topschaatsers" of één naam; die wordt meteen toegevoegd (vanaf v82). Vanaf v80 is het één groep "Topschaatsers" met de 25 bekendste. Bijwerken: pas `TOP_SKATERS` aan (één regel per schaatser: `[id, voornaam, achternaam, geslacht, geboortemaand, land]`; land alleen als het niet NED is).
 
 ## In de pagina (eigen bestanden)
 
