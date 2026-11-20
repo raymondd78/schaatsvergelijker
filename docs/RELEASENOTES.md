@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v75** (20 november 2026)
+**Huidige versie: v76** (20 november 2026)
 
 ---
+
+## v76 – Weergave-opties als knoppen, links (20-11-2026)
+- Op de pc staan **PR-lijn**, **Alle tijden** en **Snelste boven** onder de grafiek nu als knoppen, net als op mobiel. Blauw = aan. Ze zijn even groot als de afstandsknoppen (tekst 14 px, 34 px hoog). De schakelaartjes en het woord "Toon" zijn weg.
+- Op pc en mobiel staan de knoppen links, elk zo breed als de tekst. Op mobiel liepen ze eerst over de hele breedte.
+- Cache van de service worker verhoogd naar v76.
 
 ## v75 – Filters even groot als de afstandsbalk (20-11-2026)
 - Op de pc zijn de filters boven de grafiek (**Leeftijd**, **Max. tijd** en **Heren / Dames / Beide**) even groot als de afstandsknoppen: tekst 14 px (was 11–13) en vakjes 34 px hoog. Ook **Filters wissen** is 14 px.
