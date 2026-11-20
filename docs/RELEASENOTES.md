@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van de Schaatsvergelijker (tot v82 `schaatsvergelijker.html`, vanaf v83 `index.html` met `app.css`, `data.js` en `app.js`), nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v83** (20 november 2026)
+**Huidige versie: v84** (20 november 2026)
 
 ---
+
+## v84 – Lege grafiek met vaste schaal (20-11-2026)
+- Zonder tijden toont de grafiek geen rare waarden meer (zoals 10,00 en "Infinity.NaN,NaN" onderaan de tijd-as).
+- Een lege grafiek heeft een vaste schaal: op de 500 m van 1.00,00 tot 30,00, andere afstanden naar verhouding (bijv. 1000 m van 2.00 tot 1.00, 100 m van 12 tot 6 s).
+- Cache van de service worker verhoogd naar v84.
 
 ## v83 – App gesplitst in vier bestanden (20-11-2026)
 - De app staat niet meer in één HTML-bestand, maar in `index.html` (schermindeling), `app.css` (opmaak), `data.js` (ANS-tabellen, banen, topschaatsers) en `app.js` (werking). Nog steeds zonder build-stap; dubbelklikken op `index.html` werkt nog.

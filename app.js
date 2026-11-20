@@ -2292,7 +2292,7 @@ function render() {
           display: true,
           text: `Tijd ${d} m${ui.ans ? ' (ANS)' : ''}`,
         },
-        ticks: { includeBounds: false, callback: (v) => fmtTime(yInv(v)) },
+        ticks: { includeBounds: false, callback: (v) => (v > 0 && isFinite(v) ? fmtTime(yInv(v)) : '') },
         afterBuildTicks: niceTimeTicks,
       },
     },
@@ -2331,6 +2331,10 @@ function render() {
       pad = mx - mn > mx * 1e-6 ? (mx - mn) * 0.06 : mx * 0.01;
     opts.scales.y.min = Math.max(0, mn - pad);
     opts.scales.y.max = mx + pad;
+  } else {
+    // lege grafiek (vanaf v84): vaste schaal, op 500 m van 60 tot 30 s, andere afstanden naar verhouding
+    opts.scales.y.min = yT((60 * d) / 500);
+    opts.scales.y.max = yT((30 * d) / 500);
   }
   const allX = datasets.flatMap((ds) => ds.data.map((p) => p.x)).filter((x) => x != null);
   if (allX.length) {
