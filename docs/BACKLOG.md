@@ -13,13 +13,7 @@
 ## Ideeën
 
 - [x] **Tijdencache opruimen** (besloten 20-11-2026). Gedaan in v85: `pruneCache()` verwijdert bij het starten de sleutels `ssr.cache.v1.<id>_<afstand>` van schaatsers die niet in de selectie, Mijn schaatsers of `TOP_SKATERS` staan. Andere `ssr.*`-sleutels blijven ongemoeid.
-- [ ] **Nieuwe PR's sinds je vorige bezoek (Mijn schaatsers)** (idee 20-11-2026). Een coach opent de app na een wedstrijdweekend en ziet meteen welke van zijn eigen schaatsers een nieuw PR hebben gereden.
-  - **Ophalen:** per schaatser in Mijn schaatsers één verzoek `personal_records` (alle afstanden in één keer), hooguit 4 tegelijk, en per schaatser hooguit eens per 6 uur (eigen cache). Topschaatsers en schaatsers die alleen in de selectie staan, doen niet mee.
-  - **Vergelijken:** de app onthoudt per schaatser het laatst geziene PR per afstand in een nieuwe sleutel `ssr.seen.v1` (`{ id: { afstand: tijd } }`). Snellere tijd dan het geziene PR = nieuw PR. De eerste keer (of voor een net toegevoegde schaatser) wordt alleen vastgelegd, zonder melding.
-  - **Tonen:** een badge met het aantal op de knop Mijn schaatsers (mobiel: tabbalk; pc: kopbalk), en een lijst "Nieuwe PR's" met naam, afstand, nieuw PR, vorig PR, verbetering (s en %) en datum. Klik op een regel: schaatser aan de selectie toevoegen en die afstand openen.
-  - **Gezien:** pas als de coach op **Alles gezien** klikt (of per regel ×) wordt `ssr.seen.v1` bijgewerkt. Even kijken laat de melding dus niet verdwijnen.
-  - **Aandachtspunten:** v78 heeft juist het aantal verzoeken verlaagd; met veel schaatsers (max. 500) wordt dit veel verkeer. `personal_records` geeft 100/300/700 m niet altijd mee (zie v65). Zelf ingevoerde tijden (`ssr.manual.v1`) tellen niet mee.
-  - **Besloten (20-11-2026):** automatisch controleren bij het openen; 100 en 300 m apart ophalen via `skater_results`, omdat SpeedskatingResults die niet als PR rapporteert.
+- [x] **Nieuwe PR's sinds je vorige bezoek (Mijn schaatsers)** (idee en besluit 20-11-2026). Gedaan in v86: automatisch bij het openen, `personal_records` plus `skater_results` voor 100 en 300 m, geziene PR's in `ssr.seen.v1`, badge en lijst in Mijn schaatsers, gezien pas na × of Alles gezien. Zie `ARCHITECTUUR.md`.
 - [ ] Uitschieters filteren (bv. tijden > X % boven de PR van dat moment verbergen).
 - [ ] Baan markeren in tooltip/kleur; filter op "alleen laaglandbanen".
 - [ ] Overzichtsmatrix: PR per afstand per schaatser, met leeftijd bij het PR.

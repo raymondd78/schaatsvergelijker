@@ -985,6 +985,7 @@ function setMine(m) {
   state.mine = cleanMine(m);
   persistMine();
   renderSelected(); // tekent ook Mijn schaatsers opnieuw
+  checkNewPRs(); // nieuwe schaatsers: PR's vastleggen (vanaf v86)
 }
 function mineInfo(text) {
   $('mineInfo').textContent = text;
@@ -1036,6 +1037,7 @@ function keepInMine(list, g) {
 /* Keuzelijst met groepen en de lijst met schaatsers opnieuw opbouwen */
 function renderMine() {
   fillListSel(); // keuzelijst "Uit lijst" toont Mijn schaatsers bovenaan
+  renderNewPRs(); // nieuwe PR's (vanaf v86): een verwijderde schaatser valt eruit
   const m = state.mine,
     sel = $('mineSel');
   const count = (g) => m.skaters.filter((s) => s.groups.includes(g)).length;
@@ -1303,6 +1305,218 @@ $('mineFile').addEventListener('change', (e) => {
 $('mineCard').addEventListener('drop', (e) => {
   const f = e.dataTransfer.files[0];
   if (f) importMine(f);
+});
+
+/* ---------- Nieuwe PR's van Mijn schaatsers sinds je vorige bezoek (vanaf v86) ----------
+   Bij het openen van de app haalt de app voor elke schaatser in Mijn schaatsers de PR's op: één verzoek
+   personal_records voor alle afstanden, plus skater_results voor 100 en 300 m (die rapporteert
+   SpeedskatingResults niet als PR). Alles 6 uur bewaard en via de wachtrij (max. 4 tegelijk).
+   Per schaatser en afstand onthoudt de app het laatst geziene PR (ssr.seen.v1). Is het PR nu sneller,
+   dan is het een nieuw PR: badge op de knop Mijn schaatsers en een lijst bovenin het beheer. Pas na
+   "Alles gezien" of × bij een regel wordt het geziene PR bijgewerkt. De eerste keer (of voor een net
+   toegevoegde schaatser) legt de app alleen vast, zonder melding. Zelf ingevoerde tijden tellen niet mee. */
+const LS_PRS = 'ssr.prs.v1', // {id: {t, d: {afstand: race}}}: PR's uit personal_records (6 uur)
+  LS_SEEN = 'ssr.seen.v1'; // {id: {afstand: seconden | null}}: laatst gezien PR (null = geen tijd)
+const PR_OWN_DIST = [100, 300]; // niet in personal_records: apart via skater_results
+/* Opgeslagen PR-lijsten: alleen geldige ID's, afstanden en races */
+function cleanPrs(x) {
+  const out = {};
+  if (!x || typeof x !== 'object') return out;
+  for (const [k, v] of Object.entries(x)) {
+    const id = cleanId(k);
+    if (id == null || !v || typeof v.t !== 'number' || !v.d || typeof v.d !== 'object') continue;
+    const d = {};
+    for (const [dk, r] of Object.entries(v.d)) {
+      const row = DISTANCES.includes(+dk) ? cleanResult(r) : null;
+      if (row) d[+dk] = row;
+    }
+    out[id] = { t: v.t, d };
+  }
+  return out;
+}
+/* Geziene PR's: per schaatser per afstand een tijd in seconden of null */
+function cleanSeen(x) {
+  const out = {};
+  if (!x || typeof x !== 'object') return out;
+  for (const [k, v] of Object.entries(x)) {
+    const id = cleanId(k);
+    if (id == null || !v || typeof v !== 'object') continue;
+    const o = {};
+    for (const [dk, sec] of Object.entries(v))
+      if (DISTANCES.includes(+dk) && (sec === null || (typeof sec === 'number' && sec > 0 && sec < 100000)))
+        o[+dk] = sec;
+    out[id] = o;
+  }
+  return out;
+}
+const prs = cleanPrs(load(LS_PRS, {})),
+  seen = cleanSeen(load(LS_SEEN, {}));
+const prNow = {}; // id -> {afstand: race | null}: de nu bekende PR's op de gecontroleerde afstanden
+let newPrToastShown = false;
+/* PR's van één schaatser uit personal_records (zonder 100/300 m); bij een fout de oude lijst */
+async function getRecords(id) {
+  const c = prs[id];
+  if (c && Date.now() - c.t < CACHE_MS) return c.d;
+  try {
+    const j = JSON.parse(
+      await limited(() => fetchText(`${API}json/personal_records.php?skater=${cleanId(id)}`)),
+    );
+    const d = {};
+    for (const r of Array.isArray(j && j.records) ? j.records : []) {
+      const dist = +(r && r.distance),
+        row = cleanResult(r);
+      if (!row || !DISTANCES.includes(dist) || PR_OWN_DIST.includes(dist)) continue;
+      if (!d[dist] || row.sec < d[dist].sec) d[dist] = row;
+    }
+    prs[id] = { t: Date.now(), d };
+    save(LS_PRS, prs);
+    return d;
+  } catch (err) {
+    if (c) return c.d; // server traag of onbereikbaar: dan de vorige lijst
+    throw err;
+  }
+}
+/* Snelste race uit een lijst, of null */
+function fastest(rows) {
+  return rows.reduce((a, b) => (!a || b.sec < a.sec ? b : a), null);
+}
+/* Alle schaatsers van Mijn schaatsers controleren. Draait er al een controle, dan daarna nog een keer
+   (bijv. als er intussen iemand aan Mijn schaatsers is toegevoegd). */
+let prCheck = null,
+  prCheckAgain = false;
+function checkNewPRs() {
+  if (prCheck) {
+    prCheckAgain = true;
+    return prCheck;
+  }
+  prCheck = (async () => {
+    const ids = state.mine.skaters.map((s) => s.id);
+    await Promise.all(
+      ids.map(async (id) => {
+        const cur = {};
+        try {
+          const rec = await getRecords(id);
+          for (const d of DISTANCES) if (!PR_OWN_DIST.includes(d)) cur[d] = rec[d] || null;
+        } catch (err) {
+          console.warn('PR-lijst niet opgehaald voor', id, err);
+        }
+        for (const d of PR_OWN_DIST)
+          try {
+            cur[d] = fastest(await getResults(id, d));
+          } catch (err) {
+            console.warn('Tijden niet opgehaald voor', id, d, err);
+          }
+        prNow[id] = cur;
+        // nog niet gecontroleerde afstanden (of een nieuwe schaatser): alleen vastleggen, geen melding
+        const sn = seen[id] || (seen[id] = {});
+        for (const [d, r] of Object.entries(cur)) if (!(d in sn)) sn[d] = r ? +r.sec.toFixed(2) : null;
+      }),
+    );
+    // geziene PR's en PR-lijsten van schaatsers die niet meer in Mijn schaatsers staan, opruimen
+    const keep = new Set(state.mine.skaters.map((s) => s.id));
+    for (const id of Object.keys(seen)) if (!keep.has(+id)) delete seen[id];
+    for (const id of Object.keys(prs)) if (!keep.has(+id)) delete prs[id];
+    for (const id of Object.keys(prNow)) if (!keep.has(+id)) delete prNow[id];
+    save(LS_SEEN, seen);
+    save(LS_PRS, prs);
+    renderNewPRs();
+    const n = newPRList().length;
+    if (n && !newPrToastShown) {
+      newPrToastShown = true;
+      showToast(`${n} ${n === 1 ? 'nieuw PR' : "nieuwe PR's"} van je schaatsers`, 'Bekijken', openMine);
+    }
+  })().finally(() => {
+    prCheck = null;
+    if (prCheckAgain) {
+      prCheckAgain = false;
+      checkNewPRs();
+    }
+  });
+  return prCheck;
+}
+/* Nieuwe PR's: sneller dan het geziene PR (of de eerste tijd op een afstand), nieuwste eerst */
+function newPRList() {
+  const out = [];
+  for (const s of state.mine.skaters) {
+    const cur = prNow[s.id],
+      sn = seen[s.id];
+    if (!cur || !sn) continue;
+    for (const [d, r] of Object.entries(cur)) {
+      if (!r || !(d in sn)) continue;
+      const prev = sn[d];
+      if (prev == null || r.sec < prev - 0.005) out.push({ s, d: +d, r, prev });
+    }
+  }
+  return out.sort((a, b) => (a.r.date < b.r.date ? 1 : a.r.date > b.r.date ? -1 : byName(a.s, b.s)));
+}
+/* Een nieuw PR (of alle) als gezien markeren */
+function markSeen(list) {
+  for (const { s, d, r } of list) (seen[s.id] || (seen[s.id] = {}))[d] = +r.sec.toFixed(2);
+  save(LS_SEEN, seen);
+  renderNewPRs();
+}
+/* Badge op de knop Mijn schaatsers en de lijst bovenin het beheer */
+function renderNewPRs() {
+  const list = newPRList(),
+    n = list.length;
+  for (const b of [$('prBadge'), $('prBadgeM')]) {
+    b.hidden = !n;
+    b.textContent = n > 99 ? '99+' : n;
+  }
+  $('mineBtn').title = n
+    ? `Mijn schaatsers: ${n} ${n === 1 ? 'nieuw PR' : "nieuwe PR's"}`
+    : 'Mijn schaatsers beheren';
+  const el = $('newPrs');
+  el.hidden = !n;
+  if (!n) {
+    el.innerHTML = '';
+    return;
+  }
+  const yr = todayStr().slice(0, 4);
+  el.innerHTML =
+    `<div class="nphead"><b>Nieuwe PR's (${n})</b><button type="button" class="small ghost" data-act="npall">Alles gezien</button></div>` +
+    list
+      .map(({ s, d, r, prev }, i) => {
+        const gain =
+          prev == null
+            ? 'eerste tijd'
+            : `vorig ${fmtTime(prev)} · −${(prev - r.sec).toFixed(2).replace('.', ',')} s (−${(((prev - r.sec) / prev) * 100).toFixed(1).replace('.', ',')}%)`;
+        const when = r.date.startsWith(yr) ? fmtDateNL(r.date).replace(' ' + yr, '') : fmtDateNL(r.date);
+        return `<div class="npr" data-i="${i}" role="button" tabindex="0" title="Toevoegen aan de selectie en ${d} m openen">
+      <div><div>${esc(s.givenname)} ${esc(s.familyname)} · ${d} m <b>${esc(fmtTime(r.sec))}</b></div>
+      <div class="meta">${esc(gain)} · ${esc(when)} · ${esc(r.location)}</div></div>
+      <button type="button" class="x" data-act="npseen" title="Gezien">×</button></div>`;
+      })
+      .join('');
+  el._list = list; // voor de klik-afhandeling
+}
+/* Klik op een nieuw PR: schaatser aan de selectie toevoegen en die afstand openen */
+function openNewPR(p) {
+  state.distance = p.d; // eerst de afstand, zodat addSkaterList() meteen de goede tijden ophaalt
+  syncDistTabs();
+  fillMaxT();
+  prWho = p.s.id; // PR-verloop toont deze schaatser
+  addSkaterList([{ ...p.s, groups: [] }], $('listInfo')); // tekent opnieuw en haalt tijden op
+  if (MQ_MOBILE.matches) setMobileTab('chart');
+  else closeMine();
+}
+$('newPrs').addEventListener('click', (e) => {
+  const el = $('newPrs'),
+    list = el._list || [];
+  if (e.target.closest('[data-act=npall]')) return markSeen(list);
+  const row = e.target.closest('.npr');
+  if (!row) return;
+  const p = list[+row.dataset.i];
+  if (!p) return;
+  if (e.target.closest('[data-act=npseen]')) markSeen([p]);
+  else openNewPR(p);
+});
+$('newPrs').addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('npr')) {
+    e.preventDefault();
+    const p = ($('newPrs')._list || [])[+e.target.dataset.i];
+    if (p) openNewPR(p);
+  }
 });
 
 /* ---------- ingebouwde lijst topschaatsers (publiek bekende sporters) ---------- */
@@ -1647,6 +1861,7 @@ $('selected').addEventListener('click', (e) => {
       const g = mineGroup();
       keepInMine([s], g);
       renderSelected();
+      checkNewPRs(); // PR's van de nieuwe schaatser vastleggen (vanaf v86)
       showToast(`${s.givenname} ${s.familyname} bewaard in Mijn schaatsers${g ? ` (${g})` : ''}`);
     }
     return;
@@ -2770,7 +2985,8 @@ $('addTabs').addEventListener('click', (e) => {
 showAddTab(ui.addTab);
 fillMaxT();
 renderSelected();
-refresh();
+// eerst de tijden voor de grafiek, daarna de nieuwe PR's van Mijn schaatsers (vanaf v86)
+refresh().then(checkNewPRs);
 
 /* ---------- Installeerbare app (PWA, vanaf v63) ----------
    De service worker (sw.js) bewaart de app en Chart.js, zodat de app ook offline opent. Alleen via

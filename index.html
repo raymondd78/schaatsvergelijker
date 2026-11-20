@@ -38,7 +38,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v85 van 20-11-2026">v85</span>
+      <span class="ver" title="Versie v86 van 20-11-2026">v86</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -79,6 +79,7 @@
           >
             <path d="M6 3h12v18l-6-4-6 4z" />
           </svg>
+          <span class="nbadge" id="prBadge" hidden></span>
         </button>
         <button type="button" class="theme" id="infoBtn" title="Over deze tool" aria-label="Over deze tool">
           ⓘ
@@ -334,6 +335,8 @@
       <div class="modalbox card" id="mineCard" role="dialog" aria-labelledby="mineTitle">
         <button type="button" class="x modalx" id="mineClose" aria-label="Sluiten">×</button>
         <h2 id="mineTitle">Mijn schaatsers</h2>
+        <!-- Nieuwe PR's sinds je vorige bezoek (vanaf v86); wordt door het script gevuld -->
+        <div class="newprs" id="newPrs" hidden></div>
         <select id="mineSel" aria-label="Groep"></select>
         <div class="mineact">
           <button type="button" class="small ghost" id="mineNew">+ Nieuwe groep</button>
@@ -441,6 +444,7 @@
           <path d="M6 3h12v18l-6-4-6 4z" />
         </svg>
         Mijn schaatsers
+        <span class="nbadge" id="prBadgeM" hidden></span>
       </button>
     </nav>
 
@@ -448,7 +452,7 @@
     <footer>
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
-      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v85 (20-11-2026)
+      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v86 (20-11-2026)
     </footer>
 
     <script src="data.js"></script>

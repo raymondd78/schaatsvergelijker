@@ -272,6 +272,69 @@ header .hbtns .theme {
   text-transform: none;
   letter-spacing: 0;
 }
+/* ===== Nieuwe PR's van Mijn schaatsers (vanaf v86) ===== */
+/* badge met het aantal op de knop Mijn schaatsers (kopbalk en tabbalk onderin) */
+#mineBtn,
+.mtabs button[data-mtab='mine'] {
+  position: relative;
+}
+.nbadge {
+  position: absolute;
+  top: -6px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #d1495b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+.nbadge[hidden] {
+  display: none;
+}
+/* lijst bovenin het beheer */
+.newprs {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--ok);
+  background: var(--ok-bg);
+  border-radius: 8px;
+}
+.newprs[hidden] {
+  display: none;
+}
+.newprs .nphead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.newprs .nphead button {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.newprs .npr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+.newprs .npr:hover > div:first-child,
+.newprs .npr:focus-visible > div:first-child {
+  color: var(--accent);
+}
+.newprs .meta {
+  color: var(--muted);
+  font-size: 12px;
+}
 /* afstand zonder tijden bij de selectie (vanaf v59) */
 .tabs button.nodata:not(.on) {
   color: var(--faint);
@@ -1077,6 +1140,11 @@ a {
     color: var(--accent);
     font-weight: 700;
   }
+  /* badge nieuwe PR's (vanaf v86): rechtsboven naast het icoon */
+  .mtabs .nbadge {
+    top: 2px;
+    right: calc(50% - 22px);
+  }
   /* knoppen die alleen op de pc nodig zijn (op mobiel staan ze in de tabbalk) */
   .desk-only {
     display: none !important;
@@ -1446,6 +1514,7 @@ a {
   }
   label,
   .res .meta,
+  .newprs .meta,
   .res .birth,
   .birthhint,
   .sel .meta,

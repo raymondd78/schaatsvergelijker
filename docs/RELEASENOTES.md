@@ -2,9 +2,18 @@
 
 Overzicht van alle versies van de Schaatsvergelijker (tot v82 `schaatsvergelijker.html`, vanaf v83 `index.html` met `app.css`, `data.js` en `app.js`), nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v85** (20 november 2026)
+**Huidige versie: v86** (20 november 2026)
 
 ---
+
+## v86 – Nieuwe PR's van Mijn schaatsers (20-11-2026)
+- Bij het openen controleert de app of je eigen schaatsers (Mijn schaatsers) sinds je vorige bezoek een nieuw PR hebben gereden. Zo ja, dan verschijnt er een melding met **Bekijken** en een rood getal op de knop Mijn schaatsers (pc: kopbalk; telefoon: balk onderin).
+- Bovenin Mijn schaatsers staat de lijst **Nieuwe PR's**: naam, afstand, nieuwe tijd, vorig PR met de verbetering (seconden en %), datum en baan. Nieuwste eerst. Een eerste tijd op een afstand telt ook als nieuw ("eerste tijd").
+- Klik op een regel: de schaatser komt in de selectie, die afstand opent en het PR-verloop toont hem.
+- Een nieuw PR blijft staan tot je op **×** (één regel) of **Alles gezien** klikt. Bekijken of aanklikken telt niet als gezien.
+- De eerste keer, en voor een schaatser die je net aan Mijn schaatsers toevoegt, legt de app de PR's alleen vast, zonder melding.
+- Per schaatser: één verzoek voor de PR's op alle afstanden, plus de tijden op 100 en 300 m (die geeft SpeedskatingResults niet als PR). Alles wordt 6 uur bewaard. Zelf ingevoerde tijden tellen niet mee.
+- Cache van de service worker verhoogd naar v86.
 
 ## v85 – Tijdencache opruimen (20-11-2026)
 - Bij het starten verwijdert de app opgehaalde tijden van schaatsers die nergens meer voorkomen: niet in de selectie, niet in Mijn schaatsers en niet bij de topschaatsers. Zo groeit de opslag in de browser niet meer onbeperkt.
