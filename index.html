@@ -844,6 +844,30 @@
         font-size: 12px;
         padding: 2px 4px;
       }
+      /* Filters op de pc even groot als de afstandsbalk (vanaf v75): tekst 14 px en vakjes 34 px hoog,
+         net als de afstandsknoppen (32 px + rand). Alleen op een breed scherm; op mobiel zitten de filters in
+         het paneel achter de knop Filters met eigen maten. */
+      @media (min-width: 800px) {
+        .controls,
+        .controls label,
+        .controls .flbl,
+        .controls select.agesel,
+        .gseg button,
+        .freset {
+          font-size: 14px;
+        }
+        .controls .fgrp {
+          min-height: 34px;
+          padding: 0 10px;
+        }
+        .controls select.agesel {
+          padding: 4px 6px;
+        }
+        .controls .gseg button {
+          min-height: 32px;
+          padding: 0 14px;
+        }
+      }
       /* weergave-opties onder de grafiek: klein en rechts */
       .viewopts {
         display: flex;
@@ -1555,7 +1579,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v74 van 20-11-2026">v74</span>
+      <span class="ver" title="Versie v75 van 20-11-2026">v75</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1966,7 +1990,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v74 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v75 (20-11-2026)
     </footer>
 
     <script>

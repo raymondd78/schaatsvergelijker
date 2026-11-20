@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v74** (20 november 2026)
+**Huidige versie: v75** (20 november 2026)
 
 ---
+
+## v75 – Filters even groot als de afstandsbalk (20-11-2026)
+- Op de pc zijn de filters boven de grafiek (**Leeftijd**, **Max. tijd** en **Heren / Dames / Beide**) even groot als de afstandsknoppen: tekst 14 px (was 11–13) en vakjes 34 px hoog. Ook **Filters wissen** is 14 px.
+- Op mobiel verandert er niets; daar zitten de filters in het paneel achter **Filters**.
+- Cache van de service worker verhoogd naar v75.
 
 ## v74 – Grotere letters op mobiel (20-11-2026)
 - Op de telefoon is de tekst beter leesbaar. Op de pc verandert er niets.
