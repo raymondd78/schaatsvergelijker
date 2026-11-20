@@ -147,7 +147,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 | `sw.js` | Service worker. Cache `schaatsvergelijker-vNN` met `./`, `index.html`, manifest en iconen; Chart.js los (een haperende CDN blokkeert de installatie niet; anders komt hij bij eerste gebruik in de cache). Pagina: **netwerk eerst**, offline uit de cache. Eigen bestanden en Chart.js: cache eerst. De API van SpeedskatingResults gaat er ongemoeid doorheen (de app cachet tijden zelf in `localStorage`). `skipWaiting` + `clients.claim`; oude caches worden bij activeren gewist |
 | `icons/` | `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (volle achtergrond, veilige zone), `apple-touch-icon.png` (180 px), `favicon-32.png` |
 
-- In `<head>`: `link rel=manifest`, `theme-color`, favicon, `apple-touch-icon` en de `apple-mobile-web-app-*`-metatags.
+- In `<head>`: `link rel=manifest` (vanaf v69 met `crossorigin="use-credentials"`, nodig achter Cloudflare Access: zonder cookie geeft Access het inlogscherm in plaats van het manifest), `theme-color`, favicon, `apple-touch-icon` en de `apple-mobile-web-app-*`-metatags.
 - Registratie onderaan het script, alleen bij `http(s)` (bij `file://` bestaat geen service worker).
 - Knop `#installBtn` (⤓) in `.hbtns`: verborgen tot `beforeinstallprompt` (Chrome/Edge/Android); klik roept `prompt()` aan. Na `appinstalled` verdwijnt hij en volgt een melding. iOS kent dit event niet; de uitleg in "Over deze tool" noemt Deel → "Zet op beginscherm".
 - **Bij elke nieuwe versie:** verhoog ook `CACHE` in `sw.js` naar het nieuwe versienummer, zodat de oude cache wordt opgeruimd.

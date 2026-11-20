@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v68** (20 november 2026)
+**Huidige versie: v69** (20 november 2026)
 
 ---
+
+## v69 – Installeren achter Cloudflare Access (20-11-2026)
+- De app staat achter **Cloudflare Access** (alleen toegang voor vooraf bekende e-mailadressen). Daardoor verdween de installeerknop ⤓: de browser haalde het manifest op zonder inlogcookie en kreeg het inlogscherm terug.
+- Het manifest wordt nu opgehaald met het inlogcookie (`crossorigin="use-credentials"`), zodat installeren weer werkt.
+- Cache van de service worker verhoogd naar v69.
 
 ## v68 – Uit lijst en apart beheer (20-11-2026)
 - **Toevoegen** heeft nu drie tabjes: **Zoeken**, **Uit lijst** en **Bestand**. Uit lijst is één keuzelijst met bovenaan je eigen schaatsers (alle, per groep en per naam) en daaronder de topschaatsers. De tabjes Mijn schaatsers en Topschaatsers zijn daarin opgegaan.

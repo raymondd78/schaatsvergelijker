@@ -21,7 +21,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Schaatsvergelijker – PR-ontwikkeling</title>
     <!-- Installeerbaar als app (PWA, vanaf v63): manifest, iconen en kleur van de statusbalk -->
-    <link rel="manifest" href="manifest.webmanifest" />
+    <!-- crossorigin="use-credentials" (vanaf v69): achter Cloudflare Access moet het inlogcookie mee, anders
+         krijgt de browser het inlogscherm in plaats van het manifest en biedt hij installeren niet aan -->
+    <link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials" />
     <meta name="theme-color" content="#14213d" />
     <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -1430,7 +1432,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v68 van 20-11-2026">v68</span>
+      <span class="ver" title="Versie v69 van 20-11-2026">v69</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1863,7 +1865,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v68 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v69 (20-11-2026)
     </footer>
 
     <script>
