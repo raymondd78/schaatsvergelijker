@@ -348,6 +348,31 @@ function syncMineBirth() {
 state.selected.forEach((s) => {
   if (s.catSeason == null) s.catSeason = currentSeasonStart();
 });
+/* Tijdencache opruimen (vanaf v85). De sleutels ssr.cache.v1.<id>_<afstand> werden na 6 uur wel opnieuw
+   opgehaald, maar nooit verwijderd; bij een volle localStorage (± 5 MB) mislukte save() dan stilletjes.
+   Bij het starten verdwijnt de cache van schaatsers die nergens meer voorkomen: niet in de selectie, niet
+   in Mijn schaatsers en niet bij de topschaatsers. Alleen sleutels met precies het patroon <id>_<afstand>;
+   andere ssr.*-sleutels (zoals zelf ingevoerde tijden in ssr.manual.v1) blijven ongemoeid. */
+function pruneCache() {
+  const keep = new Set([
+    ...state.selected.map((s) => s.id),
+    ...state.mine.skaters.map((s) => s.id),
+    ...TOP_SKATERS.map((t) => t[0]),
+  ]);
+  const re = new RegExp('^' + LS_CACHE.replace(/\./g, '\\.') + '(\\d+)_(\\d+)$');
+  let n = 0;
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const m = (localStorage.key(i) || '').match(re);
+      if (m && !keep.has(+m[1])) {
+        localStorage.removeItem(m[0]);
+        n++;
+      }
+    }
+  } catch (e) {}
+  return n; // aantal verwijderde sleutels (voor testen)
+}
+pruneCache();
 
 /* ---------- Hulpfuncties voor tijden, datums en leeftijden ---------- */
 /* "1.23,45" of "38,12" -> aantal seconden (getal); onleesbare tijd -> null */

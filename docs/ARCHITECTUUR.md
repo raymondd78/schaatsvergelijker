@@ -91,7 +91,7 @@ Bij het tonen gebruiken de profiellinks `Number(s.id)` en de kleuren `cleanColor
 | `ssr.mine.v1` | "Mijn schaatsers" (vanaf v67): `{groups: [naam], skaters: [{id, givenname, familyname, gender, country, category, catSeason, birth, groups: [naam]}]}`; gecontroleerd met `cleanMine()` (max. `MAX_MINE` 500 schaatsers, `MAX_GROUPS` 30 groepen van max. 60 tekens) |
 | `ssr.manual.v1` | Zelf ingevoerde tijden (vanaf v51): `[{mid, id, dist, time, date, loc}]`; `loc` = NL-baan of leeg (buitenland/anders). Niet in de JSON-export |
 | `ssr.intro.v1` | `1` zodra het venster "Over deze tool" een keer is gesloten (vanaf v59); daarna gaat het niet meer vanzelf open |
-| `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38) |
+| `ssr.cache.v1.<id>_<afstand>` | `{t: timestamp, r: [resultaten]}`; 6 uur geldig; daarna alleen nog als noodoplossing als de server niet reageert (vanaf v38). Vanaf v85 ruimt `pruneCache()` bij het starten de sleutels op van schaatsers die niet in de selectie, Mijn schaatsers of `TOP_SKATERS` staan (alleen het patroon `<id>_<afstand>`) |
 | ~~`ssr.cache.v1.pr_<id>`~~ | PR-lijst uit `personal_records` (v65–v77). Vervallen in v78; bij het laden van de pagina worden achtergebleven sleutels verwijderd |
 
 Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.

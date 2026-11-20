@@ -2,9 +2,15 @@
 
 Overzicht van alle versies van de Schaatsvergelijker (tot v82 `schaatsvergelijker.html`, vanaf v83 `index.html` met `app.css`, `data.js` en `app.js`), nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v84** (20 november 2026)
+**Huidige versie: v85** (20 november 2026)
 
 ---
+
+## v85 – Tijdencache opruimen (20-11-2026)
+- Bij het starten verwijdert de app opgehaalde tijden van schaatsers die nergens meer voorkomen: niet in de selectie, niet in Mijn schaatsers en niet bij de topschaatsers. Zo groeit de opslag in de browser niet meer onbeperkt.
+- Voorheen kon een volle opslag (± 5 MB) ervoor zorgen dat de selectie of Mijn schaatsers stilletjes niet meer werden bewaard.
+- Zelf ingevoerde tijden, Mijn schaatsers en de instellingen blijven ongemoeid.
+- Cache van de service worker verhoogd naar v85.
 
 ## v84 – Lege grafiek met vaste schaal (20-11-2026)
 - Zonder tijden toont de grafiek geen rare waarden meer (zoals 10,00 en "Infinity.NaN,NaN" onderaan de tijd-as).
