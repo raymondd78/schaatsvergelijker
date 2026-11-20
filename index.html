@@ -1550,7 +1550,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v79 van 20-11-2026">v79</span>
+      <span class="ver" title="Versie v80 van 20-11-2026">v80</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1687,10 +1687,8 @@
               <button type="button" id="listAdd" style="flex: 0 0 auto">Toevoegen</button>
             </div>
             <div class="hint" id="listInfo">
-              Bovenaan je eigen schaatsers (Mijn schaatsers), daaronder topschaatsers: Nederlandse
-              langebaanschaatsers met een olympische medaille (2022/2026) of een podiumplaats op WK, EK of
-              wereldbeker (2021–2026), plus internationale wereldkampioenen. Kies één schaatser of een hele
-              groep.
+              Bovenaan je eigen schaatsers (Mijn schaatsers), daaronder 25 bekende topschaatsers. Kies één
+              schaatser of een hele groep.
             </div>
             <button type="button" class="freset" id="listManage" style="margin-top: 4px; padding-left: 0">
               Mijn schaatsers beheren…
@@ -1969,7 +1967,7 @@
     <footer>
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
-      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v79 (20-11-2026)
+      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v80 (20-11-2026)
     </footer>
 
     <script>
@@ -3394,66 +3392,39 @@
       });
 
       /* ---------- ingebouwde lijst topschaatsers (publiek bekende sporters) ---------- */
-      const TOP_GROUPS = [
-        'OS 2026 medaillewinnaars',
-        'OS 2022 medaillewinnaars',
-        'WK-podium 2021-26',
-        'EK-podium 2021-26',
-        'Wereldbeker-podium 2021-26',
-        'Internationale wereldkampioenen',
-      ];
-      /* [id, voornaam, achternaam, geslacht, geboortemaand, groepen (bitmasker op TOP_GROUPS), land (standaard NED)]
-         Alleen schaatsers met 500 m-tijden in hun jeugd (v41, gecontroleerd 19-11-2026): een tijd op elke
-         leeftijd van 12 t/m 18 jaar, waarbij hooguit één tussenjaar mag ontbreken; 11 jaar mag ook ontbreken. */
+      /* Eén groep "Topschaatsers" (vanaf v80): de 25 bekendste uit de eerdere lijst (NL-podiumschaatsers
+         2021–2026 plus Jordan Stolz en Miho Takagi). Alleen schaatsers met 500 m-tijden in hun jeugd (v41). */
+      const TOP_GROUP = 'Topschaatsers';
+      /* [id, voornaam, achternaam, geslacht, geboortemaand, land (standaard NED)] */
       const TOP_SKATERS = [
-        [32063, 'Joy', 'Beune', 'f', '1999-04', 29],
-        [31895, 'Anna', 'Boersma', 'f', '2001-04', 16],
-        [40443, 'Jenning', 'de Boo', 'm', '2004-01', 29],
-        [6537, 'Marcel', 'Bosker', 'm', '1997-01', 28],
-        [22922, 'Janno', 'Botman', 'm', '2000-03', 20],
-        [46266, 'Jorian', 'ten Cate', 'm', '2003-04', 16],
-        [36256, 'Merel', 'Conijn', 'f', '2001-10', 21],
-        [49350, 'Angel', 'Daleman', 'f', '2007-03', 20],
-        [11169, 'Wesly', 'Dijs', 'm', '1995-09', 28],
-        [25217, 'Helga', 'Drost', 'f', '1998-08', 16],
-        [25214, 'Elisa', 'Dul', 'f', '1998-09', 16],
-        [35521, 'Marrit', 'Fledderus', 'f', '2001-05', 24],
-        [49728, 'Isabel', 'Grevelt', 'f', '2002-04', 24],
-        [29434, 'Marijke', 'Groenewoud', 'f', '1999-01', 31],
-        [25026, 'Robin', 'Groot', 'f', '2001-01', 16],
-        [24508, 'Sanne', "in 't Hof", 'f', '1998-01', 8],
-        [23347, 'Louis', 'Hollaar', 'm', '1998-09', 24],
-        [44683, 'Chloé', 'Hoogendoorn', 'f', '2004-03', 24],
-        [23864, 'Chris', 'Huizinga', 'm', '1997-08', 28],
-        [16366, 'Kars', 'Jansman', 'm', '1995-06', 8],
-        [18046, 'Michelle', 'de Jong', 'f', '1999-07', 16],
-        [31024, 'Bente', 'Kerkhoff', 'f', '2001-12', 16],
-        [19550, 'Esther', 'Kiel', 'f', '1996-10', 16],
-        [26647, 'Femke', 'Kok', 'f', '2000-10', 29],
-        [31536, 'Jutta', 'Leerdam', 'f', '1998-12', 31],
-        [46368, 'Tim', 'Prins', 'm', '2003-08', 28],
-        [18036, 'Antoinette', 'Rijpma-de Jong', 'f', '1995-04', 31],
-        [14920, 'Patrick', 'Roest', 'm', '1995-12', 30],
-        [21597, 'Merijn', 'Scheperkamp', 'm', '2000-03', 28],
-        [24522, 'Suzanne', 'Schulting', 'f', '1997-09', 20],
-        [52756, 'Wisse', 'Slendebroek', 'm', '2004-10', 8],
-        [24030, 'Tijmen', 'Snel', 'm', '1997-12', 8],
-        [36004, 'Beau', 'Snellink', 'm', '2001-05', 20],
-        [29455, 'Kim', 'Talsma', 'f', '2001-01', 8],
-        [6588, 'Kai', 'Verbij', 'm', '1994-09', 28],
-        [25742, 'Naomi', 'Verkerk', 'f', '2000-04', 16],
-        [27706, 'Evelien', 'Vijn', 'f', '2002-08', 8],
-        [26322, 'Kayo', 'Vos', 'm', '2003-06', 24],
-        [27663, 'Dione', 'Voskamp', 'f', '1997-01', 20],
-        [35048, 'Joep', 'Wennemars', 'm', '2002-10', 20],
-        [48222, 'Stefan', 'Westenbroek', 'm', '2002-03', 24],
-        [18959, 'Melissa', 'Wijfje', 'f', '1995-07', 16],
-        /* internationale wereldkampioenen (bit 32) */
-        [48139, 'Jordan', 'Stolz', 'm', '2004-05', 32, 'USA'],
-        [12830, 'Miho', 'Takagi', 'f', '1994-05', 32, 'JPN'],
+        [32063, 'Joy', 'Beune', 'f', '1999-04'],
+        [40443, 'Jenning', 'de Boo', 'm', '2004-01'],
+        [6537, 'Marcel', 'Bosker', 'm', '1997-01'],
+        [36256, 'Merel', 'Conijn', 'f', '2001-10'],
+        [49350, 'Angel', 'Daleman', 'f', '2007-03'],
+        [11169, 'Wesly', 'Dijs', 'm', '1995-09'],
+        [35521, 'Marrit', 'Fledderus', 'f', '2001-05'],
+        [49728, 'Isabel', 'Grevelt', 'f', '2002-04'],
+        [29434, 'Marijke', 'Groenewoud', 'f', '1999-01'],
+        [23864, 'Chris', 'Huizinga', 'm', '1997-08'],
+        [18046, 'Michelle', 'de Jong', 'f', '1999-07'],
+        [26647, 'Femke', 'Kok', 'f', '2000-10'],
+        [31536, 'Jutta', 'Leerdam', 'f', '1998-12'],
+        [46368, 'Tim', 'Prins', 'm', '2003-08'],
+        [18036, 'Antoinette', 'Rijpma-de Jong', 'f', '1995-04'],
+        [14920, 'Patrick', 'Roest', 'm', '1995-12'],
+        [21597, 'Merijn', 'Scheperkamp', 'm', '2000-03'],
+        [24522, 'Suzanne', 'Schulting', 'f', '1997-09'],
+        [36004, 'Beau', 'Snellink', 'm', '2001-05'],
+        [6588, 'Kai', 'Verbij', 'm', '1994-09'],
+        [26322, 'Kayo', 'Vos', 'm', '2003-06'],
+        [35048, 'Joep', 'Wennemars', 'm', '2002-10'],
+        [48222, 'Stefan', 'Westenbroek', 'm', '2002-03'],
+        [48139, 'Jordan', 'Stolz', 'm', '2004-05', 'USA'],
+        [12830, 'Miho', 'Takagi', 'f', '1994-05', 'JPN'],
       ];
       // Omzetten naar hetzelfde formaat als schaatsers uit een bestand
-      const topList = TOP_SKATERS.map(([id, giv, fam, g, b, mask, land]) => ({
+      const topList = TOP_SKATERS.map(([id, giv, fam, g, b, land]) => ({
         id,
         givenname: giv,
         familyname: fam,
@@ -3462,7 +3433,7 @@
         category: null,
         catSeason: null,
         birth: normBirth(b),
-        groups: TOP_GROUPS.filter((_, i) => mask & (1 << i)),
+        groups: [TOP_GROUP],
       }));
       /* Keuzelijst "Uit lijst" (vanaf v68): bovenaan Mijn schaatsers (groepen en namen), daaronder de
          topschaatsers. Wordt opnieuw gevuld als Mijn schaatsers verandert (via renderMine()); de keuze blijft
@@ -3472,7 +3443,6 @@
           prev = sel.value,
           m = state.mine;
         const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
-        const inG = (s, i) => s.groups.includes(TOP_GROUPS[i]);
         const names = (list, pre) =>
           list
             .map((s) =>
@@ -3482,7 +3452,6 @@
               ),
             )
             .join('');
-        const cur = topList.filter((s) => !inG(s, 5));
         const mineOpts = m.skaters.length
           ? '<optgroup label="Mijn schaatsers – groepen">' +
             opt('m*', `Alle mijn schaatsers (${m.skaters.length})`) +
@@ -3499,29 +3468,9 @@
         sel.innerHTML =
           '<option value="">Kies een schaatser of groep…</option>' +
           mineOpts +
-          '<optgroup label="Topschaatsers – groepen">' +
-          TOP_GROUPS.map((g) =>
-            opt('g:' + g, `${g} (${topList.filter((s) => s.groups.includes(g)).length})`),
-          ).join('') +
+          '<optgroup label="Topschaatsers">' +
           opt('*', `Alle topschaatsers (${topList.length})`) +
-          '</optgroup>' +
-          '<optgroup label="Topschaatsers – vrouwen (NL, 2021–2026)">' +
-          names(
-            cur.filter((s) => s.gender === 'f'),
-            's:',
-          ) +
-          '</optgroup>' +
-          '<optgroup label="Topschaatsers – mannen (NL, 2021–2026)">' +
-          names(
-            cur.filter((s) => s.gender === 'm'),
-            's:',
-          ) +
-          '</optgroup>' +
-          '<optgroup label="Internationale wereldkampioenen">' +
-          names(
-            topList.filter((s) => inG(s, 5)),
-            's:',
-          ) +
+          names([...topList].sort(byName), 's:') +
           '</optgroup>';
         sel.value = prev;
         if (sel.value !== prev) sel.value = '';
@@ -3540,7 +3489,6 @@
             .map((s) => ({ ...s, groups: [v.slice(3)] }));
         if (v.startsWith('ms:')) return mine.filter((s) => s.id === +v.slice(3));
         if (v === '*') return topList;
-        if (v.startsWith('g:')) return topList.filter((s) => s.groups.includes(v.slice(2)));
         if (v.startsWith('s:')) return topList.filter((s) => s.id === +v.slice(2));
         return [];
       }

@@ -2,9 +2,14 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v79** (20 november 2026)
+**Huidige versie: v80** (20 november 2026)
 
 ---
+
+## v80 – Eén groep Topschaatsers (20-11-2026)
+- De topschaatsers staan in één groep **Topschaatsers** in plaats van de groepen OS-medaille, WK-, EK- en wereldbekerpodium en internationale wereldkampioenen.
+- De lijst is ingekort van 44 naar de 25 bekendste, alfabetisch: Joy Beune, Jenning de Boo, Marcel Bosker, Merel Conijn, Angel Daleman, Wesly Dijs, Marrit Fledderus, Isabel Grevelt, Marijke Groenewoud, Chris Huizinga, Michelle de Jong, Femke Kok, Jutta Leerdam, Tim Prins, Antoinette Rijpma-de Jong, Patrick Roest, Merijn Scheperkamp, Suzanne Schulting, Beau Snellink, Jordan Stolz, Miho Takagi, Kai Verbij, Kayo Vos, Joep Wennemars en Stefan Westenbroek.
+- Cache van de service worker verhoogd naar v80.
 
 ## v79 – Kortere voettekst (20-11-2026)
 - De zin over geschatte leeftijden is uit de voettekst gehaald; die nam op mobiel veel ruimte in. De uitleg staat nog in "Over deze tool" en bij Geselecteerd.

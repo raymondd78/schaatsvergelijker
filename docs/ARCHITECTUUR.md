@@ -27,7 +27,7 @@ Afstand kiezen ──► per geselecteerde schaatser: json/skater_results.php?sk
 | Functie / object | Rol |
 |---|---|
 | `state` | `selected` (schaatsers), `distance`, `xMode` (vast `'age'`; de datumweergave is in v12 verwijderd, de code-paden voor `'date'` zijn nog aanwezig maar onbereikbaar), `data` (cache per `id_afstand`), `stale` (per `id_afstand` het tijdstip van oude cache die gebruikt wordt omdat de server niet reageerde, vanaf v38) |
-| `TOP_GROUPS` / `TOP_SKATERS` / `chosenTopSkaters()` | Ingebouwde lijst topschaatsers, onderaan in "Uit lijst"; groepen als bitmasker op `TOP_GROUPS` |
+| `TOP_GROUP` / `TOP_SKATERS` / `topList` | Ingebouwde lijst van 25 topschaatsers in één groep "Topschaatsers" (vanaf v80), onderaan in "Uit lijst" (`*` = alle, `s:id` = één) |
 | `state.mine` / `renderMine()` / `keepInMine()` / `importMine()` | Blok "Mijn schaatsers" (vanaf v67): eigen schaatsers in groepen (`state.mineView` = gekozen groep: `*`, `g:naam` of `-`). `renderSelected()` roept `renderMine()` aan, en die `fillListSel()` (keuzelijst Uit lijst: `m*`/`mg:`/`ms:` eigen, `*`/`g:`/`s:` top; `chosenListSkaters()`); `persistSel()` neemt een ingevulde geboortedatum over (`syncMineBirth()`). Export/import: `MINE_FORMAT`, zie GROEPEN.md |
 | `addSkaterList()` | Voegt een lijst schaatsers toe (gedeeld door "Mijn schaatsers", "Topschaatsers" en "Schaatsersbestand"); bestaande krijgen geboortedatum (en bij Uit lijst de groep) bijgewerkt |
 | `parseSkaterFile()` / `loadSkaterFile()` | Leest een schaatsersbestand (JSON, formaat `schaatsvergelijker/1`) via `FileReader`; alleen in het geheugen. Vanaf v70 zonder groepen: één bestand tegelijk in `fileSkaters`, knop `#fileAdd` voegt alles toe. Groepsvelden tellen alleen bij Importeren in Mijn schaatsers (`opt.keepGroups`) |

@@ -4,7 +4,7 @@ De webpagina bevat **geen persoonsgegevens**, behalve de ingebouwde lijst publie
 
 ## Ingebouwde topschaatsers
 
-De **topschaatsers** (onderaan in het tabje Uit lijst, vanaf v68) bevat 42 van de 52 schaatsers uit `data/nl-topschaatsers-2021-2026.json`, plus 2 internationale wereldkampioenen: Jordan Stolz (USA) en Miho Takagi (JPN). Ze zijn ingebouwd in de pagina. Dat mag omdat het publiek bekende sporters zijn en er alleen naam, geslacht, geboortemaand en groep in staat.
+De **topschaatsers** (onderaan in het tabje Uit lijst, vanaf v68) bevat vanaf v80 de 25 bekendste schaatsers in één groep "Topschaatsers": 23 Nederlanders uit `data/nl-topschaatsers-2021-2026.json` plus Jordan Stolz (USA) en Miho Takagi (JPN). Ze zijn ingebouwd in de pagina. Dat mag omdat het publiek bekende sporters zijn en er alleen naam, geslacht en geboortemaand in staat. (v41–v79: 44 schaatsers in groepen per toernooi.)
 
 **Selectie op jeugddata (vanaf v41, gecontroleerd 19-11-2026):** alleen schaatsers met 500m-tijden in hun jeugd blijven in de lijst. Ze moeten een tijd hebben op elke leeftijd van 12 t/m 18 jaar; hooguit één tussenjaar mag ontbreken, en 11 jaar mag ook ontbreken. Gecontroleerd met het console-script `check-topschaatsers-500m.js`. Vervallen (18):
 - NL: Reina Anema, Jorrit Bergsma, Bart Hoolwerf, Sven Kramer, Thomas Krol, Dai Dai N'tab, Kjeld Nuis, Hein Otterspeer, Irene Schouten, Ireen Wüst.
@@ -14,7 +14,7 @@ In het JSON-bestand staan ze nog wel; ze ontbreken alleen in de ingebouwde lijst
 
 Nils van der Poel staat niet in SpeedskatingResults en is dus niet opgenomen. Een groep oud-schaatsers (Ritsma, Romme, Van Gennip e.a.) is in v15 geprobeerd en in v16 weer verwijderd: van hen staan te weinig tijden, zeker jeugdtijden, in de bron.
 
-Kies een groep, "Alle topschaatsers" of één naam (vrouwen en mannen apart) en klik **Toevoegen**. Bijwerken: pas het JSON-bestand aan en genereer `TOP_SKATERS` opnieuw (één regel per schaatser: `[id, voornaam, achternaam, geslacht, geboortemaand, groepsbitmasker]`).
+Kies "Alle topschaatsers" of één naam en klik **Toevoegen**. Vanaf v80 is het één groep "Topschaatsers" met de 25 bekendste. Bijwerken: pas `TOP_SKATERS` aan (één regel per schaatser: `[id, voornaam, achternaam, geslacht, geboortemaand, land]`; land alleen als het niet NED is).
 
 ## In de pagina (eigen bestanden)
 
