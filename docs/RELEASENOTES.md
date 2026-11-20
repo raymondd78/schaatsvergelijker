@@ -2,9 +2,12 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v61** (20 november 2026)
+**Huidige versie: v62** (20 november 2026)
 
 ---
+
+## v62 – Liggend: alleen de grafiek (20-11-2026)
+- Ook de rij met afstanden is in de liggende stand weg: het hele scherm is grafiek. Van afstand wisselen doe je rechtop.
 
 ## v61 – Liggend: grafiek over het hele scherm (20-11-2026)
 - Op een telefoon in liggende stand zijn de blauwe kopbalk en de filters weg. Alleen een smalle rij afstandstabbladen blijft staan; de rest van het scherm is voor de grafiek. Filters aanpassen doe je rechtop.

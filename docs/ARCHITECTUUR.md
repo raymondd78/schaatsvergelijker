@@ -130,7 +130,7 @@ Wordt het formaat gewijzigd, verhoog dan het versienummer in de sleutel.
 - Filters: dezelfde `.controls` (`#controls`) wordt op mobiel een paneel van onderen met klasse `open` (`openFilters()`); daarbuiten blijft alleen de statusregel zichtbaar. `renderMobileBits()` (aan het begin van `render()`) vult de samenvatting `#mSummary`, het aantal `#mFilterCount` en de chips `#mChips` (tik = `toggleHighlight()`).
 - Namen aan de lijn: bij `isMobilePortrait()` wist `render()` `_lbl` van niet-gehighlighte datasets.
 - PR-verloop: de cellen hebben klassen `c-name`, `c-date`, `c-age`, `c-time`, `c-raw`, `c-gain`, `c-loc`, `c-comp`; mobiele CSS maakt er kaartjes van.
-- Telefoon liggend (`MQ_LANDSCAPE`: landscape, hoogte ≤ 500 px, breedte ≥ 600 px, touchscherm; de breedte-eis sinds v45 zodat een geopend toetsenbord niet meetelt): alleen een smalle rij afstandstabbladen en de grafiek op schermhoogte (`100dvh`), met alle namen; geen kopbalk, filters of filterknop (vanaf v61).
+- Telefoon liggend (`MQ_LANDSCAPE`: landscape, hoogte ≤ 500 px, breedte ≥ 600 px, touchscherm; de breedte-eis sinds v45 zodat een geopend toetsenbord niet meetelt): alleen de grafiek op schermhoogte (`100dvh`), met alle namen; geen kopbalk, filters of filterknop (vanaf v61) en geen afstandstabbladen (vanaf v62).
 - Bij wisselen van breedte of stand roept een `matchMedia`-listener `render()` opnieuw aan.
 
 ## Testen
