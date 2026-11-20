@@ -2,9 +2,16 @@
 
 Overzicht van alle versies van `schaatsvergelijker.html`, nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v76** (20 november 2026)
+**Huidige versie: v77** (20 november 2026)
 
 ---
+
+## v77 – Eén stijl voor alle knoppenbalken (20-11-2026)
+- De afstandsbalk, **Heren / Dames / Beide** en de weergave-opties onder de grafiek zien er nu hetzelfde uit: knoppen naast elkaar in één balk met een grijze rand. Gekozen of aan = blauw met witte tekst.
+- **PR-lijn**, **Alle tijden** en **Snelste boven** krijgen een ✓ als ze aan staan, net als ANS. De knoppen worden niet meer vet, dus ze veranderen niet van breedte.
+- PR-lijn en Alle tijden kunnen niet allebei uit, want dan is de grafiek leeg. Zet je de laatste uit, dan gaat de andere aan.
+- Ook de tabjes bij **Toevoegen** (Zoeken, Uit lijst, Bestand) hebben deze stijl.
+- Cache van de service worker verhoogd naar v77.
 
 ## v76 – Weergave-opties als knoppen, links (20-11-2026)
 - Op de pc staan **PR-lijn**, **Alle tijden** en **Snelste boven** onder de grafiek nu als knoppen, net als op mobiel. Blauw = aan. Ze zijn even groot als de afstandsknoppen (tekst 14 px, 34 px hoog). De schakelaartjes en het woord "Toon" zijn weg.

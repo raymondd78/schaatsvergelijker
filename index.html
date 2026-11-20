@@ -832,10 +832,11 @@
       .gseg button + button {
         border-left: 1px solid var(--line);
       }
+      /* gekozen knop: blauw met witte tekst, net als de afstandsbalk (vanaf v77; niet vet, zodat de breedte
+         niet verandert) */
       .gseg button.on {
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-weight: 600;
+        background: var(--accent);
+        color: #fff;
       }
       .freset {
         border: 0;
@@ -868,16 +869,19 @@
           padding: 0 14px;
         }
       }
-      /* Weergave-opties onder de grafiek (vanaf v76 op pc en mobiel als knoppen, links uitgelijnd):
-         PR-lijn, Alle tijden en Snelste boven. De checkbox zelf is onzichtbaar, het label is de knop;
-         aan = blauw. Op de pc even groot als de afstandsbalk (tekst 14 px, 34 px hoog). */
+      /* Weergave-opties onder de grafiek: PR-lijn, Alle tijden en Snelste boven. Vanaf v77 één segmentbalk,
+         links uitgelijnd en opgemaakt als de afstandsbalk: aan = blauw met wit vinkje, net als ANS. Het vinkje
+         (.chk) houdt altijd zijn plek, zodat de breedte niet verandert. De checkbox is onzichtbaar; het label
+         is de knop. Op de pc tekst 14 px en 34 px hoog. */
       .viewopts {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 6px;
+        width: fit-content;
+        max-width: 100%;
         margin-top: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--card);
       }
       .viewopts > .flbl {
         display: none;
@@ -887,16 +891,17 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 34px;
+        min-height: 32px;
         margin: 0;
-        padding: 0 14px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
+        padding: 0 12px;
         background: var(--card);
         font-size: 14px;
         white-space: nowrap;
         color: var(--ink);
         cursor: pointer;
+      }
+      .viewopts label.sw + label.sw {
+        border-left: 1px solid var(--line);
       }
       .viewopts .sw input {
         position: absolute;
@@ -905,15 +910,20 @@
         height: 1px;
         pointer-events: none;
       }
+      .viewopts .chk {
+        visibility: hidden;
+        margin-right: 3px;
+      }
       .viewopts label.sw:has(input:checked) {
-        background: var(--accent-soft);
-        color: var(--accent);
-        border-color: var(--accent);
-        font-weight: 600;
+        background: var(--accent);
+        color: #fff;
+      }
+      .viewopts label.sw:has(input:checked) .chk {
+        visibility: visible;
       }
       .viewopts label.sw:has(input:focus-visible) {
         outline: 2px solid var(--accent);
-        outline-offset: 2px;
+        outline-offset: -2px;
       }
       .controls select.agesel {
         width: auto;
@@ -1248,11 +1258,11 @@
           color: var(--ink);
           margin-right: auto;
         }
-        /* weergave-opties: knoppen links uitgelijnd (vanaf v76; daarvoor over de hele breedte), iets hoger
-           en met kleinere tekst dan op de pc */
+        /* weergave-opties: zelfde balk als op de pc, met de maten van de afstandsbalk op mobiel (36 px hoog,
+           tekst 12 px) */
         .viewopts label.sw {
-          min-height: 38px;
-          padding: 0 12px;
+          min-height: 36px;
+          padding: 0 10px;
           font-size: 12px;
         }
         .controls.open {
@@ -1540,7 +1550,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v76 van 20-11-2026">v76</span>
+      <span class="ver" title="Versie v77 van 20-11-2026">v77</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -1794,12 +1804,21 @@
             <canvas id="chart"></canvas>
             <div class="chartload" id="chartLoad" hidden><span></span>Tijden ophalen…</div>
           </div>
-          <!-- Weergave-opties onder de grafiek (vanaf v56): hoe de tijden getekend worden -->
+          <!-- Weergave-opties onder de grafiek (vanaf v56): hoe de tijden getekend worden; vanaf v77 een segmentbalk -->
           <div class="viewopts" id="viewOpts">
             <span class="flbl">Toon</span>
-            <label class="sw"><input type="checkbox" id="showPR" checked /> PR-lijn</label>
-            <label class="sw"><input type="checkbox" id="showAll" /> Alle tijden</label>
-            <label class="sw"><input type="checkbox" id="fastTop" checked /> Snelste boven</label>
+            <label class="sw"
+              ><input type="checkbox" id="showPR" checked /><span class="chk" aria-hidden="true">✓</span
+              >PR-lijn</label
+            >
+            <label class="sw"
+              ><input type="checkbox" id="showAll" /><span class="chk" aria-hidden="true">✓</span>Alle
+              tijden</label
+            >
+            <label class="sw"
+              ><input type="checkbox" id="fastTop" checked /><span class="chk" aria-hidden="true">✓</span
+              >Snelste boven</label
+            >
           </div>
           <!-- Mobiel: chips per schaatser om te highlighten (verborgen op desktop) -->
           <div id="mChips" class="mobile-only"></div>
@@ -1951,7 +1970,7 @@
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
       (Public API, niet-commercieel gebruik). Leeftijden zonder ingevulde geboortemaand zijn geschat op de
-      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v76 (20-11-2026)
+      middelste datum van de leeftijdscategorie. · Schaatsvergelijker v77 (20-11-2026)
     </footer>
 
     <script>
@@ -3948,7 +3967,16 @@
         }
       });
       syncDistTabs();
-      ['showAll', 'showPR', 'fastTop'].forEach((id) => $(id).addEventListener('change', render));
+      /* PR-lijn en Alle tijden mogen niet allebei uit (vanaf v77): dan is de grafiek leeg. Zet je de laatste
+         uit, dan gaat de andere aan. */
+      ['showAll', 'showPR'].forEach((id) =>
+        $(id).addEventListener('change', () => {
+          if (!$('showAll').checked && !$('showPR').checked)
+            $(id === 'showPR' ? 'showAll' : 'showPR').checked = true;
+          render();
+        }),
+      );
+      $('fastTop').addEventListener('change', render);
 
       /* ---------- leeftijdsperiode ---------- */
       const LS_UI = 'ssr.ui.v1';
