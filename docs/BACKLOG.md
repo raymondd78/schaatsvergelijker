@@ -12,6 +12,7 @@
 
 ## Ideeën
 
+- [x] **Lettergrootte mobiel: vaste schaal en instelbaar** (idee en besluit 21-11-2026). Gedaan in v87: vijf maten als CSS-variabelen (mobiel 12/14/16/18/20 px), kopjes en tabellen niet meer kleiner dan de tekst, invoer 16 px (geen inzoomen op iOS), knop **Aa** voor normaal/groot/extra groot, grafiek schaalt mee, krappe plekken met bovengrens. Zie `ARCHITECTUUR.md`.
 - [x] **Tijdencache opruimen** (besloten 20-11-2026). Gedaan in v85: `pruneCache()` verwijdert bij het starten de sleutels `ssr.cache.v1.<id>_<afstand>` van schaatsers die niet in de selectie, Mijn schaatsers of `TOP_SKATERS` staan. Andere `ssr.*`-sleutels blijven ongemoeid.
 - [x] **Nieuwe PR's sinds je vorige bezoek (Mijn schaatsers)** (idee en besluit 20-11-2026). Gedaan in v86: automatisch bij het openen, `personal_records` plus `skater_results` voor 100 en 300 m, geziene PR's in `ssr.seen.v1`, badge en lijst in Mijn schaatsers, gezien pas na × of Alles gezien. Zie `ARCHITECTUUR.md`.
 - [ ] Uitschieters filteren (bv. tijden > X % boven de PR van dat moment verbergen).

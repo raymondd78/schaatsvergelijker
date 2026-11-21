@@ -210,6 +210,7 @@ function cleanUi(x) {
     ans: bool(o.ans, false),
     maxT,
     theme: ['auto', 'light', 'dark'].includes(o.theme) ? o.theme : 'auto',
+    textSize: ['n', 'l', 'xl'].includes(o.textSize) ? o.textSize : 'n', // tekstgrootte (vanaf v87)
     rink: NL_RINKS.includes(o.rink) || o.rink === '-' ? o.rink : '', // laatst gekozen baan bij + tijd
     // tabje in "Toevoegen"; vanaf v68 zijn Mijn schaatsers en Topschaatsers samen "Uit lijst"
     addTab: ['mine', 'top'].includes(o.addTab)
@@ -2290,8 +2291,12 @@ function niceTimeTicks(scale) {
   scale.ticks = ticks;
 }
 /* ---------- namen aan het eind van de lijnen ---------- */
-const LBL_FONT = (hl) => `${hl ? '700' : '500'} 10px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
-const LBL_STEP = 11; // verticale afstand (px) tussen namen die elkaar zouden raken (v42: was 13 bij 12px)
+// grootte van de namen: maat xs uit app.css (vanaf v87; was vast 10 px), gezet in render()
+let lblPx = 10;
+const LBL_FONT = (hl) =>
+  `${hl ? '700' : '500'} ${lblPx}px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
+// verticale afstand (px) tussen namen die elkaar zouden raken: lettergrootte + 1 (v42: 11 bij 10 px)
+let LBL_STEP = 11;
 let _mctx;
 /* breedte van een naam in pixels (om rechts genoeg ruimte te maken) */
 function labelWidth(text, hl) {
@@ -2588,12 +2593,15 @@ function render() {
   // mobiel rechtop: alleen de namen van gehighlighte schaatsers aan de lijn (ruimte sparen)
   if (isMobilePortrait()) for (const ds of datasets) if (!ds._hl) ds._lbl = null;
   // ruimte rechts voor de namen
+  lblPx = fontPx('xs');
+  LBL_STEP = lblPx + 1;
   const lblW = Math.max(0, ...datasets.filter((ds) => ds._lbl).map((ds) => labelWidth(ds._lbl, ds._hl)));
   opts.layout = { padding: { right: lblW ? lblW + 10 : 0 } };
   // kleuren van assen en rasterlijnen volgen het thema (licht/donker)
   if (Chart.defaults) {
     Chart.defaults.color = cssVar('--muted');
     Chart.defaults.borderColor = cssVar('--line');
+    Chart.defaults.font.size = fontPx('sm'); // as-tekst volgt de tekstgrootte (vanaf v87)
   }
   if (chart) chart.destroy();
   chart = new Chart($('chart'), {
@@ -2831,6 +2839,36 @@ if (window.matchMedia)
     if (ui.theme === 'auto') render();
   });
 applyTheme();
+
+/* ---------- Tekstgrootte: normaal, groot of extra groot (vanaf v87) ----------
+   Zet data-text op <html>; app.css rekent daarmee alle maten om (--fs-scale). */
+const TEXT_SIZES = ['n', 'l', 'xl'];
+const TEXT_LABEL = { n: 'normaal', l: 'groot', xl: 'extra groot' };
+/* werkelijke grootte in px van een maat uit app.css (xs, sm, base, md, lg), bijv. voor de grafiek */
+var _fsProbe; // var: fontPx kan al nodig zijn voordat deze regel is uitgevoerd
+function fontPx(token) {
+  if (!_fsProbe) {
+    _fsProbe = document.createElement('span');
+    _fsProbe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none';
+    document.body.appendChild(_fsProbe);
+  }
+  _fsProbe.style.fontSize = `var(--fs-${token})`;
+  return parseFloat(getComputedStyle(_fsProbe).fontSize) || 12;
+}
+function applyTextSize() {
+  if (ui.textSize === 'n') delete document.documentElement.dataset.text;
+  else document.documentElement.dataset.text = ui.textSize;
+  $('textBtn').title = `Tekstgrootte: ${TEXT_LABEL[ui.textSize]} (klik om te wisselen)`;
+  $('textBtn').setAttribute('aria-label', $('textBtn').title);
+}
+$('textBtn').addEventListener('click', () => {
+  ui.textSize = TEXT_SIZES[(TEXT_SIZES.indexOf(ui.textSize) + 1) % TEXT_SIZES.length];
+  save(LS_UI, ui);
+  applyTextSize();
+  render();
+  showToast(`Tekstgrootte: ${TEXT_LABEL[ui.textSize]}`);
+});
+applyTextSize();
 
 /* ---------- Mobiele weergave (vanaf v43) ----------
    Op een smal scherm (< 800 px) toont de pagina één tabblad tegelijk: Schaatsers, Grafiek,

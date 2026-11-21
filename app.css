@@ -59,13 +59,44 @@
     color-scheme: dark;
   }
 }
+/* ===== Lettergrootte (vanaf v87): vijf vaste maten, overal via deze variabelen =====
+   xs: lijnnamen, badges, chips, tabbalk · sm: grijze meta, labels, kopjes, kleine knoppen
+   base: lopende tekst, invoer, tabellen, knoppen · md: titel, PR-tijd, iconen · lg: grote kop, sluitknoppen.
+   --fs-scale komt van de Aa-knop in de kopbalk (Normaal 1, Groot 1,15, Extra groot 1,3). Plekken waar
+   weinig ruimte is (tabbalk, afstandsbalk, knoppen onder de grafiek) hebben een bovengrens met min(). */
+:root {
+  --fs-scale: 1;
+  --fs-xs: calc(11px * var(--fs-scale));
+  --fs-sm: calc(12px * var(--fs-scale));
+  --fs-base: calc(14px * var(--fs-scale));
+  --fs-md: calc(16px * var(--fs-scale));
+  --fs-lg: calc(18px * var(--fs-scale));
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+:root[data-text='l'] {
+  --fs-scale: 1.15;
+}
+:root[data-text='xl'] {
+  --fs-scale: 1.3;
+}
+/* mobiel twee pixels groter; basis 16 px voorkomt ook dat iOS inzoomt bij het typen in een veld */
+@media (max-width: 799px) {
+  :root {
+    --fs-xs: calc(12px * var(--fs-scale));
+    --fs-sm: calc(14px * var(--fs-scale));
+    --fs-base: calc(16px * var(--fs-scale));
+    --fs-md: calc(18px * var(--fs-scale));
+    --fs-lg: calc(20px * var(--fs-scale));
+  }
+}
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
   font:
-    14px/1.45 system-ui,
+    var(--fs-base)/1.45 system-ui,
     -apple-system,
     'Segoe UI',
     Roboto,
@@ -84,24 +115,24 @@ header {
   flex-wrap: wrap;
 }
 header h1 {
-  font-size: 18px;
+  font-size: var(--fs-lg);
   margin: 0;
   font-weight: 600;
 }
 /* Klein versienummer achter de titel */
 header .ver {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: #8f9bb8;
   margin-left: -8px;
 }
 header span {
   color: #b9c3d9;
-  font-size: 13px;
+  font-size: var(--fs-sm);
 }
 header .src {
   margin-left: auto;
   color: #dfe5f2;
-  font-size: 13px;
+  font-size: var(--fs-sm);
 }
 /* knop licht/donker in de kopbalk */
 header .theme {
@@ -109,7 +140,7 @@ header .theme {
   border: 1px solid #3a4a6e;
   color: #dfe5f2;
   padding: 3px 8px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -131,7 +162,7 @@ header .hbtns [hidden] {
 header .hbtns .theme {
   min-width: 28px;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--fs-base);
   padding: 2px 6px;
 }
 /* ===== Venster "Over deze tool" (vanaf v59) ===== */
@@ -159,7 +190,7 @@ header .hbtns .theme {
   position: absolute;
   top: 8px;
   right: 10px;
-  font-size: 20px;
+  font-size: var(--fs-lg);
 }
 /* melding onderin (vanaf v59) */
 .toast {
@@ -172,7 +203,7 @@ header .hbtns .theme {
   color: var(--card);
   border-radius: 8px;
   padding: 8px 14px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -188,7 +219,7 @@ header .hbtns .theme {
   font-weight: 600;
   text-decoration: underline;
   padding: 0;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 /* tabjes in het blok "Toevoegen" */
 .addtabs {
@@ -203,7 +234,7 @@ header .hbtns .theme {
 .gseg.addtabs button {
   flex: 1 1 auto;
   padding: 4px 4px;
-  font-size: 12px;
+  font-size: min(var(--fs-sm), 15px);
   white-space: nowrap;
 }
 .row[hidden] {
@@ -220,7 +251,7 @@ header .hbtns .theme {
   padding: 0 7px;
   border-radius: 9px;
   background: var(--seg);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   white-space: nowrap;
 }
 .mine .prof {
@@ -240,7 +271,7 @@ header .hbtns .theme {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .mine .mgroups button {
   border: 1px solid var(--line);
@@ -248,7 +279,7 @@ header .hbtns .theme {
   color: var(--muted);
   border-radius: 9px;
   padding: 1px 8px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .mine .mgroups button.on {
   background: var(--accent-soft);
@@ -288,7 +319,7 @@ header .hbtns .theme {
   border-radius: 8px;
   background: #d1495b;
   color: #fff;
-  font-size: 10px;
+  font-size: min(var(--fs-xs), 12px);
   font-weight: 700;
   line-height: 16px;
   text-align: center;
@@ -333,7 +364,7 @@ header .hbtns .theme {
 }
 .newprs .meta {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 /* afstand zonder tijden bij de selectie (vanaf v59) */
 .tabs button.nodata:not(.on) {
@@ -356,7 +387,7 @@ header .hbtns .theme {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 3px 12px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 .chartload[hidden] {
@@ -379,7 +410,7 @@ header .hbtns .theme {
 .intro p,
 .intro ul {
   margin: 8px 0 0;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 .intro p:first-of-type {
   margin-top: 0;
@@ -395,7 +426,7 @@ header .hbtns .theme {
   border-radius: 6px;
   padding: 6px 8px;
   margin-top: 8px;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 /* ===== Paginaindeling: smalle linkerkolom (340 px) en een rechterkolom die meekrimpt =====
    minmax(0, 1fr) voorkomt dat een brede grafiek of tabel de hele pagina breder maakt. */
@@ -423,7 +454,8 @@ main > aside {
   padding: 14px 16px;
 }
 .card h2 {
-  font-size: 13px;
+  flex-wrap: wrap; /* knoppen in de kop schuiven bij grote tekst naar een tweede regel (vanaf v87) */
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -433,7 +465,7 @@ main > aside {
 /* ===== Formulieren en knoppen ===== */
 label {
   display: block;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   margin: 6px 0 2px;
 }
@@ -473,7 +505,8 @@ button.ghost {
 }
 button.small {
   padding: 2px 8px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
+  white-space: nowrap;
 }
 button:disabled {
   opacity: 0.5;
@@ -494,7 +527,7 @@ button:disabled {
   gap: 8px;
 }
 .res .meta {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 /* geboortedatum al bij het zoekresultaat kiezen (vanaf v46) */
@@ -506,7 +539,7 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .res .birth select {
   width: auto;
@@ -515,7 +548,7 @@ button:disabled {
 }
 .birthhint {
   margin: 6px 0;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--warn);
   background: var(--warn-bg);
   border-radius: 6px;
@@ -524,7 +557,7 @@ button:disabled {
 .res .birthok {
   color: var(--ok);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--fs-base);
 }
 .res.added {
   opacity: 0.45;
@@ -553,7 +586,7 @@ button:disabled {
   font-weight: 600;
 }
 .sel .meta {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 /* rijen onder de kop (vanaf v52): links een label, rechts de waarde */
@@ -565,7 +598,7 @@ button:disabled {
   margin-top: 7px;
   padding-top: 7px;
   border-top: 1px solid var(--line);
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .sel .k {
   color: var(--muted);
@@ -588,7 +621,7 @@ button:disabled {
   padding: 0 7px;
   border-radius: 9px;
   background: var(--seg);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   white-space: nowrap;
   margin-top: 2px;
 }
@@ -599,13 +632,13 @@ button:disabled {
   padding: 2px 0;
   color: var(--link);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   text-decoration: underline dotted;
 }
 /* ingevulde geboortedatum en leeftijd achter de naam (vanaf v71), klein en grijs */
 .sel .born {
   margin-left: 4px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 400;
   color: var(--muted);
   white-space: nowrap;
@@ -623,7 +656,7 @@ button:disabled {
 .sel .bsel select {
   width: auto;
   padding: 3px 6px;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 /* zelf ingevoerde tijden (vanaf v51) */
 .sel .own {
@@ -646,7 +679,7 @@ button:disabled {
   border: 0;
   padding: 2px 0;
   color: var(--link);
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .sel .ownform {
   display: flex;
@@ -658,7 +691,7 @@ button:disabled {
 .sel .ownform input {
   width: auto;
   padding: 3px 6px;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 .sel .ownform input[data-f='time'] {
   width: 70px;
@@ -668,12 +701,12 @@ button:disabled {
   align-items: center;
   gap: 6px;
   margin-top: 6px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .sel .grp input {
   flex: 1;
   padding: 4px 6px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   border: 1px solid var(--line);
   border-radius: 6px;
 }
@@ -682,14 +715,14 @@ button:disabled {
   border: none;
   background: none;
   color: var(--muted);
-  font-size: 16px;
+  font-size: var(--fs-md);
   padding: 0 4px;
 }
 .star {
   border: none;
   background: none;
   color: var(--faint);
-  font-size: 17px;
+  font-size: var(--fs-md);
   padding: 0 2px;
   line-height: 1;
 }
@@ -752,7 +785,7 @@ button:disabled {
 }
 .tabs .car {
   margin-left: 3px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 .dmenu {
   position: absolute;
@@ -777,7 +810,7 @@ button:disabled {
   min-height: 34px;
   padding: 0 10px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 .tabs .dmenu button.on {
   background: var(--accent-soft);
@@ -807,7 +840,7 @@ button:disabled {
   gap: 16px;
   align-items: center;
   margin-bottom: 10px;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 .controls label {
   display: inline-flex;
@@ -815,7 +848,7 @@ button:disabled {
   gap: 5px;
   margin: 0;
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 .seg {
   display: inline-flex;
@@ -846,7 +879,7 @@ button:disabled {
   padding: 3px 8px;
 }
 .flbl {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 .gseg {
@@ -861,7 +894,7 @@ button:disabled {
   background: var(--card);
   color: var(--ink);
   padding: 4px 12px;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 .gseg button + button {
   border-left: 1px solid var(--line);
@@ -876,7 +909,7 @@ button:disabled {
   border: 0;
   background: transparent;
   color: var(--link);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   padding: 2px 4px;
 }
 /* Filters op de pc even groot als de afstandsbalk (vanaf v75): tekst 14 px en vakjes 34 px hoog,
@@ -889,7 +922,7 @@ button:disabled {
   .controls select.agesel,
   .gseg button,
   .freset {
-    font-size: 14px;
+    font-size: var(--fs-base);
   }
   .controls .fgrp {
     min-height: 34px;
@@ -929,7 +962,7 @@ button:disabled {
   margin: 0;
   padding: 0 12px;
   background: var(--card);
-  font-size: 14px;
+  font-size: var(--fs-base);
   white-space: nowrap;
   color: var(--ink);
   cursor: pointer;
@@ -971,7 +1004,7 @@ button:disabled {
 table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 th,
 td {
@@ -990,7 +1023,7 @@ th.sortable:hover {
   color: var(--accent);
 }
 th {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   font-weight: 600;
   position: sticky;
@@ -1012,7 +1045,7 @@ th.num {
   align-items: center;
   gap: 8px;
   margin: 0 0 8px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--muted);
 }
 .prwho select {
@@ -1036,14 +1069,14 @@ th.num {
   text-align: center;
 }
 .status {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   min-height: 18px;
 }
 /* knop "Opnieuw proberen" in de statusregel */
 .status button.retry {
   padding: 1px 8px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   margin-left: 6px;
 }
 .best {
@@ -1051,7 +1084,7 @@ th.num {
 }
 .gain {
   color: var(--ok);
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .section {
   margin-top: 18px;
@@ -1059,13 +1092,13 @@ th.num {
 footer {
   padding: 6px 18px 30px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 a {
   color: var(--link);
 }
 .hint {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   margin-top: 6px;
 }
@@ -1086,7 +1119,10 @@ a {
     padding: 10px 14px;
   }
   header h1 {
-    font-size: 17px;
+    font-size: min(var(--fs-md), 18px); /* kopbalk moet op één regel blijven */
+  }
+  header .hbtns .theme {
+    font-size: min(var(--fs-base), 16px);
   }
   header > span:not(.ver) {
     display: none;
@@ -1133,7 +1169,7 @@ a {
     border: 0;
     background: transparent;
     color: var(--muted);
-    font-size: 11px;
+    font-size: min(var(--fs-xs), 13px);
     font-weight: 500;
   }
   .mtabs button.on {
@@ -1204,7 +1240,7 @@ a {
     width: auto;
     min-height: 36px;
     padding: 0;
-    font-size: 11px;
+    font-size: min(var(--fs-xs), 12px); /* 7 vakjes naast elkaar: groeit niet mee */
   }
   /* lange afstanden zitten op mobiel in de uitklapknop 3k+ (vanaf v73) */
   .tabs > .dlong {
@@ -1235,7 +1271,7 @@ a {
     justify-content: space-between;
     gap: 8px;
     margin-bottom: 6px;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--muted);
   }
   /* knop Filters: groter tikvlak met icoon (vanaf v64) */
@@ -1249,7 +1285,7 @@ a {
     background: var(--card);
     color: var(--ink);
     border-color: var(--line);
-    font-size: 14px;
+    font-size: min(var(--fs-sm), 16px);
   }
   .mbar button svg {
     width: 16px;
@@ -1260,7 +1296,7 @@ a {
     color: #fff;
     border-radius: 9px;
     padding: 0 6px;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     margin-left: 4px;
   }
   /* filters: alleen de statusregel blijft staan; de rest zit in een paneel dat van onderen opschuift */
@@ -1279,12 +1315,12 @@ a {
   .controls.open > .gseg button {
     flex: 1;
     min-height: 44px;
-    font-size: 14px;
+    font-size: var(--fs-base);
   }
   .controls.open > .freset:not([hidden]) {
     display: block;
     margin-top: 8px;
-    font-size: 14px;
+    font-size: var(--fs-base);
     min-height: 40px;
   }
   .controls.open .fgrp {
@@ -1293,7 +1329,7 @@ a {
     padding: 0;
   }
   .controls.open .flbl {
-    font-size: 14px;
+    font-size: var(--fs-sm);
     color: var(--ink);
     margin-right: auto;
   }
@@ -1302,7 +1338,7 @@ a {
   .viewopts label.sw {
     min-height: 36px;
     padding: 0 10px;
-    font-size: 12px;
+    font-size: min(var(--fs-sm), 14px); /* drie knoppen naast elkaar: groeit niet mee */
   }
   .controls.open {
     position: fixed;
@@ -1326,7 +1362,7 @@ a {
     justify-content: space-between;
     min-height: 48px;
     border-bottom: 1px solid var(--line);
-    font-size: 14px;
+    font-size: var(--fs-base);
   }
   .controls.open input[type='checkbox'] {
     width: 22px;
@@ -1337,7 +1373,7 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 18px;
+    font-size: var(--fs-md);
     font-weight: 700;
     padding: 4px 0 6px;
   }
@@ -1345,7 +1381,7 @@ a {
     border: 0;
     background: transparent;
     color: var(--ink);
-    font-size: 22px;
+    font-size: var(--fs-lg);
     min-width: 44px;
     min-height: 44px;
   }
@@ -1385,7 +1421,7 @@ a {
     background: var(--card);
     color: var(--ink);
     border: 1px solid var(--line);
-    font-size: 13px;
+    font-size: min(var(--fs-sm), 16px);
     font-weight: 500;
   }
   #mChips button.hl {
@@ -1458,13 +1494,13 @@ a {
   #prTable td.c-time {
     grid-column: 4;
     grid-row: 1;
-    font-size: 18px;
+    font-size: var(--fs-md);
   }
   #prTable td.c-date,
   #prTable td.c-age,
   #prTable td.c-loc {
     grid-row: 2;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--muted);
     text-align: left;
   }
@@ -1492,56 +1528,9 @@ a {
     background: var(--card);
     color: var(--ink);
     border-color: var(--line);
-    font-size: 12px;
+    font-size: min(var(--fs-sm), 15px);
     text-transform: none;
     letter-spacing: 0;
-  }
-  /* Lettergrootte op mobiel (vanaf v74): basistekst en invoervelden 15 px, kleine grijze tekst 13 px,
-     afstandsbalk, filterlabels en groepschips 12 px. Namen aan de grafieklijnen blijven 10 px; de tabbalk
-     onderin, de tabjes bij Toevoegen en de knoppen onder de grafiek houden hun maat (anders past het niet). */
-  body {
-    font-size: 15px;
-  }
-  input[type='text'],
-  input[type='date'],
-  select,
-  .res .birth select,
-  .sel .bsel select,
-  .sel .ownform select,
-  .sel .ownform input,
-  .sel .grp input {
-    font-size: 15px;
-  }
-  label,
-  .res .meta,
-  .newprs .meta,
-  .res .birth,
-  .birthhint,
-  .sel .meta,
-  .sel .rows,
-  .sel .birthlink,
-  .sel .born,
-  .sel .ownadd,
-  .sel .grp,
-  .mbar,
-  .status,
-  .status button.retry,
-  .hint,
-  footer,
-  th,
-  .gain,
-  .freset,
-  #prTable td.c-date,
-  #prTable td.c-age,
-  #prTable td.c-loc {
-    font-size: 13px;
-  }
-  .tabs button,
-  .mbar .count,
-  .flbl,
-  .sel .chip,
-  .mine .chip {
-    font-size: 12px;
   }
 }
 /* Telefoon liggend: alleen de grafiek over het hele scherm (vanaf v62 zonder kopbalk, filters

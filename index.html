@@ -38,7 +38,7 @@
     <header>
       <h1>Schaatsvergelijker</h1>
       <!-- Versienummer: bij elke nieuwe versie hier én in de voettekst bijwerken (zie versies/VERSIES.md) -->
-      <span class="ver" title="Versie v86 van 20-11-2026">v86</span>
+      <span class="ver" title="Versie v87 van 21-11-2026">v87</span>
       <span>PR-ontwikkeling per afstand, vergeleken op leeftijd</span>
       <span class="src"
         >Data:
@@ -47,7 +47,7 @@
         ></span
       >
       <!-- Knoppen rechts: installeren als app (alleen als de browser dat aanbiedt, vanaf v63), Mijn schaatsers
-           (alleen pc, vanaf v68), uitleg (ⓘ) en thema (vanaf v59 als icoon) -->
+           (alleen pc, vanaf v68), uitleg (ⓘ), tekstgrootte (Aa, vanaf v87) en thema (vanaf v59 als icoon) -->
       <div class="hbtns">
         <button
           type="button"
@@ -83,6 +83,14 @@
         </button>
         <button type="button" class="theme" id="infoBtn" title="Over deze tool" aria-label="Over deze tool">
           ⓘ
+        </button>
+        <button
+          type="button"
+          class="theme txt"
+          id="textBtn"
+          title="Tekstgrootte: normaal, groot of extra groot"
+        >
+          Aa
         </button>
         <button type="button" class="theme" id="themeBtn" title="Weergave: automatisch, licht of donker">
           ◐
@@ -452,7 +460,7 @@
     <footer>
       Data:
       <a href="https://speedskatingresults.com" target="_blank" rel="noopener">SpeedskatingResults.com</a>
-      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v86 (20-11-2026)
+      (Public API, niet-commercieel gebruik). · Schaatsvergelijker v87 (21-11-2026)
     </footer>
 
     <script src="data.js"></script>

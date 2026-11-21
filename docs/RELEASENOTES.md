@@ -2,9 +2,19 @@
 
 Overzicht van alle versies van de Schaatsvergelijker (tot v82 `schaatsvergelijker.html`, vanaf v83 `index.html` met `app.css`, `data.js` en `app.js`), nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v86** (20 november 2026)
+**Huidige versie: v87** (21 november 2026)
 
 ---
+
+## v87 – Grotere, consistente letters en instelbare tekstgrootte (21-11-2026)
+- Alle tekst gebruikt nu vijf vaste maten. Op de telefoon: 16 px voor gewone tekst, invoervelden, tabellen en knoppen; 14 px voor grijze toelichting, labels en kaartkopjes; 12 px voor kleine dingen als chips en de tabbalk; 18 px voor de titel en de PR-tijden. Op de pc 14/12/11/16 px.
+- Kaartkopjes, tabellen, de introtekst en meldingen waren op de telefoon kleiner dan de gewone tekst (13 tegen 15 px); dat is rechtgezet.
+- Invoervelden zijn op de telefoon 16 px, waardoor iPhone niet meer inzoomt als je in een veld tikt.
+- Nieuwe knop **Aa** in de kopbalk: wisselt tussen tekstgrootte normaal, groot (×1,15) en extra groot (×1,3). De keuze wordt in de browser bewaard.
+- De grafiek groeit mee: astekst en de namen aan de lijnen (die waren vast 10 px).
+- Plekken met weinig ruimte groeien niet of beperkt mee: de afstandsbalk, de knoppen onder de grafiek, de kopbalk en de tabbalk onderin.
+- Knoppen in een kaartkop breken niet meer midden in hun tekst, maar schuiven als geheel naar een tweede regel.
+- Cache van de service worker verhoogd naar v87.
 
 ## v86 – Nieuwe PR's van Mijn schaatsers (20-11-2026)
 - Bij het openen controleert de app of je eigen schaatsers (Mijn schaatsers) sinds je vorige bezoek een nieuw PR hebben gereden. Zo ja, dan verschijnt er een melding met **Bekijken** en een rood getal op de knop Mijn schaatsers (pc: kopbalk; telefoon: balk onderin).
