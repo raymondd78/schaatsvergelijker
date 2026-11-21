@@ -226,15 +226,16 @@ header .hbtns .theme {
   display: flex;
   margin-bottom: 10px;
 }
-/* vier tabjes (vanaf v67): kleiner en over de volle breedte, zodat ze naast elkaar passen
-   (.gseg.addtabs: gaat voor de algemene opmaak van .gseg verderop) */
+/* tabjes Zoeken / Uit lijst / Bestand over de volle breedte (vanaf v67); vanaf v88 even groot als de
+   afstandsbalk: zelfde lettergrootte en hoogte (.gseg.addtabs: gaat voor de algemene opmaak van .gseg) */
 .gseg.addtabs {
   width: 100%;
 }
 .gseg.addtabs button {
   flex: 1 1 auto;
-  padding: 4px 4px;
-  font-size: min(var(--fs-sm), 15px);
+  min-height: 32px;
+  padding: 0 4px;
+  font-size: var(--fs-base);
   white-space: nowrap;
 }
 .row[hidden] {
@@ -1241,6 +1242,11 @@ a {
     min-height: 36px;
     padding: 0;
     font-size: min(var(--fs-xs), 12px); /* 7 vakjes naast elkaar: groeit niet mee */
+  }
+  /* tabjes bij Toevoegen: even hoog als de afstandsbalk (vanaf v88) */
+  .gseg.addtabs button {
+    min-height: 36px;
+    font-size: min(var(--fs-sm), 15px);
   }
   /* lange afstanden zitten op mobiel in de uitklapknop 3k+ (vanaf v73) */
   .tabs > .dlong {

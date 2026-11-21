@@ -2,9 +2,13 @@
 
 Overzicht van alle versies van de Schaatsvergelijker (tot v82 `schaatsvergelijker.html`, vanaf v83 `index.html` met `app.css`, `data.js` en `app.js`), nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v87** (21 november 2026)
+**Huidige versie: v88** (21 november 2026)
 
 ---
+
+## v88 – Tabjes bij Toevoegen even groot als de afstandsbalk (21-11-2026)
+- De tabjes **Zoeken / Uit lijst / Bestand** hebben nu dezelfde maat als de afstandsbalk: op de pc 14 px tekst en 32 px hoog (was 12 px en 28 px), op de telefoon 36 px hoog.
+- Cache van de service worker verhoogd naar v88.
 
 ## v87 – Grotere, consistente letters en instelbare tekstgrootte (21-11-2026)
 - Alle tekst gebruikt nu vijf vaste maten. Op de telefoon: 16 px voor gewone tekst, invoervelden, tabellen en knoppen; 14 px voor grijze toelichting, labels en kaartkopjes; 12 px voor kleine dingen als chips en de tabbalk; 18 px voor de titel en de PR-tijden. Op de pc 14/12/11/16 px.
