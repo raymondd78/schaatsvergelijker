@@ -2,9 +2,16 @@
 
 Overzicht van alle versies van de Schaatsvergelijker (tot v82 `schaatsvergelijker.html`, vanaf v83 `index.html` met `app.css`, `data.js` en `app.js`), nieuwste eerst. De technische logregels per versie staan in `versies/VERSIES.md`; daar staan ook de bestandsnamen om een oude versie terug te zetten.
 
-**Huidige versie: v88** (21 november 2026)
+**Huidige versie: v89** (21 november 2026)
 
 ---
+
+## v89 – Geen onhandige tussenweergave meer (21-11-2026)
+- Tussen 800 en 900 px breed stond de grafiek onder de kaartjes. Nu staat hij vanaf 800 px altijd ernaast; onder 800 px blijft de mobiele weergave.
+- Tussen 900 en ± 1170 px stak de afstandsbalk rechts uit de kaart en schoof de hele pagina opzij. Onder 1200 px loopt de balk nu over de breedte van de grafiek, met korte labels (100, 500, …) en de lange afstanden onder **3k+**, net als op de telefoon.
+- Tussen 800 en 1000 px is de linkerkolom iets smaller (300 in plaats van 340 px) en valt de ondertitel in de kopbalk weg, zodat de grafiek ruimte houdt en de knoppen rechtsboven op één regel blijven.
+- Vanaf 1200 px verandert er niets.
+- Cache van de service worker verhoogd naar v89.
 
 ## v88 – Tabjes bij Toevoegen even groot als de afstandsbalk (21-11-2026)
 - De tabjes **Zoeken / Uit lijst / Bestand** hebben nu dezelfde maat als de afstandsbalk: op de pc 14 px tekst en 32 px hoog (was 12 px en 28 px), op de telefoon 36 px hoog.

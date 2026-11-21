@@ -371,7 +371,7 @@ header .hbtns .theme {
 .tabs button.nodata:not(.on) {
   color: var(--faint);
 }
-/* afstandslabel: voluit op desktop, kort (3k, 5k, 10k) op mobiel (vanaf v64) */
+/* afstandslabel: voluit op een breed scherm, kort (100, 3k+, 5k) onder 1200 px (vanaf v64 mobiel, vanaf v89 < 1200 px) */
 .tabs .ds {
   display: none;
 }
@@ -441,10 +441,15 @@ main > section,
 main > aside {
   min-width: 0;
 }
-/* Smal scherm (telefoon/tablet): kolommen onder elkaar */
-@media (max-width: 900px) {
+/* Smal venster (800–999 px, vanaf v89): linkerkolom iets smaller, zodat de grafiek ruimte houdt. De oude
+   regel "onder 900 px alles onder elkaar" is vervallen; onder 800 px geldt de mobiele weergave. */
+@media (max-width: 999px) {
   main {
-    grid-template-columns: 1fr;
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+  /* ondertitel weg, zodat de knoppen in de kopbalk op dezelfde regel blijven */
+  header > span:not(.ver):not(.src) {
+    display: none;
   }
 }
 /* ===== Blokken (kaarten) ===== */
@@ -735,9 +740,9 @@ button:disabled {
 }
 /* ===== Afstand-tabbladen en de rij met opties boven de grafiek ===== */
 /* Afstandsbalk (vanaf v72): één segmentbalk met de afstanden en als laatste vakje ANS.
-   Pc (vanaf v73): knoppen van normaal formaat met een vaste breedte, alle negen afstanden los; de balk
-   loopt niet over de hele breedte. Mobiel: over de hele breedte, met 3000/5000/10000 in de uitklapknop
-   3k+. ANS heeft een vaste inhoud, zodat er niets verschuift als je een lange afstand kiest of ANS aanzet. */
+   Pc vanaf 1200 px (vanaf v73): knoppen van normaal formaat met een vaste breedte, alle negen afstanden
+   los; de balk loopt niet over de hele breedte. Smaller dan 1200 px (vanaf v89) en mobiel: over de hele
+   breedte, met 3000/5000/10000 in de uitklapknop 3k+. ANS heeft een vaste inhoud, zodat er niets verschuift als je een lange afstand kiest of ANS aanzet. */
 .tabs {
   display: inline-flex;
   vertical-align: top;
@@ -834,6 +839,37 @@ button:disabled {
 }
 .tabs .dmenu .chk {
   margin: 0 0 0 8px;
+}
+/* Venster smaller dan 1200 px (ook mobiel; vanaf v89): de balk van negen vaste vakjes past dan niet naast
+   de kaartjes. Daarom over de hele breedte, met meekrimpende vakjes, korte labels (100, 500, …) en
+   3000/5000/10000 in de uitklapknop 3k+. Mobiel zet hieronder alleen nog hoogte en lettergrootte. */
+@media (max-width: 1199px) {
+  .tabs {
+    display: flex;
+  }
+  .tabs button {
+    flex: 1 1 0;
+    width: auto;
+    font-size: min(var(--fs-base), 14px); /* moet passen: groeit niet mee met Aa */
+  }
+  .tabs > .dlong {
+    display: none;
+  }
+  .tabs .dmore {
+    display: flex;
+  }
+  .tabs .ansseg {
+    padding: 0 10px;
+  }
+  .tabs .car {
+    margin-left: 1px;
+  }
+  .tabs .dl {
+    display: none;
+  }
+  .tabs .ds {
+    display: inline;
+  }
 }
 .controls {
   display: flex;
@@ -1135,6 +1171,7 @@ a {
     bottom: 84px; /* boven de tabbalk */
   }
   main {
+    grid-template-columns: minmax(0, 1fr);
     padding: 10px;
     gap: 10px;
   }
@@ -1231,14 +1268,12 @@ a {
   body[data-mtab='tables'] #prCard {
     margin-top: 10px;
   }
-  /* afstandsbalk op mobiel: hogere vakjes en korte labels (100, 3k+, 5k, …) (vanaf v64; v72 alleen maten) */
+  /* afstandsbalk op mobiel: hogere vakjes en kleinere letters (vanaf v64; vanaf v89 staan de korte labels
+     en 3k+ in de regel voor < 1200 px hierboven) */
   .tabs {
-    display: flex;
     margin: 0 0 8px;
   }
   .tabs button {
-    flex: 1 1 0;
-    width: auto;
     min-height: 36px;
     padding: 0;
     font-size: min(var(--fs-xs), 12px); /* 7 vakjes naast elkaar: groeit niet mee */
@@ -1248,27 +1283,8 @@ a {
     min-height: 36px;
     font-size: min(var(--fs-sm), 15px);
   }
-  /* lange afstanden zitten op mobiel in de uitklapknop 3k+ (vanaf v73) */
-  .tabs > .dlong {
-    display: none;
-  }
-  .tabs .dmore {
-    display: flex;
-  }
-  .tabs .ansseg {
-    flex: 0 0 auto;
-  }
   .tabs .ansseg {
     padding: 0 7px;
-  }
-  .tabs .car {
-    margin-left: 1px;
-  }
-  .tabs .dl {
-    display: none;
-  }
-  .tabs .ds {
-    display: inline;
   }
   /* regel boven de grafiek: samenvatting filters + knop Filters */
   .mbar {
